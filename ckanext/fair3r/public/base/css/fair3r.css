@@ -1,0 +1,91 @@
+:root{
+    --fair3r-main-color: #fadb21;
+}
+
+@font-face {
+    font-family: 'Passion One';
+    src: url('../../../base/vendor/google-fonts/webfonts/PassionOne-Black.ttf') format("truetype"),
+         url('../../../base/vendor/google-fonts/webfonts/PassionOne-Bold.ttf') format("truetype"),
+         url('../../../base/vendor/google-fonts/webfonts/PassionOne-Regular.ttf') format("truetype");
+}
+
+
+.passion-one-regular {
+  font-family: "Passion One", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.passion-one-bold {
+  font-family: "Passion One", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.passion-one-black {
+  font-family: "Passion One", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.homepage .hero{
+    background: unset;
+}
+
+@font-face {
+    font-family: 'Chivo';
+    src: url('../../../base/vendor/google-fonts/webfonts/Chivo-Black.ttf') format("truetype");
+}
+
+.chivo-bold {
+  font-family: "Chivo", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.huge-title{
+    font-family: "Chivo", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 900;
+    font-style: normal;
+    font-size: 70px;
+}
+
+.fair3r-huge{
+    color: var(--fair3r-main-color);
+    font-size: 80px;
+}
+
+.secondary-big-title{
+    color: gray;
+}
+
+.secondary-medium-text{
+    font-size: 17px;
+    color: #514f4f
+}
+
+.module-content.search-form{
+    padding: 0;
+}
+
+.heading.search-title{
+    font-weight: 500;
+}
+
+@media (min-width: 50em) {
+  .homepage .hero {
+    background: url("../../../base/images/fair3r_home_wallpaper.png") no-repeat;
+    background-size: 90% auto;
+    background-position: 444%;
+  }
+}
+
+@media (min-width: 64em) {
+  .homepage .hero {
+    background: url("../../../base/images/fair3r_home_wallpaper.png") no-repeat;
+    background-size: 55% auto;
+    background-position: 110%;
+  }
+}
