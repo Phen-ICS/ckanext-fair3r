@@ -1,5 +1,5 @@
 :root{
-    --fair3r-main-color: #fadb21;
+    --fair3r-main-color: #1aa1f2;
 }
 
 @font-face {
@@ -89,3 +89,54 @@
     background-position: 110%;
   }
 }
+
+.account-masthead{
+    background: #d0d0d0;
+}
+
+.account-masthead .account ul li{
+    border-left: unset;
+}
+
+.account-masthead .account ul li a{
+    color: black;
+}
+
+.account-masthead .account .notifications a span.badge{
+    background-color: var(--fair3r-main-color);
+    color: black;
+}
+
+.masthead{
+    background: #f9f9f9;
+}
+
+.masthead .main-navbar ul li a{
+    color: black;
+    font-size: 16px;
+}
+
+.masthead .navbar .logo img{
+    max-height: 80px;
+}
+
+.masthead .main-navbar ul li a:hover{
+    background: #e5e5e5;
+}
+
+.masthead .main-navbar ul li.active a{
+    background-color: #595959;
+    color: white;
+}
+
+.navbar-light .navbar-toggler{
+    color: rgba(0, 0, 0, 0.3);
+    border-color: rgba(0, 0, 0, 0.3);
+}
+
+.navbar-light .navbar-toggler span.text-white{
+    color: unset !important;
+}
+
+
+
