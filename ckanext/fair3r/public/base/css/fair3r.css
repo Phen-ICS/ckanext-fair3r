@@ -56,12 +56,12 @@ a{
     font-optical-sizing: auto;
     font-weight: 900;
     font-style: normal;
-    font-size: 70px;
+    font-size: 60px;
 }
 
 .fair3r-huge{
     color: var(--fair3r-main-color);
-    font-size: 80px;
+    font-size: 70px;
 }
 
 .secondary-big-title{
@@ -97,8 +97,8 @@ a{
 @media (min-width: 64em) {
   .homepage .hero {
     background: url("../../../base/images/fair3r_home_wallpaper.png") no-repeat;
-    background-size: 55% auto;
-    background-position: 110%;
+    background-size: 45% auto;
+    background-position: 90%;
   }
 }
 
