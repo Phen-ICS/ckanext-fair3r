@@ -204,4 +204,21 @@ a{
     color: var(--fair3r-link-color);
 }
 
+.dev-badge{
+    background-color: #fbd12f;
+    font-weight: bold;
+    padding: 6px;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.demo-badge{
+    background-color: #2f92fb;
+    font-weight: bold;
+    padding: 6px;
+    color: white;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
 

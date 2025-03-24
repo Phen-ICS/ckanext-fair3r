@@ -16,5 +16,6 @@ setup(
     entry_points = """
         [ckan.plugins]
         fair3r=ckanext.fair3r.plugin:Fair3RPlugin
-    """
+    """,
+    version="1.0.0"
 )
