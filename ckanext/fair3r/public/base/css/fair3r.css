@@ -1,5 +1,12 @@
 :root{
-    --fair3r-main-color: #1aa1f2;
+    --fair3r-main-color: #1da2f1;
+    --fair3r-secondary-color: #03ca76;
+    --fair3r-light-gray: #f9f9f9;
+    --fair3r-link-color: #11689f;
+}
+
+a{
+    color: var(--fair3r-main-color);
 }
 
 @font-face {
@@ -66,6 +73,11 @@
     color: #514f4f
 }
 
+.secondary-text{
+    font-size: 15px;
+    color: #514f4f
+}
+
 .module-content.search-form{
     padding: 0;
 }
@@ -121,7 +133,7 @@
 }
 
 .masthead .main-navbar ul li a:hover{
-    background: #e5e5e5;
+    background: var(--fair3r-light-gray);
 }
 
 .masthead .main-navbar ul li.active a{
@@ -138,5 +150,58 @@
     color: unset !important;
 }
 
+.featured-add-data-box{
+    min-height: 300px;
+    display: grid;
+    place-items: center;
+    color: var(--fair3r-secondary-color);
+    text-align: center;
+}
+
+.featured-add-data-box .featured-content{
+    display: grid;
+    place-items: center;
+    min-height: 200px;
+}
+
+.text-black{
+    color: black;
+}
+
+.site-footer{
+    background: var(--fair3r-light-gray);
+}
+
+.site-footer strong{
+    color: gray;
+}
+
+.site-footer label{
+    color: gray;
+}
+
+.btn-primary{
+    background-color: #66ec87;
+    color: black;
+}
+
+.btn-primary:hover{
+    background-color: #255230;
+    color: white;
+}
+
+.ics-footer-logo {
+    display: block;
+    width: 68px;
+    height: 31px;
+    margin-top: 2px;
+    background: url("../../../base/images/ics.png") no-repeat top left;
+    text-indent: -900em;
+    background-size: 80%;
+}
+
+.site-footer a{
+    color: var(--fair3r-link-color);
+}
 
 
