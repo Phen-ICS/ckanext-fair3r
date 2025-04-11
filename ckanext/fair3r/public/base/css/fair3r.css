@@ -212,6 +212,14 @@ a{
     font-size: 16px;
 }
 
+.dev-badge{
+    background-color: #8bf4a6;
+    font-weight: bold;
+    padding: 6px;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
 .demo-badge{
     background-color: #2f92fb;
     font-weight: bold;
