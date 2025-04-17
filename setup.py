@@ -17,5 +17,5 @@ setup(
         [ckan.plugins]
         fair3r=ckanext.fair3r.plugin:Fair3RPlugin
     """,
-    version="1.0.4"
+    version="1.0.5"
 )
