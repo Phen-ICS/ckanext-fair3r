@@ -1,0 +1,25 @@
+{% set current_lang = request.environ.CKAN_LANG %}
+<div class="row row-cols-auto flag-box">
+  {% for locale in h.get_available_locales() %}
+        {% if locale.short_name == "fr" %}
+              <div class="col flag-col">
+                  <div class="flag-link" onclick="window.location.href='{% url_for h.current_url(), locale=locale.short_name %}';">
+                      <div class="french-flag">
+                          <div class="stripe blue"></div>
+                          <div class="stripe white"></div>
+                          <div class="stripe red"></div>
+                      </div>
+                  </div>
+              </div>
+        {% endif %}
+        {% if locale.short_name == "en" %}
+            <div class="col flag-col">
+                <div class="flag-link" onclick="window.location.href='{% url_for h.current_url(), locale=locale.short_name %}';">
+                    <div class="uk-flag"></div>
+                </div>
+            </div>
+        {% endif %}
+  {% endfor %}
+</div>
+
+

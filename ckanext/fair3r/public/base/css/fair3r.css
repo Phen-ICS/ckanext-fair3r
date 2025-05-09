@@ -102,6 +102,18 @@ a{
   }
 }
 
+.flag-link{
+    padding: unset;
+    text-align: center;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.flag-box{
+    padding-right: 20px;
+    margin-top: 3px;
+}
+
 .account-masthead{
     background: #d0d0d0;
 }
@@ -227,6 +239,32 @@ a{
     color: white;
     border-radius: 5px;
     font-size: 16px;
+}
+
+.flag-col{
+    padding: 4px;
+}
+
+.french-flag {
+      margin-top: 1px;
+      width: 30px;
+      height: 14px;
+      display: flex;
+}
+.stripe {
+  flex: 1;
+  height: 100%;
+}
+.blue { background: #0055A4; }
+.white { background: #FFFFFF; }
+.red { background: #EF4135; }
+
+.uk-flag {
+  width: 30px;
+  height: 16px;
+  background-size: cover;
+  background-image: url('https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg');
+  border: 1px solid #ccc;
 }
 
 
