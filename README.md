@@ -43,6 +43,24 @@ To install ckanext-fair3r:
 	# The app context (could be DEV, DEMO, or nothing)
 	ckanext.fair3r.some_setting = DEV
 
+## Features
+
+### HTML Emails
+
+This extension enhances CKAN's email functionality by providing HTML emails for system notifications:
+
+- Password reset emails
+- User invitation emails
+
+The HTML emails are more visually appealing and include:
+
+- Responsive design that works on desktop and mobile devices
+- Styled buttons for better user experience
+- Clear formatting to improve readability
+- Modern, professional appearance
+
+For more details on how this feature works, see the [HTML Email documentation](ckanext/fair3r/lib/README.md).
+
 
 ## Developer installation
 

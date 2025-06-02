@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans %}Invite for {{ site_title }}{% endtrans %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header img {
+            max-width: 200px;
+            height: auto;
+        }
+        .content {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #0072bc;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .button:hover {
+            background-color: #005a93;
+        }
+        .info-box {
+            background-color: #e8f4fc;
+            border-left: 4px solid #0072bc;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 3px;
+        }
+        .footer {
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="{{ site_url }}/base/images/fair3r_logo.png" alt="{{ site_title }}">
+    </div>
+    
+    <div class="content">
+        <h2>{% trans %}Welcome to {{ site_title }}{% endtrans %}</h2>
+        
+        <p>{% trans %}You have been invited to join {{ site_title }}.{% endtrans %}</p>
+        
+        <div class="info-box">
+            <p>{% trans %}A user account has already been created for you with the username <strong>{{ user_name }}</strong>. You can change it later.{% endtrans %}</p>
+            
+            {% if group_title %}
+            <p>{% trans %}You have been added to the {{ group_type }} <strong>{{ group_title }}</strong> with the following role: <strong>{{ role_name }}</strong>.{% endtrans %}</p>
+            {% endif %}
+        </div>
+        
+        <p>{% trans %}To accept this invitation and set your password, please click the button below:{% endtrans %}</p>
+        
+        <p style="text-align: center;">
+            <a href="{{ reset_link }}" class="button">{% trans %}Accept Invitation{% endtrans %}</a>
+        </p>
+        
+        <p>{% trans %}If the button above doesn't work, you can also copy and paste the following link into your browser:{% endtrans %}</p>
+        
+        <p style="word-break: break-all; background-color: #eee; padding: 10px; border-radius: 3px;">
+            {{ reset_link }}
+        </p>
+        
+        <p>{% trans %}Have a nice day.{% endtrans %}</p>
+    </div>
+    
+    <div class="footer">
+        <p>{% trans %}Message sent by {{ site_title }} ({{ site_url }}){% endtrans %}</p>
+        <p>{% trans %}If you didn't expect this invitation, please ignore this email.{% endtrans %}</p>
+    </div>
+</body>
+</html>
