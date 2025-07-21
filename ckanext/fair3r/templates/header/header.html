@@ -1,0 +1,12 @@
+{% extends "header/base.html" %}
+
+{% block header_site_navigation_tabs %}
+  {{ super() }}
+  {% if c.user %}
+    <li>
+      <a href="{{ config.get('ckanext.fair3r.fco_url', 'http://localhost:8080') }}" target="_blank" title="{{ _('Open Fair3R Custom Overlay') }}">
+        <i class="fa fa-external-link"></i> {{ _('FCO Dashboard') }}
+      </a>
+    </li>
+  {% endif %}
+{% endblock %} 

@@ -1,0 +1,1 @@
+# Blueprints package for ckanext-fair3r 

@@ -2,11 +2,13 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckan.lib.mailer as ckan_mailer
 from ckanext.fair3r.lib import mailer as fair3r_mailer
+from ckanext.fair3r.blueprints.fco_integration import fco_integration
 
 
 class Fair3RPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.IBlueprint)
 
 
     # IConfigurer
@@ -34,3 +36,9 @@ class Fair3RPlugin(plugins.SingletonPlugin):
         """
         ckan_mailer.send_reset_link = fair3r_mailer.send_reset_link
         ckan_mailer.send_invite = fair3r_mailer.send_invite
+
+    # IBlueprint
+
+    def get_blueprint(self):
+        """Register the FCO integration blueprint."""
+        return [fco_integration]
