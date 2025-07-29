@@ -14,7 +14,7 @@ import logging
 import time
 from urllib.parse import urlencode
 
-from flask import Blueprint, current_app, redirect, request, session, url_for
+from flask import Blueprint, current_app, redirect, request, session, url_for, jsonify
 import ckan.plugins.toolkit as toolkit
 from ckan.lib import helpers as h
 from ckan.model import User
@@ -66,7 +66,7 @@ def _get_user_api_token(user):
         str: API token
     """
     try:
-        # Create context for API actions - need to use ignore_auth for system actions
+        # Create context for API actions - need to use ignore_auth for system operations
         context = {
             'ignore_auth': True  # Required for system operations
         }
@@ -75,7 +75,7 @@ def _get_user_api_token(user):
         try:
             api_tokens = toolkit.get_action('api_token_list')(context, {'user_id': user.id})
             
-            # Look for existing FCO Integration token
+            # Look for existing FCO Integration token and revoke it
             fco_token = None
             for token in api_tokens:
                 if isinstance(token, dict) and token.get('name') == 'FCO Integration Token':
@@ -83,8 +83,13 @@ def _get_user_api_token(user):
                     break
             
             if fco_token and 'id' in fco_token:
-                log.debug(f"Found existing FCO Integration token for user {user.name}")
-                return fco_token['id']
+                log.debug(f"Found existing FCO Integration token for user {user.name}, revoking it")
+                # Revoke the existing token
+                try:
+                    toolkit.get_action('api_token_revoke')(context, {'jti': fco_token['id']})
+                    log.debug(f"Successfully revoked existing FCO Integration token for user {user.name}")
+                except Exception as e:
+                    log.warning(f"Could not revoke existing token: {e}")
                 
         except Exception as e:
             log.debug(f"Could not list existing tokens (will create new FCO token): {e}")
@@ -211,8 +216,8 @@ def fco_status():
             'user_authenticated': bool(toolkit.c.user)
         }
         
-        return toolkit.jsonify(status)
+        return jsonify(status)
         
     except Exception as e:
         log.error(f"Error in FCO status check: {e}")
-        return toolkit.jsonify({'error': str(e)}), 500 
+        return jsonify({'error': str(e)}), 500 
