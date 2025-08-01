@@ -24,6 +24,17 @@ log = logging.getLogger(__name__)
 fco_integration = Blueprint('fco_integration', __name__)
 
 
+def _asbool(value):
+    """Convert common string representations of truthy / falsy values to bools."""
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return value.strip().lower() in ('true', '1', 'yes', 'on')
+    return bool(value)
+
+
 def _generate_secure_token(user_data, shared_secret):
     """
     Generate a secure token for transmitting user data to FCO.
@@ -118,23 +129,63 @@ def _get_user_api_token(user):
 
 
 @fco_integration.route('/dataset/new')
+def dataset_creation_choice():
+    """
+    Show dataset creation choice page.
+    
+    This route shows a choice between standard CKAN form and FCO interface.
+    Only superadmins can see the FCO option.
+    """
+    # Evaluate configuration flags
+    enable_fco = _asbool(toolkit.config.get('ckanext.fair3r.enable_fco_integration', False))
+    context_env = (toolkit.config.get('ckanext.fair3r.context', '') or '').lower()
+
+    # If the integration is disabled just fall back to the normal CKAN flow
+    if not enable_fco:
+        from ckan.views.dataset import CreateView
+        return CreateView().get(package_type='dataset')
+
+    # In production we always redirect to FCO and skip the choice page completely
+    if context_env in ('prod', 'production'):
+        return toolkit.redirect_to('fco_integration.redirect_to_fco_dataset_creation')
+
+    # Make sure the user is logged in before showing the choice page
+    if not toolkit.c.user:
+        return toolkit.redirect_to('user.login')
+
+    # Render the choice template with necessary context
+    return toolkit.render('package/creation_choice.html', {
+        'pkg_dict': None,
+        'dataset_type': 'dataset'
+    })
+
+
+@fco_integration.route('/dataset/new/fco')
 def redirect_to_fco_dataset_creation():
     """
-    Intercept dataset creation requests and redirect to FCO.
+    Redirect to FCO for dataset creation.
     
-    This route intercepts the standard CKAN dataset creation page and redirects
-    authenticated users to the Fair3R Custom Overlay application for enhanced
-    dataset creation functionality.
+    This route redirects authenticated users to the Fair3R Custom Overlay 
+    application for enhanced dataset creation functionality.
     """
     # Check if FCO integration is enabled
     if not toolkit.config.get('ckanext.fair3r.enable_fco_integration', False):
         # If disabled, proceed with normal CKAN dataset creation
-        return toolkit.render('package/new.html')
+        from ckan.views.dataset import CreateView
+        return CreateView().get(package_type='dataset')
     
     # Check if user is authenticated
     if not toolkit.c.user:
         # Redirect to login if not authenticated
         return toolkit.redirect_to('user.login')
+    
+    # Allow everyone in production, otherwise restrict to superadmins
+    context_env = (toolkit.config.get('ckanext.fair3r.context', '') or '').lower()
+    from ckan.model import User
+    user = User.get(toolkit.c.user)
+    if context_env not in ('prod', 'production') and (not user or not user.sysadmin):
+        log.warning(f"Non-superadmin user {toolkit.c.user} attempted to access FCO")
+        return toolkit.redirect_to('fco_integration.dataset_creation_choice')
     
     try:
         # Get FCO configuration
@@ -144,12 +195,6 @@ def redirect_to_fco_dataset_creation():
         if not fco_url or not shared_secret:
             log.error("FCO integration not properly configured")
             raise RuntimeError("FCO integration not properly configured")
-        
-        # Get current user information
-        user = User.get(toolkit.c.user)
-        if not user:
-            log.error(f"User {toolkit.c.user} not found")
-            raise LookupError(f"User {toolkit.c.user} not found")
         
         # Get or create API token
         api_token = _get_user_api_token(user)
@@ -180,7 +225,7 @@ def redirect_to_fco_dataset_creation():
         
         fco_redirect_url = f"{fco_url}/ckan/integration?{urlencode(redirect_params)}"
         
-        log.info(f"Redirecting user {user.name} to FCO for dataset creation")
+        log.info(f"Redirecting superadmin user {user.name} to FCO for dataset creation")
         return redirect(fco_redirect_url)
         
     except Exception as e:
@@ -195,6 +240,18 @@ def ckan_dataset_creation():
     
     This route allows users to access the standard CKAN dataset creation
     interface even when FCO integration is enabled.
+    """
+    from ckan.views.dataset import CreateView
+    return CreateView().get(package_type='dataset')
+
+
+@fco_integration.route('/dataset/new/standard')
+def standard_dataset_creation():
+    """
+    Direct access to standard CKAN dataset creation.
+    
+    This route provides direct access to the standard CKAN dataset creation
+    interface, bypassing the choice page.
     """
     from ckan.views.dataset import CreateView
     return CreateView().get(package_type='dataset')

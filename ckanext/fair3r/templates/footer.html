@@ -15,11 +15,11 @@
               <li><a href="{{ api_url }}">{{ _('CKAN API') }}</a></li>
               <li><a href="http://www.ckan.org/">{{ _('CKAN Association') }}</a></li>
               <li>        
-                <a href="https://www.celphedia.eu"><img src="..//base/images/logo-celphedia.svg" alt="Celphedia Logo" style="height: 40px;background-color: white;"></a>
-                <a href="https://www.fc3r.com"><img src="..//base/images/logo-FC3R.svg" alt="FC3R Logo" style="height: 40px;background-color: white;"></a>
-                <a href="https://www.cnrs.fr"><img src="..//base/images/logo-cnrs.svg" alt="CNRS Logo" style="height: 40px;background-color: white;"></a>
-                <a href="https://www.inserm.fr"><img src="..//base/images/logo-inserm.svg" alt="INSERM Logo" style="height: 40px;background-color: white;"></a>
-                <a href="https://www.unistra.fr"><img src="..//base/images/logo-unistra.svg" alt="unistra Logo" style="height: 40px;background-color: white;"></a>
+                <a href="https://www.celphedia.eu"><img src="{{ h.url_for_static('/base/images/logo-celphedia.svg') }}" alt="Celphedia Logo" style="height: 40px;background-color: white;"></a>
+                <a href="https://www.fc3r.com"><img src="{{ h.url_for_static('/base/images/logo-FC3R.svg') }}" alt="FC3R Logo" style="height: 40px;background-color: white;"></a>
+                <a href="https://www.cnrs.fr"><img src="{{ h.url_for_static('/base/images/logo-cnrs.svg') }}" alt="CNRS Logo" style="height: 40px;background-color: white;"></a>
+                <a href="https://www.inserm.fr"><img src="{{ h.url_for_static('/base/images/logo-inserm.svg') }}" alt="INSERM Logo" style="height: 40px;background-color: white;"></a>
+                <a href="https://www.unistra.fr"><img src="{{ h.url_for_static('/base/images/logo-unistra.svg') }}" alt="unistra Logo" style="height: 40px;background-color: white;"></a>
               </li>
               <li><a href="http://www.opendefinition.org/okd/"><img src="{{ h.url_for_static('/base/images/od_80x15_blue.png') }}" alt="Open Data"></a></li>
             {% endblock %}

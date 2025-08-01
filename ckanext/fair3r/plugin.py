@@ -23,12 +23,22 @@ class Fair3RPlugin(plugins.SingletonPlugin):
 
     def get_helpers(self):
         return {
-            'get_fair3r_context': self.get_fair3r_context
+            'get_fair3r_context': self.get_fair3r_context,
+            'is_superadmin': self.is_superadmin
         }
 
     def get_fair3r_context(self):
         """Fetch the fair3r context from the configuration"""
         return toolkit.config.get('ckanext.fair3r.context', None)
+
+    def is_superadmin(self):
+        """Check if the current user is a superadmin"""
+        if not toolkit.c.user:
+            return False
+        
+        from ckan.model import User
+        user = User.get(toolkit.c.user)
+        return user and user.sysadmin
 
     def _override_mailer_functions(self):
         """
