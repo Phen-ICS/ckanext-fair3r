@@ -3,6 +3,9 @@
     --fair3r-secondary-color: #03ca76;
     --fair3r-light-gray: #f9f9f9;
     --fair3r-link-color: #11689f;
+    --fair3r-border-radius: 8px;
+    --fair3r-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    --fair3r-shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
 }
 
 a{
@@ -115,7 +118,8 @@ a{
 }
 
 .account-masthead{
-    background: #d0d0d0;
+    background: var(--fair3r-light-gray);
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .account-masthead .account ul li{
@@ -123,7 +127,13 @@ a{
 }
 
 .account-masthead .account ul li a{
-    color: black;
+    color: #333;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.account-masthead .account ul li a:hover{
+    color: var(--fair3r-main-color);
 }
 
 .account-masthead .account .notifications a span.badge{
@@ -132,25 +142,32 @@ a{
 }
 
 .masthead{
-    background: #f9f9f9;
+    background: white;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .masthead .main-navbar ul li a{
-    color: black;
+    color: #333;
     font-size: 16px;
+    font-weight: 500;
+    padding: 12px 16px;
+    border-radius: var(--fair3r-border-radius);
+    transition: all 0.3s ease;
 }
 
 .masthead .navbar .logo img{
-    max-height: 80px;
+    max-height: 60px;
 }
 
 .masthead .main-navbar ul li a:hover{
     background: var(--fair3r-light-gray);
+    transform: translateY(-1px);
 }
 
 .masthead .main-navbar ul li.active a{
     background-color: #595959;
     color: white;
+    box-shadow: var(--fair3r-shadow);
 }
 
 .navbar-light .navbar-toggler{
@@ -168,20 +185,81 @@ a{
     place-items: center;
     color: var(--fair3r-secondary-color);
     text-align: center;
+    border-radius: var(--fair3r-border-radius);
+    background: white;
+    box-shadow: var(--fair3r-shadow);
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.featured-add-data-box:hover {
+    box-shadow: var(--fair3r-shadow-hover);
+    transform: translateY(-2px);
 }
 
 .featured-add-data-box .featured-content{
     display: grid;
     place-items: center;
     min-height: 200px;
+    padding: 20px;
 }
 
 .text-black{
     color: black;
 }
 
+/* Box improvements */
+.box {
+    border-radius: var(--fair3r-border-radius);
+    box-shadow: var(--fair3r-shadow);
+    border: 1px solid #e0e0e0;
+    background: white;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+}
+
+.box:hover {
+    box-shadow: var(--fair3r-shadow-hover);
+    transform: translateY(-1px);
+}
+
+/* Modern background for main content areas - generalized */
+.main:not(.main.hero) {
+    background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(249,249,249,0.95) 100%);
+    background-image: 
+        linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(249,249,249,0.95) 100%),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23e0e0e0" stroke-width="0.5" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    background-size: cover, 20px 20px;
+    background-position: center, center;
+    background-attachment: fixed, scroll;
+    position: relative;
+}
+
+.main:not(.main.hero)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(29, 162, 241, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(3, 202, 118, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.main:not(.main.hero) .container {
+    position: relative;
+    z-index: 2;
+}
+
 .site-footer{
     background: var(--fair3r-light-gray);
+    border-top: 1px solid #e0e0e0;
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
 }
 
 .site-footer strong{
@@ -198,7 +276,8 @@ a{
 }
 
 .btn-primary:hover{
-    background-color: #255230;
+    background-color: #02b366;
+    border-color: #02b366;
     color: white;
 }
 
@@ -265,6 +344,309 @@ a{
   background-size: cover;
   background-image: url('https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg');
   border: 1px solid #ccc;
+}
+
+/* Dataset Card Styling */
+.fair3r-dataset-card {
+  border: 1px solid #e0e0e0;
+  border-radius: var(--fair3r-border-radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  background: white;
+  transition: all 0.3s ease;
+  box-shadow: var(--fair3r-shadow);
+}
+
+.fair3r-dataset-card:hover {
+  box-shadow: var(--fair3r-shadow-hover);
+  transform: translateY(-2px);
+  border-color: var(--fair3r-main-color);
+}
+
+.fair3r-dataset-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.fair3r-dataset-icon {
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.fair3r-dataset-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.fair3r-dataset-title {
+  color: black;
+  font-weight: 600;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+.fair3r-dataset-title:hover {
+  color: var(--fair3r-main-color);
+}
+
+.fair3r-dataset-notes {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.fair3r-dataset-resources {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.fair3r-dataset-resources li {
+  display: inline-block;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+
+
+/* Make horizontal rules more visible */
+.dataset-list li {
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+
+.dataset-list li:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* Ensure proper spacing for dataset items */
+.dataset-item {
+  list-style: none;
+  margin-bottom: 0;
+}
+
+/* Improve badge styling */
+.dataset-private.badge {
+  background-color: #6c757d !important;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  margin-right: 8px;
+}
+
+.badge.bg-info {
+  background-color: #17a2b8 !important;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  margin-right: 8px;
+}
+
+.badge.bg-danger {
+  background-color: #dc3545 !important;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  margin-right: 8px;
+}
+
+/* Dataset list styling */
+.fair3r-dataset-list {
+  margin: 0;
+  padding: 0;
+}
+
+.fair3r-dataset-list .dataset-item {
+  margin-bottom: 20px;
+  padding: 0;
+}
+
+.fair3r-dataset-list .dataset-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Ensure proper spacing for the main content area */
+.module-content .dataset-list {
+  padding: 0;
+}
+
+/* Improve overall dataset search results layout */
+.module-content {
+  padding: 20px;
+}
+
+/* Modern background for dataset search results */
+.module-content {
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(249,249,249,0.98) 100%);
+  background-image: 
+      linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(249,249,249,0.98) 100%),
+      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="%23e0e0e0" opacity="0.4"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+  background-size: cover, 40px 40px;
+  border-radius: var(--fair3r-border-radius);
+  box-shadow: var(--fair3r-shadow);
+  margin: 20px 0;
+}
+
+/* Make sure the dataset cards don't interfere with other elements */
+.dataset-content {
+  position: relative;
+}
+
+/* Ensure proper text wrapping */
+.fair3r-dataset-info h2 {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.fair3r-dataset-info .dataset-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+/* Modern spacing utilities */
+.container {
+  max-width: 1200px;
+}
+
+/* Improved typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Better focus states */
+.btn:focus,
+.form-control:focus,
+.navbar-toggler:focus {
+  box-shadow: 0 0 0 0.2rem rgba(29, 162, 241, 0.25);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Loading states */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .fair3r-dataset-card {
+    padding: 16px;
+  }
+  
+  .masthead .main-navbar ul li a {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+}
+
+/* Additional background improvements for other content areas */
+.secondary {
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(249,249,249,0.95) 100%);
+  background-image: 
+      linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(249,249,249,0.95) 100%),
+      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="waves" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M0 15 Q7.5 5 15 15 T30 15" fill="none" stroke="%23e0e0e0" stroke-width="0.5" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23waves)"/></svg>');
+  background-size: cover, 60px 60px;
+  border-radius: var(--fair3r-border-radius);
+  box-shadow: var(--fair3r-shadow);
+  padding: 20px;
+  margin: 20px 0;
+}
+
+/* Row wrapper card styling */
+.row.wrapper {
+  background: white;
+  border-radius: var(--fair3r-border-radius);
+  box-shadow: var(--fair3r-shadow);
+  border: 1px solid #e0e0e0;
+  margin: 20px 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.row.wrapper:hover {
+  box-shadow: var(--fair3r-shadow-hover);
+  transform: translateY(-1px);
+}
+
+.row.wrapper .col-md-3,
+.row.wrapper .col-md-4,
+.row.wrapper .col-md-6,
+.row.wrapper .col-md-8,
+.row.wrapper .col-md-9,
+.row.wrapper .col-md-12 {
+  padding: 20px;
+}
+
+/* Improve spacing for row content */
+.row.wrapper .primary {
+  padding: 30px;
+}
+
+.row.wrapper .secondary {
+  padding: 20px;
+  background: transparent;
+  box-shadow: none;
+  margin: 0;
+}
+
+/* Additional row wrapper improvements */
+.row.wrapper .module {
+  background: transparent;
+  border: 1px solid #e0e0e0;
+  border-radius: var(--fair3r-border-radius);
+  margin: 0;
+  margin-top: 10px;
+}
+
+.row.wrapper .module-resource{
+  border: none;
+  background: white;
+}
+
+/* If the module contains a context-info class, remove the border */
+.row.wrapper .module:has(.context-info),
+.row.wrapper .module.context-info {
+  border: none;
+}
+
+
+.row.wrapper .module-content {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  margin: 0;
+  padding: 10px;
+}
+
+.module-heading{
+  border-top: none;
+}
+
+/* Ensure proper spacing between wrapper and other elements */
+.row.wrapper + .row.wrapper {
+  margin-top: 30px;
+}
+
+/* Improve visual separation for different content types */
+.row.wrapper .toolbar {
+  background: var(--fair3r-light-gray);
+  border-bottom: 1px solid #e0e0e0;
+  margin: -20px -20px 20px -20px;
+  padding: 15px 20px;
+  border-radius: var(--fair3r-border-radius) var(--fair3r-border-radius) 0 0;
 }
 
 
