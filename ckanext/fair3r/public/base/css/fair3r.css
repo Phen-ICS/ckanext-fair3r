@@ -649,4 +649,85 @@ html {
   border-radius: var(--fair3r-border-radius) var(--fair3r-border-radius) 0 0;
 }
 
+/* Navigation tabs as buttons */
+.nav-tabs {
+  border: none !important;
+  border-bottom: none !important;
+  margin-bottom: 20px !important;
+}
+
+.nav-tabs > li > a {
+  background: var(--fair3r-light-gray) !important;
+  border: 1px solid rgb(54, 54, 54) !important;
+  border-radius: var(--fair3r-border-radius) !important;
+  color: #666 !important;
+  font-weight: 500 !important;
+  padding: 8px 13px !important;
+  margin-right: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.nav-tabs > li > a:hover {
+  background: white !important;
+  color: var(--fair3r-main-color) !important;
+  transform: translateY(-1px) !important;
+}
+
+.nav-tabs > li.active > a {
+  background: var(--fair3r-main-color) !important;
+  border: 1px solid black !important;
+  color: white !important;
+}
+
+/* Content action button styling */
+.content_action .btn {
+  border-radius: var(--fair3r-border-radius);
+  border: 1px solid rgb(54, 54, 54);
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.content_action .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--fair3r-shadow-hover);
+}
+
+/* Follow button styling */
+.follow_button .btn {
+  border-radius: var(--fair3r-border-radius) !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: none !important;
+  border: 1px solid black !important;
+  padding: 8px 16px !important;
+}
+
+.follow_button .btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: none !important;
+}
+
+.follow_button .btn-success {
+  background: #66ec87 !important;
+  color: black !important;
+  border-color: black !important;
+}
+
+.follow_button .btn-success:hover {
+  background: #02b366 !important;
+  border-color: black !important;
+  color: white !important;
+}
+
+.follow_button .btn-success.following {
+  background: var(--fair3r-main-color) !important;
+  color: white !important;
+  border-color: black !important;
+}
+
+.follow_button .btn-success.following:hover {
+  background: #11689f !important;
+  border-color: black !important;
+}
+
 
