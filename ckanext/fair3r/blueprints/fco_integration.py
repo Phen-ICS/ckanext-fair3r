@@ -145,9 +145,11 @@ def dataset_creation_choice():
         from ckan.views.dataset import CreateView
         return CreateView().get(package_type='dataset')
 
-    # In production we always redirect to FCO and skip the choice page completely
-    if context_env in ('prod', 'production'):
-        return toolkit.redirect_to('fco_integration.redirect_to_fco_dataset_creation')
+    # In production we temporarily redirect to the custom CKAN form and skip the choice page
+    # (FCO interface not yet finished)
+    if context_env in ('PROD','prod', 'production'):
+        return toolkit.redirect_to('fco_integration.ckan_dataset_creation')
+        #return toolkit.redirect_to('fco_integration.redirect_to_fco_dataset_creation')
 
     # Make sure the user is logged in before showing the choice page
     if not toolkit.c.user:

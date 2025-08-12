@@ -1,6 +1,25 @@
-# CKAN to Fair3R Custom Overlay Integration - Complete Documentation
+# CKAN Integration System - Complete Documentation
 
-This document provides comprehensive documentation for the integration between CKAN and the Fair3R Custom Overlay (FCO) application, which provides enhanced dataset creation functionality with shared authentication.
+This document provides comprehensive documentation for the integration between CKAN and multiple applications:
+
+1. **Fair3R Custom Overlay (FCO)** - Enhanced dataset creation functionality with shared authentication
+2. **Biox** - Phenotyping data management system that exports datasets to CKAN
+
+## Overview
+
+The CKAN integration system allows multiple applications to seamlessly interact with CKAN for dataset management:
+
+### Fair3R Custom Overlay Integration
+- **Shared Authentication**: Users authenticated in CKAN are automatically authenticated in FCO
+- **Secure Token Transmission**: API tokens and user data are transmitted securely using HMAC signatures
+- **Enhanced Dataset Creation**: Modern, user-friendly interface for dataset creation
+- **Seamless Redirects**: Users clicking "Add Dataset" in CKAN are redirected to FCO
+
+### Biox Integration
+- **Data Export**: Biox exports phenotyping experiment data to CKAN as datasets
+- **Automated Workflow**: Experimental data is automatically formatted and uploaded to CKAN
+- **Metadata Management**: Rich metadata including genes, experimental conditions, and statistical analysis
+- **Resource Management**: Experimental files, reports, and data files are uploaded as CKAN resources
 
 ## Overview
 
@@ -14,6 +33,8 @@ The integration allows users to seamlessly create datasets using an enhanced int
 ## Architecture
 
 ### Components
+
+#### Fair3R Custom Overlay Integration
 
 1. **CKAN Extension (ckanext-fair3r)**
    - Intercepts dataset creation requests
@@ -32,6 +53,25 @@ The integration allows users to seamlessly create datasets using an enhanced int
    - Environment-specific FCO URLs
    - Integration enable/disable settings
 
+#### Biox Integration
+
+1. **Biox Application**
+   - Phenotyping data management system
+   - Experimental data collection and analysis
+   - Automated dataset export to CKAN
+   - Metadata generation and resource management
+
+2. **CKAN API Integration**
+   - Direct API calls using ckanapi library
+   - Dataset creation and updates
+   - Resource upload and management
+   - Organization and group management
+
+3. **Configuration Management**
+   - Environment-specific CKAN URLs and API keys
+   - OpenBioX platform integration settings
+   - Database schema for CKAN dataset tracking
+
 ### Security Model
 
 - **HMAC Signatures**: All tokens are signed with a shared secret
@@ -41,7 +81,7 @@ The integration allows users to seamlessly create datasets using an enhanced int
 
 ## Implementation Summary
 
-### Changes Made
+### Fair3R Custom Overlay Integration
 
 #### 1. CKAN Configuration Updates
 
@@ -118,6 +158,25 @@ ckanext.fair3r.enable_fco_integration = true
 - **Demo**: `http://serv-ics-fco-d-01`
 - **Production**: `http://serv-ics-fco-p-01`
 
+### Biox Configuration
+
+The Biox application is configured with CKAN integration settings in `biox/lib/configs.py`:
+
+```python
+# Development Environment
+OPENBIOX_URI = 'http://localhost:5000'
+OPENBIOX_API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...'
+
+# Production Environment  
+OPENBIOX_URI = 'https://www.fair3r.fr'
+OPENBIOX_API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...'
+```
+
+**Environment-specific Settings:**
+- **Development**: Local CKAN instance with development API key
+- **Demo**: Demo CKAN instance with demo API key
+- **Production**: FAIR3R platform (OpenBioX) with production API key
+
 ### FCO Configuration
 
 The FCO application uses the same SECRET_KEY as CKAN:
@@ -174,12 +233,24 @@ python test_fco_integration.py
 
 ### For Users
 
+#### Fair3R Custom Overlay Integration
+
 1. **Log into CKAN** with your credentials
 2. **Click "Add Dataset"** in the CKAN interface
 3. **Automatic Redirect**: You'll be redirected to the enhanced FCO interface
 4. **Create Dataset**: Use the enhanced form to create your dataset
 5. **Automatic Submission**: The dataset is automatically created in CKAN
 6. **Return to CKAN**: You can view your dataset in the standard CKAN interface
+
+#### Biox Integration
+
+1. **Access Biox**: Log into the Biox phenotyping data management system
+2. **Create Project**: Set up a new phenotyping project with experimental parameters
+3. **Enter Data**: Input experimental data through Biox's data collection interface
+4. **Export to CKAN**: Use the "Export to OpenBioX" function in the task interface
+5. **Review Metadata**: Verify the automatically generated metadata
+6. **Submit Dataset**: The experimental data is automatically uploaded to CKAN
+7. **Access in CKAN**: View the dataset in the CKAN/OpenBioX platform
 
 ### For Administrators
 
@@ -221,9 +292,37 @@ Users can access the standard CKAN interface directly:
 - `GET /ckan/organizations` - Get available organizations
 - `GET /ckan/status` - Integration status check
 
+### Biox CKAN API Integration
+
+Biox uses the CKAN API directly through the `ckanapi` library:
+
+**Dataset Management:**
+- `package_create` - Create new datasets
+- `package_update` - Update existing datasets
+- `package_show` - Retrieve dataset information
+- `package_delete` - Delete datasets
+
+**Resource Management:**
+- `resource_create` - Upload files as resources
+- `resource_update` - Update existing resources
+- `resource_delete` - Remove resources
+
+**Organization Management:**
+- `organization_show` - Get organization details
+- `organization_create` - Create organizations
+
+**Group Management:**
+- `group_show` - Get group information
+- `member_create` - Add datasets to groups
+
+**User Management:**
+- `user_show` - Get user information
+- `user_create` - Create users
+- `member_create` - Add users as collaborators
+
 ## Database Schema
 
-### New User Fields
+### FCO User Fields
 
 The FCO user table has been extended with CKAN integration fields:
 
@@ -234,11 +333,33 @@ ALTER TABLE users ADD COLUMN ckan_api_token VARCHAR(500);
 ALTER TABLE users ADD COLUMN ckan_site_url VARCHAR(200);
 ```
 
-### User Management
+### FCO User Management
 
 - **Automatic Creation**: Users are automatically created in FCO when they first access the integration
 - **Token Storage**: CKAN API tokens are stored securely in the FCO database
 - **User Linking**: Users are linked by their CKAN user ID for seamless authentication
+
+### Biox CKAN Integration Fields
+
+The Biox database has been extended with CKAN integration fields:
+
+```sql
+-- Request table (projects)
+ALTER TABLE request ADD COLUMN openbiox_dataset_id VARCHAR(100);
+
+-- Destination table (organizations)
+ALTER TABLE destination_ana ADD COLUMN openbiox_organization_id VARCHAR(100);
+
+-- Task table (experiments)
+ALTER TABLE task ADD COLUMN openbiox_ressource_id VARCHAR(100);
+```
+
+### Biox Dataset Management
+
+- **Dataset Tracking**: Each Biox project can be linked to a CKAN dataset
+- **Organization Mapping**: Biox destinations are mapped to CKAN organizations
+- **Resource Tracking**: Individual experiments (tasks) can have CKAN resources
+- **Metadata Storage**: Rich metadata is generated and stored in CKAN datasets
 
 ## Security Implementation
 
@@ -370,6 +491,8 @@ curl http://localhost:8080/ckan/status
 
 ### Testing Checklist
 
+#### Fair3R Custom Overlay Integration
+
 - [ ] Database migration applied successfully
 - [ ] Dependencies installed (ckanapi)
 - [ ] Both applications running
@@ -379,6 +502,19 @@ curl http://localhost:8080/ckan/status
 - [ ] Dataset creation works end-to-end
 - [ ] Fallback to standard CKAN interface works
 - [ ] Navigation link to FCO dashboard works
+
+#### Biox Integration
+
+- [ ] Database migrations applied successfully
+- [ ] CKAN API configuration correct
+- [ ] Biox application running
+- [ ] CKAN platform accessible
+- [ ] Test dataset export from Biox
+- [ ] Verify dataset appears in CKAN
+- [ ] Check metadata generation
+- [ ] Verify resource upload
+- [ ] Test organization mapping
+- [ ] Test collaborator management
 
 ## Troubleshooting
 
@@ -453,7 +589,72 @@ DEBUG = True
 - 1 app file modified (registered blueprint)
 - 4 new files created (blueprint, template, migration, docs)
 
-**Total: 15 files modified/created across 3 applications**
+### Biox Application
+- 1 config file modified (added CKAN integration settings)
+- 1 model file modified (added CKAN fields)
+- 1 main integration file created (openbiox.py)
+- 1 metadata library file created (openbiox_lib.py)
+- 2 blueprint files modified (task and admin interfaces)
+- 3 database migration files created (CKAN integration fields)
+
+**Total: 21 files modified/created across 4 applications**
+
+### Biox Integration
+
+#### 1. Biox Configuration Updates
+
+**Files Modified:**
+- `biox/lib/configs.py`
+
+**Changes:**
+- Added OpenBioX CKAN platform configuration
+- Environment-specific CKAN URLs and API keys
+- Integration with FAIR3R platform (OpenBioX)
+
+#### 2. Biox Database Schema Updates
+
+**Migration Files Created:**
+- `alembic/versions/befa4dc8b5ef_openbiox_dataset_id.py`
+- `alembic/versions/cd41cd4d6a2b_destination_openbiox_organization_id.py`
+- `alembic/versions/0f5a797ef865_task_openbiox_ressource_id.py`
+
+**Database Changes:**
+- Added `openbiox_dataset_id` to request table
+- Added `openbiox_organization_id` to destination_ana table
+- Added `openbiox_ressource_id` to task table
+
+#### 3. Biox Application Updates
+
+**Files Modified:**
+- `biox/lib/ws/openbiox.py` - Main CKAN API integration
+- `biox/lib/openbiox.py` - Metadata and parameter management
+- `biox/blueprints/bp_task.py` - Dataset export workflow
+- `biox/blueprints/bp_admin.py` - OpenBioX administration interface
+- `biox/model/project.py` - Database model updates
+
+**Key Features Added:**
+- Automated dataset creation and updates
+- Resource upload and management
+- Metadata generation from experimental data
+- Organization and group management
+- Collaborator management
+- Dataset access control (public/private)
+
+#### 4. Integration Workflow
+
+**Dataset Export Process:**
+1. **Data Collection**: Biox collects phenotyping experimental data
+2. **Metadata Generation**: Automatic generation of rich metadata
+3. **Dataset Creation**: Creates or updates CKAN dataset
+4. **Resource Upload**: Uploads experimental files and reports
+5. **Access Control**: Sets dataset visibility (public/private)
+6. **Collaboration**: Manages dataset collaborators and groups
+
+**Metadata Management:**
+- **Gene Information**: Automatic extraction from project genes
+- **Experimental Conditions**: Date ranges, age information, protocols
+- **Statistical Analysis**: Reference ranges and statistical results
+- **File Resources**: Experimental plans, reports, and data files
 
 ## Future Enhancements
 

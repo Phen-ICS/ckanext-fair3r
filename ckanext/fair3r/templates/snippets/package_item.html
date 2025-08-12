@@ -70,6 +70,9 @@ Example:
                   {% endfor %}
                 {% endblock %}
               </ul>
+              <div class="fair3r-resource-count text-muted">
+                {{ package.resources | length }} {{ _('resources') }}
+              </div>
             {% endblock %}
           {% endif %}
         {% endblock %}

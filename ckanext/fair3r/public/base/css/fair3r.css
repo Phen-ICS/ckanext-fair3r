@@ -513,7 +513,7 @@ a{
 
 /* Modern spacing utilities */
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
 }
 
 /* Improved typography */
@@ -603,11 +603,15 @@ html {
 }
 
 /* Additional row wrapper improvements */
-.row.wrapper .module {
+.row.wrapper .module.module-narrow{
   background: transparent;
   border: 1px solid #e0e0e0;
   border-radius: var(--fair3r-border-radius);
   margin: 0;
+  margin-top: 10px;
+}
+
+.row.wrapper .module{
   margin-top: 10px;
 }
 
