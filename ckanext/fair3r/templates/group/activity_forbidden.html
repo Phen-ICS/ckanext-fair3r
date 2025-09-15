@@ -1,0 +1,9 @@
+{% extends "group/read_base.html" %}
+
+{% block subtitle %}{{ _('Activity Stream') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+
+{% block primary_content_inner %}
+  <div class="alert alert-warning">{{ _('You do not have permission to view this activity stream.') }}</div>
+{% endblock %}
+
+
