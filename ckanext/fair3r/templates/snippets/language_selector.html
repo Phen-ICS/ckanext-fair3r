@@ -1,25 +1,15 @@
-{% set current_lang = request.environ.CKAN_LANG %}
-<div class="row row-cols-auto flag-box">
-  {% for locale in h.get_available_locales() %}
-        {% if locale.short_name == "fr" %}
-              <div class="col flag-col">
-                  <div class="flag-link" onclick="window.location.href='{% url_for h.current_url(), locale=locale.short_name %}';">
-                      <div class="french-flag">
-                          <div class="stripe blue"></div>
-                          <div class="stripe white"></div>
-                          <div class="stripe red"></div>
-                      </div>
-                  </div>
-              </div>
-        {% endif %}
-        {% if locale.short_name == "en" %}
-            <div class="col flag-col">
-                <div class="flag-link" onclick="window.location.href='{% url_for h.current_url(), locale=locale.short_name %}';">
-                    <div class="uk-flag"></div>
-                </div>
-            </div>
-        {% endif %}
-  {% endfor %}
-</div>
+{% set current_lang = (request.environ.CKAN_LANG or '').lower() %}
+<form class="lang-select" action="{% url_for 'util.internal_redirect' %}" data-module="select-switch" method="POST" style="display:inline-flex; align-items:center; gap:6px;">
+  {{ h.csrf_input() }}
+  <label for="field-lang-select" style="margin:0;">
+    <i class="fa fa-globe" aria-hidden="true"></i>
+    <span class="sr-only">{{ _('Language') }}</span>
+  </label>
+  <select id="field-lang-select" name="url" class="form-select form-select-sm" onchange="this.form.submit()">
+    <option value="{% url_for h.current_url(), locale='en' %}" {% if current_lang.startswith('en') %}selected="selected"{% endif %}>English</option>
+    <option value="{% url_for h.current_url(), locale='fr' %}" {% if current_lang.startswith('fr') %}selected="selected"{% endif %}>Français</option>
+  </select>
+  <button class="btn btn-default d-none" type="submit">{{ _('Go') }}</button>
+</form>
 
 
