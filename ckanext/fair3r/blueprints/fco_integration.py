@@ -219,11 +219,15 @@ def redirect_to_fco_dataset_creation():
         secure_token = _generate_secure_token(user_data, shared_secret)
         
         # Build redirect URL
+        # Include current CKAN language so FCO can match the UI language
+        current_lang = h.lang() or ''
         redirect_params = {
             'token': secure_token,
             'source': 'ckan',
             'action': 'create_dataset'
         }
+        if current_lang:
+            redirect_params['lang'] = current_lang
         
         fco_redirect_url = f"{fco_url}/ckan/integration?{urlencode(redirect_params)}"
         
@@ -235,7 +239,7 @@ def redirect_to_fco_dataset_creation():
         raise
 
 
-@fco_integration.route('/dataset/new/ckan')
+@fco_integration.route('/dataset/new/ckan', methods=['GET', 'POST'])
 def ckan_dataset_creation():
     """
     Direct access to CKAN dataset creation (bypassing FCO).
@@ -244,10 +248,12 @@ def ckan_dataset_creation():
     interface even when FCO integration is enabled.
     """
     from ckan.views.dataset import CreateView
+    if request.method == 'POST':
+        return CreateView().post(package_type='dataset')
     return CreateView().get(package_type='dataset')
 
 
-@fco_integration.route('/dataset/new/standard')
+@fco_integration.route('/dataset/new/standard', methods=['GET', 'POST'])
 def standard_dataset_creation():
     """
     Direct access to standard CKAN dataset creation.
@@ -256,6 +262,8 @@ def standard_dataset_creation():
     interface, bypassing the choice page.
     """
     from ckan.views.dataset import CreateView
+    if request.method == 'POST':
+        return CreateView().post(package_type='dataset')
     return CreateView().get(package_type='dataset')
 
 

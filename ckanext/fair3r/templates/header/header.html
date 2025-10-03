@@ -4,7 +4,11 @@
   {{ super() }}
   {% if c.user %}
     <li>
-      <a href="{{ config.get('ckanext.fair3r.fco_url', 'http://localhost:8080') }}" target="_blank" title="{{ _('Open Fair3R Custom Overlay') }}">
+      {# Append current CKAN language to FCO URL so FCO can pick it up #}
+      {% set __fco_base = config.get('ckanext.fair3r.fco_url', 'http://localhost:8080') %}
+      {% set __lang = h.lang() %}
+      {% set __fco_url = __fco_base if not __lang else __fco_base + ('?lang=' + __lang) %}
+      <a href="{{ __fco_url }}" target="_blank" title="{{ _('Open Fair3R Custom Overlay') }}">
         <i class="fa fa-external-link"></i> {{ _('FCO Dashboard') }}
       </a>
     </li>

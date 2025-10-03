@@ -588,11 +588,6 @@ html {
   transition: all 0.3s ease;
 }
 
-.row.wrapper:hover {
-  box-shadow: var(--fair3r-shadow-hover);
-  transform: translateY(-1px);
-}
-
 .row.wrapper .col-md-3,
 .row.wrapper .col-md-4,
 .row.wrapper .col-md-6,
