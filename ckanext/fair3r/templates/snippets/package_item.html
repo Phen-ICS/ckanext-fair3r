@@ -14,7 +14,6 @@ Example:
 {% set notes = h.markdown_extract(package.notes, extract_length=180) %}
 
 {% block package_item %}
-  <li class="{{ item_class or "dataset-item" }}">
     {% block content %}
       <div class="dataset-content fair3r-dataset-card" onclick="window.location.href='{{ h.url_for('%s.read' % package.type, id=package.name) }}';" style="cursor: pointer;">
         <div class="fair3r-dataset-header">
@@ -78,5 +77,4 @@ Example:
         {% endblock %}
       </div>
     {% endblock %}
-  </li>
 {% endblock %} 
