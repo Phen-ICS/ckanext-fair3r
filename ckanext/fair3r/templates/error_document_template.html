@@ -1,3 +1,35 @@
+{% extends "error_document_template.html" %}
+
+{% block login_redirect %}
+  {% if show_login_redirect_link %}
+    {% set path = request.path if request else '' %}
+    {% if '/dataset/new' in path %}
+      <div class="module-content">
+        <p>Contact us to create a new account</p>
+        <form action="{{ h.url_for('fair3r_account_request.submit') }}" method="post">
+          {{ h.csrf_input() }}
+          <div class="form-group">
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" class="form-control" rows="4" required></textarea>
+          </div>
+          <input type="hidden" name="source_path" value="{{ path }}">
+          <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+      </div>
+    {% else %}
+      {{ super() }}
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
 {% extends "page.html" %}
 
 {% block subtitle %}{{ gettext('Error %(error_code)s', error_code=code) }}{% endblock %}

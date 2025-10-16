@@ -5,6 +5,7 @@ from ckanext.fair3r.lib import mailer as fair3r_mailer
 from ckanext.fair3r.blueprints.fco_integration import fco_integration
 from ckanext.fair3r.blueprints.download_all import download_all_bp
 from ckanext.fair3r.blueprints.activity_guard import activity_guard_bp
+from ckanext.fair3r.blueprints.account_request import account_request_bp
 
 
 class Fair3RPlugin(plugins.SingletonPlugin):
@@ -53,4 +54,4 @@ class Fair3RPlugin(plugins.SingletonPlugin):
 
     def get_blueprint(self):
         """Register extension blueprints (FCO integration, download-all, guards)."""
-        return [fco_integration, download_all_bp, activity_guard_bp]
+        return [fco_integration, download_all_bp, activity_guard_bp, account_request_bp]
