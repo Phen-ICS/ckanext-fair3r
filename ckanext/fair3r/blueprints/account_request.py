@@ -75,3 +75,35 @@ def request_account():
     return toolkit.render('account/request_account.html')
 
 
+@account_request_bp.app_errorhandler(403)
+def handle_forbidden(error):
+    """
+    Redirect to the account request page when users are forbidden to create datasets.
+
+    Triggers when the 403 error message includes "Unauthorized to create a package"
+    or when the path is a known dataset creation path. Prevents redirect loops.
+    """
+    try:
+        # Avoid redirect loop if already on the account request page
+        if request.endpoint == 'account_request.request_account' or request.path.startswith('/account/request'):
+            return error
+
+        description = getattr(error, 'description', '') or ''
+        message = str(description or error or '')
+        lower_msg = message.lower()
+
+        is_dataset_new_path = request.path in (
+            '/dataset/new',
+            '/dataset/new/ckan',
+            '/dataset/new/standard'
+        )
+
+        if is_dataset_new_path or 'unauthorized to create a package' in lower_msg:
+            return toolkit.redirect_to('account_request.request_account')
+    except Exception:
+        # If anything goes wrong, fall back to default handling
+        pass
+
+    return error
+
+
