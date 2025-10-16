@@ -18,6 +18,7 @@ from flask import Blueprint, current_app, redirect, request, session, url_for, j
 import ckan.plugins.toolkit as toolkit
 from ckan.lib import helpers as h
 from ckan.model import User
+import ckan.lib.mailer as ckan_mailer
 
 log = logging.getLogger(__name__)
 
@@ -151,9 +152,9 @@ def dataset_creation_choice():
         return toolkit.redirect_to('fco_integration.ckan_dataset_creation')
         #return toolkit.redirect_to('fco_integration.redirect_to_fco_dataset_creation')
 
-    # Make sure the user is logged in before showing the choice page
+    # For visitors (not logged in), redirect to account request page instead of login
     if not toolkit.c.user:
-        return toolkit.redirect_to('user.login')
+        return toolkit.redirect_to('account_request.request_account')
 
     # Render the choice template with necessary context
     return toolkit.render('package/creation_choice.html', {
@@ -288,3 +289,6 @@ def fco_status():
     except Exception as e:
         log.error(f"Error in FCO status check: {e}")
         return jsonify({'error': str(e)}), 500 
+
+
+# Account request route moved to its own blueprint (account_request)

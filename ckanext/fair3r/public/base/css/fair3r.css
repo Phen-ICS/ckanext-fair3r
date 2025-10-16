@@ -294,6 +294,37 @@ a{
     color: white;
 }
 
+/* Account request form styling */
+.account-request-form .form-control{
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d7d7d7;
+  border-radius: var(--fair3r-border-radius);
+  background: #fff;
+  transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+
+.account-request-form .form-control:focus{
+  outline: none;
+  border-color: var(--fair3r-main-color);
+  box-shadow: 0 0 0 0.2rem rgba(29, 162, 241, 0.15);
+  background: #fcfeff;
+}
+
+.account-request-form .help-block{
+  color: #666;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.account-request-form .control-group{
+  margin-bottom: 16px;
+}
+
+.account-request-form label.control-label{
+  font-weight: 600;
+}
+
 .ics-footer-logo {
     display: block;
     width: 68px;

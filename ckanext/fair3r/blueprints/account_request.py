@@ -1,63 +1,77 @@
-# encoding: utf-8
-from __future__ import annotations
-
 import logging
 
 from flask import Blueprint, request
-
 import ckan.plugins.toolkit as toolkit
-from ckan.common import _
-import ckan.lib.mailer as mailer
-
+from ckan.lib import helpers as h
+import ckan.lib.mailer as ckan_mailer
 
 log = logging.getLogger(__name__)
 
+account_request_bp = Blueprint('account_request', __name__)
 
-account_request_bp = Blueprint('fair3r_account_request', __name__)
 
+@account_request_bp.route('/account/request', methods=['GET', 'POST'])
+def request_account():
+    """
+    Render a page inviting visitors to contact us to create a new account.
 
-@account_request_bp.route('/fair3r/account-request/submit', methods=['POST'])
-def submit() -> str:
-    toolkit.check_access('site_read', {})
+    Displays a form with email, name and message. On submit, sends an email
+    to the configured contact address.
+    """
+    if request.method == 'POST':
+        email = (request.form.get('email') or '').strip()
+        name = (request.form.get('name') or '').strip()
+        message = (request.form.get('message') or '').strip()
 
-    email = request.form.get('email', '').strip()
-    name = request.form.get('name', '').strip()
-    message = request.form.get('message', '').strip()
-    source_path = request.form.get('source_path', '/')
+        errors = []
+        if not email:
+            errors.append('email')
+        if not name:
+            errors.append('name')
+        if not message:
+            errors.append('message')
 
-    if not email or not name or not message:
-        toolkit.h.flash_error(_('Please fill in all required fields.'))
-        return toolkit.h.redirect_to(source_path or '/')
+        if errors:
+            h.flash_error(toolkit._('Please fill in all required fields.'))
+            return toolkit.render('account/request_account.html', {
+                'email': email,
+                'name': name,
+                'text': message
+            })
 
-    # Determine destination email from config. Prefer CKAN core email_to when set.
-    config = toolkit.config
-    recipient_email = (
-        config.get('email_to')
-        or config.get('ckanext.fair3r.contact_email')
-        or config.get('smtp.mail_from')
-    )
+        recipient_email = toolkit.config.get('ckanext.contact.mail_to')
+        if not recipient_email:
+            recipient_email = toolkit.config.get('smtp.mail_from') or toolkit.config.get('email_to')
 
-    if not recipient_email:
-        log.error('No recipient email configured for account requests')
-        toolkit.h.flash_error(_('No recipient email configured.'))
-        return toolkit.h.redirect_to(source_path or '/')
+        try:
+            subject = f"Account request from {name}"
+            body = (
+                f"A visitor requested an account on {toolkit.config.get('ckan.site_title')}\n\n"
+                f"Name: {name}\n"
+                f"Email: {email}\n\n"
+                f"Message:\n{message}\n"
+            )
+            body_html = (
+                f"<p>A visitor requested an account on <strong>{toolkit.config.get('ckan.site_title')}</strong>.</p>"
+                f"<p><strong>Name:</strong> {h.escape(name)}<br>"
+                f"<strong>Email:</strong> {h.escape(email)}</p>"
+                f"<p><strong>Message:</strong><br>{h.render_markdown(message)}</p>"
+            )
 
-    subject = _('New account request from {name}').format(name=name)
-    body = (
-        f"Account request submitted from CKAN site.\n\n"
-        f"Name: {name}\n"
-        f"Email: {email}\n"
-        f"From path: {source_path}\n\n"
-        f"Message:\n{message}\n"
-    )
+            ckan_mailer.mail_recipient(
+                recipient_name='FAIR3R Contact',
+                recipient_email=recipient_email,
+                subject=subject,
+                body=body,
+                body_html=body_html
+            )
 
-    try:
-        mailer.mail_recipient(name, recipient_email, subject, body, body_html=None)
-        toolkit.h.flash_success(_('Your request has been sent. We will contact you shortly.'))
-    except Exception:
-        log.exception('Failed to send account request email')
-        toolkit.h.flash_error(_('Failed to send your request. Please try again later.'))
+            h.flash_success(toolkit._('Your request has been sent. We will contact you soon.'))
+            return toolkit.redirect_to('home.index')
+        except Exception as e:
+            log.error(f"Error sending account request email: {e}")
+            h.flash_error(toolkit._('There was a problem sending your request. Please try again later.'))
 
-    return toolkit.h.redirect_to(source_path or '/')
+    return toolkit.render('account/request_account.html')
 
 

@@ -53,5 +53,5 @@ class Fair3RPlugin(plugins.SingletonPlugin):
     # IBlueprint
 
     def get_blueprint(self):
-        """Register extension blueprints (FCO integration, download-all, guards)."""
+        """Register extension blueprints (FCO integration, download-all, guards, account request)."""
         return [fco_integration, download_all_bp, activity_guard_bp, account_request_bp]
