@@ -325,6 +325,32 @@ a{
   font-weight: 600;
 }
 
+/* Account request sidebar icon */
+.account-request-aside .module-content{
+  display: grid;
+  place-items: center;
+}
+
+.account-request-icon{
+  font-size: 96px;
+  line-height: 1;
+  color: var(--fair3r-main-color);
+  margin: 10px 0 16px 0;
+}
+
+.row.wrapper .secondary:has(.account-request-aside){
+  display: flex;
+  align-items: center;
+}
+
+.account-request-aside{
+  width: 100%;
+}
+
+.account-request-aside .module-content{
+  min-height: 160px;
+}
+
 .ics-footer-logo {
     display: block;
     width: 68px;
