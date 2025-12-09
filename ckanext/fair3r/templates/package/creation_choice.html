@@ -46,7 +46,7 @@
                   <h5 class="card-title">{{ _('Enhanced FCO Interface') }}</h5>
                   <p class="card-text">{{ _('Use the enhanced Fair3R Custom Overlay interface for advanced metadata form creation.') }}</p>
                   {% if c.user and h.is_superadmin() %}
-                  <a href="{{ h.url_for('fco_integration.redirect_to_fco_dataset_creation') }}" class="btn btn-primary">
+                  <a href="{{ h.url_for('fco_integration.fco_dataset_creation') }}" class="btn btn-primary">
                     {{ _('Use FCO Interface') }}
                   </a>
                   {% else %}

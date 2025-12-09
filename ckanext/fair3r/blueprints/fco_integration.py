@@ -11,14 +11,20 @@ import hashlib
 import hmac
 import json
 import logging
+from re import A
 import time
+import traceback
 from urllib.parse import urlencode
+
+from cryptography.fernet import Fernet
 
 from flask import Blueprint, current_app, redirect, request, session, url_for, jsonify
 import ckan.plugins.toolkit as toolkit
 from ckan.lib import helpers as h
 from ckan.model import User
 import ckan.lib.mailer as ckan_mailer
+from ckan.views.dataset import CreateView
+from ckanext.fair3r.lib.decorators import login_required
 
 log = logging.getLogger(__name__)
 
@@ -40,31 +46,35 @@ def _generate_secure_token(user_data, shared_secret):
     """
     Generate a secure token for transmitting user data to FCO.
     
+    Uses symmetric encryption (AES) to encrypt the JSON data with the shared secret,
+    ensuring that even if intercepted, the data cannot be read without the secret.
+    
     Args:
         user_data (dict): User data to be transmitted
         shared_secret (str): Shared secret key between CKAN and FCO
     
     Returns:
-        str: Base64 encoded secure token
+        str: Base64 encoded secure token containing encrypted data and HMAC signature
     """
     # Add timestamp to prevent replay attacks
     user_data['timestamp'] = int(time.time())
     user_data['expires'] = int(time.time()) + 300  # 5 minutes expiration
     
-    # Convert to JSON and encode
+    # Convert to JSON
     data_json = json.dumps(user_data, sort_keys=True)
-    data_encoded = base64.b64encode(data_json.encode('utf-8')).decode('utf-8')
     
-    # Create HMAC signature
-    signature = hmac.new(
-        shared_secret.encode('utf-8'),
-        data_encoded.encode('utf-8'),
-        hashlib.sha256
-    ).hexdigest()
+    # Derive a 32-byte key from the shared secret using SHA256
+    # Fernet requires a URL-safe base64-encoded 32-byte key
+    key_material = hashlib.sha256(shared_secret.encode('utf-8')).digest()
+    fernet_key = base64.urlsafe_b64encode(key_material)
     
-    # Combine data and signature
-    token = f"{data_encoded}.{signature}"
-    return base64.b64encode(token.encode('utf-8')).decode('utf-8')
+    # Create Fernet cipher with the derived key
+    fernet = Fernet(fernet_key)
+    
+    # Encrypt the JSON data (Fernet returns URL-safe base64-encoded bytes)
+    encrypted_data_bytes = fernet.encrypt(data_json.encode('utf-8'))
+    
+    return base64.urlsafe_b64encode(encrypted_data_bytes).decode('utf-8')
 
 
 def _get_user_api_token(user):
@@ -123,13 +133,13 @@ def _get_user_api_token(user):
             return None
             
     except Exception as e:
-        import traceback
         log.error(f"Error getting FCO Integration token for user {user.name} ({user.id}): {e}")
         log.error(f"Traceback: {traceback.format_exc()}")
         return None
 
 
 @fco_integration.route('/dataset/new')
+@login_required(redirect_to='account_request.request_account')
 def dataset_creation_choice():
     """
     Show dataset creation choice page.
@@ -139,56 +149,34 @@ def dataset_creation_choice():
     """
     # Evaluate configuration flags
     enable_fco = _asbool(toolkit.config.get('ckanext.fair3r.enable_fco_integration', False))
-    context_env = (toolkit.config.get('ckanext.fair3r.context', '') or '').lower()
 
     # If the integration is disabled just fall back to the normal CKAN flow
     if not enable_fco:
-        from ckan.views.dataset import CreateView
-        return CreateView().get(package_type='dataset')
-
-    # In production we temporarily redirect to the custom CKAN form and skip the choice page
-    # (FCO interface not yet finished)
-    if context_env in ('PROD','prod', 'production'):
-        return toolkit.redirect_to('fco_integration.ckan_dataset_creation')
+        return redirect(url_for('fco_integration.ckan_dataset_creation'))
+    else:
         #return toolkit.redirect_to('fco_integration.redirect_to_fco_dataset_creation')
-
-    # For visitors (not logged in), redirect to account request page instead of login
-    if not toolkit.c.user:
-        return toolkit.redirect_to('account_request.request_account')
-
-    # Render the choice template with necessary context
-    return toolkit.render('package/creation_choice.html', {
-        'pkg_dict': None,
-        'dataset_type': 'dataset'
-    })
-
+        return toolkit.render('package/creation_choice.html', {
+            'pkg_dict': None,
+            'dataset_type': 'dataset'
+        })
+    
 
 @fco_integration.route('/dataset/new/fco')
-def redirect_to_fco_dataset_creation():
+@login_required(redirect_to='user.login')
+def fco_dataset_creation():
     """
     Redirect to FCO for dataset creation.
     
     This route redirects authenticated users to the Fair3R Custom Overlay 
     application for enhanced dataset creation functionality.
     """
-    # Check if FCO integration is enabled
-    if not toolkit.config.get('ckanext.fair3r.enable_fco_integration', False):
-        # If disabled, proceed with normal CKAN dataset creation
-        from ckan.views.dataset import CreateView
+
+    enable_fco = _asbool(toolkit.config.get('ckanext.fair3r.enable_fco_integration', False))
+    if not enable_fco:
         return CreateView().get(package_type='dataset')
-    
-    # Check if user is authenticated
-    if not toolkit.c.user:
-        # Redirect to login if not authenticated
-        return toolkit.redirect_to('user.login')
-    
-    # Allow everyone in production, otherwise restrict to superadmins
-    context_env = (toolkit.config.get('ckanext.fair3r.context', '') or '').lower()
-    from ckan.model import User
+
     user = User.get(toolkit.c.user)
-    if context_env not in ('prod', 'production') and (not user or not user.sysadmin):
-        log.warning(f"Non-superadmin user {toolkit.c.user} attempted to access FCO")
-        return toolkit.redirect_to('fco_integration.dataset_creation_choice')
+    log.info(f"User {user.name} attempt to access FCO")
     
     try:
         # Get FCO configuration
@@ -211,9 +199,7 @@ def redirect_to_fco_dataset_creation():
             'username': user.name,
             'email': user.email,
             'fullname': user.fullname,
-            'api_token': api_token,
-            'ckan_site_url': toolkit.config.get('ckan.site_url'),
-            'return_url': request.args.get('return_url', '')
+            'api_token': api_token
         }
         
         # Generate secure token
@@ -232,7 +218,7 @@ def redirect_to_fco_dataset_creation():
         
         fco_redirect_url = f"{fco_url}/ckan/integration?{urlencode(redirect_params)}"
         
-        log.info(f"Redirecting superadmin user {user.name} to FCO for dataset creation")
+        log.info(f"Redirecting user {user.name} to FCO for dataset creation")
         return redirect(fco_redirect_url)
         
     except Exception as e:
@@ -248,7 +234,6 @@ def ckan_dataset_creation():
     This route allows users to access the standard CKAN dataset creation
     interface even when FCO integration is enabled.
     """
-    from ckan.views.dataset import CreateView
     if request.method == 'POST':
         return CreateView().post(package_type='dataset')
     return CreateView().get(package_type='dataset')
@@ -262,7 +247,6 @@ def standard_dataset_creation():
     This route provides direct access to the standard CKAN dataset creation
     interface, bypassing the choice page.
     """
-    from ckan.views.dataset import CreateView
     if request.method == 'POST':
         return CreateView().post(package_type='dataset')
     return CreateView().get(package_type='dataset')
@@ -290,5 +274,33 @@ def fco_status():
         log.error(f"Error in FCO status check: {e}")
         return jsonify({'error': str(e)}), 500 
 
+@fco_integration.route('/user/logout')
+def logout():
+    """
+    Handle logout from CKAN and also logout from FCO.
+    
+    This route intercepts CKAN logout and ensures the user is also logged out
+    from FCO. It prevents infinite loops by checking the 'from' query parameter.
+    """
+    
+    # If no user is authenticated, redirect to login
+    if not toolkit.c.user:
+        return redirect(toolkit.url_for('user.login'))
 
-# Account request route moved to its own blueprint (account_request)
+    # If logout is coming from FCO, just perform CKAN logout and redirect to home
+    log.info("Logout from FCO - performing CKAN logout only")
+    # Clear CKAN session
+    session.clear()
+
+    enable_fco = _asbool(toolkit.config.get('ckanext.fair3r.enable_fco_integration', False))
+    fco_url = toolkit.config.get('ckanext.fair3r.fco_url')
+    
+    # If FCO integration is enabled, redirect to FCO logout
+    if enable_fco:
+        log.info("Redirecting to FCO logout")
+        # Redirect to FCO logout with 'from=ckan' parameter to prevent loop
+        fco_logout_url = f"{fco_url}/logout"
+        return redirect(fco_logout_url)
+    
+    # If FCO is not enabled, just redirect to CKAN home
+    return redirect(toolkit.url_for('home.index')) 

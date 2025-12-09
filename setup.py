@@ -17,5 +17,8 @@ setup(
         [ckan.plugins]
         fair3r=ckanext.fair3r.plugin:Fair3RPlugin
     """,
+    install_requires=[
+        'cryptography==46.0.3',
+    ],
     version="1.3.0"
 )
