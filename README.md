@@ -1,5 +1,3 @@
-[![Tests](https://github.com/ICS/ckanext-fair3r/workflows/Tests/badge.svg?branch=main)](https://github.com/ICS/ckanext-fair3r/actions)
-
 # ckanext-fair3r
 
 This extension is made to cuztomize fair3r.fr ckan theme and add features
@@ -40,26 +38,18 @@ To install ckanext-fair3r:
 
 ## Config settings
 
+    exemple: 
+
 	# The app context (could be DEV, DEMO, or nothing)
-	ckanext.fair3r.some_setting = DEV
+	ckanext.fair3r.context = DEV
 
 ## Features
 
-### HTML Emails
+#### Better emails (from html templates)
+#### Download all ressources of dataset in 1 click
+#### Secure activity feed
+#### Redirect to a better "create dataset" form application (FCO)
 
-This extension enhances CKAN's email functionality by providing HTML emails for system notifications:
-
-- Password reset emails
-- User invitation emails
-
-The HTML emails are more visually appealing and include:
-
-- Responsive design that works on desktop and mobile devices
-- Styled buttons for better user experience
-- Clear formatting to improve readability
-- Modern, professional appearance
-
-For more details on how this feature works, see the [HTML Email documentation](ckanext/fair3r/lib/README.md).
 
 
 ## Developer installation
@@ -75,6 +65,7 @@ do:
 
 ## Tests
 
-To run the tests, do:
+TODO
 
-    pytest --ckan-ini=test.ini
+
+# Ckanext documentation can be found in ckanext-fair3r/documentation/ directory
