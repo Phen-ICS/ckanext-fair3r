@@ -25,21 +25,11 @@ from ckan.model import User
 import ckan.lib.mailer as ckan_mailer
 from ckan.views.dataset import CreateView
 from ckanext.fair3r.lib.decorators import login_required
+from ckanext.fair3r.lib.utils import asbool
 
 log = logging.getLogger(__name__)
 
 fco_integration = Blueprint('fco_integration', __name__)
-
-
-def _asbool(value):
-    """Convert common string representations of truthy / falsy values to bools."""
-    if isinstance(value, bool):
-        return value
-    if value is None:
-        return False
-    if isinstance(value, str):
-        return value.strip().lower() in ('true', '1', 'yes', 'on')
-    return bool(value)
 
 
 def _generate_secure_token(user_data, shared_secret):
@@ -138,29 +128,6 @@ def _get_user_api_token(user):
         return None
 
 
-@fco_integration.route('/dataset/new')
-@login_required(redirect_to='account_request.request_account')
-def dataset_creation_choice():
-    """
-    Show dataset creation choice page.
-    
-    This route shows a choice between standard CKAN form and FCO interface.
-    Only superadmins can see the FCO option.
-    """
-    # Evaluate configuration flags
-    enable_fco = _asbool(toolkit.config.get('ckanext.fair3r.enable_fco_integration', False))
-
-    # If the integration is disabled just fall back to the normal CKAN flow
-    if not enable_fco:
-        return redirect(url_for('fco_integration.ckan_dataset_creation'))
-    else:
-        #return toolkit.redirect_to('fco_integration.redirect_to_fco_dataset_creation')
-        return toolkit.render('package/creation_choice.html', {
-            'pkg_dict': None,
-            'dataset_type': 'dataset'
-        })
-    
-
 @fco_integration.route('/dataset/new/fco')
 @login_required(redirect_to='user.login')
 def fco_dataset_creation():
@@ -171,7 +138,7 @@ def fco_dataset_creation():
     application for enhanced dataset creation functionality.
     """
 
-    enable_fco = _asbool(toolkit.config.get('ckanext.fair3r.enable_fco_integration', False))
+    enable_fco = asbool(toolkit.config.get('ckanext.fair3r.enable_fco_integration', False))
     if not enable_fco:
         return CreateView().get(package_type='dataset')
 
@@ -292,7 +259,7 @@ def logout():
     # Clear CKAN session
     session.clear()
 
-    enable_fco = _asbool(toolkit.config.get('ckanext.fair3r.enable_fco_integration', False))
+    enable_fco = asbool(toolkit.config.get('ckanext.fair3r.enable_fco_integration', False))
     fco_url = toolkit.config.get('ckanext.fair3r.fco_url')
     
     # If FCO integration is enabled, redirect to FCO logout

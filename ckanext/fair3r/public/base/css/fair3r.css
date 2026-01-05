@@ -517,7 +517,7 @@ main.hero-no-gradient{ background-image: white !important; }
 .btn-primary{
   background-color: var(--fair3r-color-success);
   color: var(--fair3r-color-text);
-  border: 1px solid var(--fair3r-color-border);
+  border: 1px solid black;
 }
 
 .btn-primary:hover{

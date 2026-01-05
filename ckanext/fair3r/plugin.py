@@ -6,6 +6,8 @@ from ckanext.fair3r.blueprints.fco_integration import fco_integration
 from ckanext.fair3r.blueprints.download_all import download_all_bp
 from ckanext.fair3r.blueprints.activity_guard import activity_guard_bp
 from ckanext.fair3r.blueprints.account_request import account_request_bp
+from ckanext.fair3r.blueprints.dataset_choice import dataset_choice
+from ckanext.fair3r.blueprints.fdf import fdf
 
 
 class Fair3RPlugin(plugins.SingletonPlugin):
@@ -53,5 +55,5 @@ class Fair3RPlugin(plugins.SingletonPlugin):
     # IBlueprint
 
     def get_blueprint(self):
-        """Register extension blueprints (FCO integration, download-all, guards, account request)."""
-        return [fco_integration, download_all_bp, activity_guard_bp, account_request_bp]
+        """Register extension blueprints (FCO integration, download-all, guards, account request, dataset creation, FDF)."""
+        return [fco_integration, download_all_bp, activity_guard_bp, account_request_bp, dataset_choice, fdf]
