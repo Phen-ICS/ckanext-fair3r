@@ -30,7 +30,6 @@
                 <div class="card-body text-center">
                   <i class="fa fa-database fa-3x text-primary mb-3"></i>
                   <h5 class="card-title">{{ _('Standard CKAN Form') }}</h5>
-                  <p class="card-text">{{ _('Use the standard CKAN dataset creation form with all standard features.') }}</p>
                   <a href="{{ h.url_for('fco_integration.standard_dataset_creation') }}" class="btn btn-primary">
                     {{ _('Use CKAN Form') }}
                   </a>
@@ -43,8 +42,8 @@
               <div class="card h-100">
                 <div class="card-body text-center">
                   <i class="fa fa-rocket fa-3x {% if c.user and h.is_superadmin() %}text-success{% else %}text-muted{% endif %} mb-3"></i>
-                  <h5 class="card-title">{{ _('Enhanced FCO Interface') }}</h5>
-                  <p class="card-text">{{ _('Use the enhanced Fair3R Custom Overlay interface for advanced metadata form creation.') }}</p>
+                  <h5 class="card-title">{{ _('Enhanced metadata form creation concept') }}</h5>
+                  <p class="card-text">{{ _('Deprecated overlay interface for advanced metadata form creation.') }}</p>
                   {% if c.user and h.is_superadmin() %}
                       {% if not enable_fco %}
                       <button class="btn btn-secondary" disabled title="{{ _('FCO integration is not enabled') }}">
@@ -70,7 +69,7 @@
                 <div class="card-body text-center">
                   <i class="fa fa-database fa-3x text-info mb-3"></i>
                   <h5 class="card-title">{{ _('Enhanced Fair3R Dataset Form') }}</h5>
-                  <p class="card-text">{{ _('Use the enhanced Fair3R Dataset Form for dataset creation (meant to replace FCO and standart CKAN forms)') }}</p>
+                  <p class="card-text">{{ _('(WORK IN PROGRESS)') }}</p>
                   {% if enable_fdf %}
                   <a href="{{ h.url_for('fdf.fdf_dataset_creation') }}" class="btn btn-primary">
                     {{ _('Use FDF Form') }}
