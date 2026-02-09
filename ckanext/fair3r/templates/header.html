@@ -1,15 +1,16 @@
 {% set dataset_type = h.default_package_type() %}
+{% set current_user = h.fair3r_current_user() %}
 
 {% block header_wrapper %} {% block header_account %}
 <div class="account-masthead">
   <div class="container">
-    {% block header_account_container_content %} {% if c.userobj %}
-    <div class="account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
+    {% block header_account_container_content %} {% if h.fair3r_is_authenticated() %}
+    <div class="account avatar authed" data-module="me" data-me="{{ current_user.id }}">
       <ul class="list-unstyled">
         <li>
             {% snippet "snippets/language_selector.html" %}
         </li>
-        {% block header_account_logged %} {% if c.userobj.sysadmin %}
+        {% block header_account_logged %} {% if current_user.sysadmin %}
         <li>
           <a href="{{ h.url_for('admin.index') }}" title="{{ _('Sysadmin settings') }}">
             <i class="fa fa-gavel" aria-hidden="true"></i>
@@ -19,9 +20,9 @@
         {% endif %}
         {% block header_account_profile %}
         <li>
-          <a href="{{ h.url_for('user.read', id=c.userobj.name) }}" class="image" title="{{ _('View profile') }}">
-            {{ h.user_image((c.user if c and c.user else ''), size=22) }}
-            <span class="username">{{ c.userobj.display_name }}</span>
+          <a href="{{ h.url_for('user.read', id=current_user.name) }}" class="image" title="{{ _('View profile') }}">
+            {{ h.user_image(current_user.name, size=22) }}
+            <span class="username">{{ current_user.display_name }}</span>
           </a>
         </li>
         {% endblock %}
@@ -35,7 +36,7 @@
         {% endblock %}
         {% block header_account_settings_link %}
         <li>
-          <a href="{{ h.url_for('user.edit', id=c.userobj.name) }}" title="{{ _('Profile settings') }}">
+          <a href="{{ h.url_for('user.edit', id=current_user.name) }}" title="{{ _('Profile settings') }}">
             <i class="fa fa-cog" aria-hidden="true"></i>
             <span class="text">{{ _('Profile settings') }}</span>
           </a>
@@ -84,7 +85,7 @@
       {% endblock %}
        </hgroup>
 
-      {% set fair3r_context = h.get_fair3r_context() %}
+      {% set fair3r_context = h.fair3r_context() %}
       {% if fair3r_context == "DEV" %}
           <span class="dev-badge">{{ fair3r_context }}</span>
       {% elif fair3r_context == "DEMO" %}

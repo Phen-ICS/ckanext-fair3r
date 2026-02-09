@@ -7,10 +7,10 @@ import ckan.lib.mailer as ckan_mailer
 
 log = logging.getLogger(__name__)
 
-account_request_bp = Blueprint('account_request', __name__)
+account_request = Blueprint('account_request', __name__)
 
 
-@account_request_bp.route('/account/request', methods=['GET', 'POST'])
+@account_request.route('/account/request', methods=['GET', 'POST'])
 def request_account():
     """
     Render a page inviting visitors to contact us to create a new account.
@@ -75,7 +75,7 @@ def request_account():
     return toolkit.render('account/request_account.html')
 
 
-@account_request_bp.app_errorhandler(403)
+@account_request.app_errorhandler(403)
 def handle_forbidden(error):
     """
     Redirect to the account request page when users are forbidden to create datasets.

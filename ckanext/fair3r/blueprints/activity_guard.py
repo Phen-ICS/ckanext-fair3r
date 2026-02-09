@@ -3,10 +3,10 @@ from flask import Blueprint, request
 import ckan.plugins.toolkit as toolkit
 
 
-activity_guard_bp = Blueprint("fair3r_activity_guard", __name__)
+activity_guard = Blueprint("fair3r_activity_guard", __name__)
 
 
-@activity_guard_bp.before_app_request
+@activity_guard.before_app_request
 def restrict_activity_streams():
     """Restrict access to organization/group activity streams to members only.
 

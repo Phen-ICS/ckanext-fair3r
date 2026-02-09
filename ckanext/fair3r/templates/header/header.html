@@ -2,7 +2,7 @@
 
 {% block header_site_navigation_tabs %}
   {{ super() }}
-  {% if c.user %}
+  {% if h.fair3r_is_authenticated() %}
     <li>
       {# Append current CKAN language to FCO URL so FCO can pick it up #}
       {% set __fco_base = config.get('ckanext.fair3r.fco_url', 'http://localhost:8080') %}

@@ -12,7 +12,7 @@
   file.
   #}
   {%- block header %}
-    {% include "header.html" %}
+    {% snippet "header.html" %}
   {% endblock -%}
 
   {# The content block allows you to replace the content of the page if needed #}
@@ -45,7 +45,7 @@
             </div>
           {% endblock %}
 
-          <div class="row wrapper{% block wrapper_class %}{% endblock %}{% if self.secondary()|trim == '' or c.action=='resource_read' %} no-nav{% endif %}">
+          <div class="row wrapper{% block wrapper_class %}{% endblock %}{% if self.secondary()|trim == '' or h.fair3r_is_resource_read() %} no-nav{% endif %}">
             {#
             The pre_primary block can be used to add content to before the
             rendering of the main content columns of the page.
@@ -123,7 +123,7 @@
   file.
   #}
   {%- block footer %}
-    {% include "footer.html" %}
+    {% snippet "footer.html" %}
   {% endblock -%}
 {%- endblock -%}
 

@@ -4,7 +4,7 @@
   {{ super() }}
   {# Add Download all button next to Manage #}
   {% if h.check_access('package_show', {'id': pkg.id }) and pkg.resources %}
-    <a class="btn btn-primary" href="{{ h.url_for('fair3r_download.download_all', id=pkg.name) }}">
+    <a class="btn btn-primary" href="{{ h.url_for('download_all.download', id=pkg.name) }}">
       <i class="fa fa-download"></i> {{ _('Download all') }}
     </a>
   {% endif %}

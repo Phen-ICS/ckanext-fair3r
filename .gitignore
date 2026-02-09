@@ -40,3 +40,17 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+
+# IDEs
+.vscode/
+.idea/
+.ropeproject/
+.pytest_cache/
+.coverage/
+.mypy_cache/
+.cursor/
+.noseids/
+.installed.cfg/
+.coverage/
+.coverage.xml/
+.coverage.xml/

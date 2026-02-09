@@ -5,7 +5,7 @@ import tempfile
 import zipfile
 from typing import Any, cast
 
-import flask
+from flask import Blueprint, current_app, redirect, request, session, url_for, jsonify, send_file, after_this_request
 
 import ckan.lib.base as base
 import ckan.lib.uploader as uploader
@@ -15,8 +15,8 @@ from ckan.common import _, current_user
 from ckan.types import Context
 
 
-download_all_bp = flask.Blueprint(
-    "fair3r_download",
+download_all = Blueprint(
+    "download_all",
     __name__,
     url_prefix="/dataset",
 )
@@ -32,8 +32,8 @@ def _safe_arcname(filename: str, fallback: str) -> str:
     return base_name
 
 
-@download_all_bp.route("/<id>/download-all", methods=["GET"])
-def download_all(id: str):
+@download_all.route("/<id>/download-all", methods=["GET"])
+def download(id: str):
     context = cast(Context, {
         "model": model,
         "session": model.Session,
@@ -192,7 +192,7 @@ def download_all(id: str):
                     # Skip problematic resource entries silently
                     continue
 
-        response = flask.send_file(
+        response = send_file(
             temp_file_path,
             as_attachment=True,
             download_name=f"{package.get('name') or package.get('id')}.zip",
@@ -200,7 +200,7 @@ def download_all(id: str):
             conditional=True,
         )
 
-        @flask.after_this_request
+        @after_this_request
         def cleanup_temp_file(response_obj):  # type: ignore[no-redef]
             try:
                 os.remove(temp_file_path)
