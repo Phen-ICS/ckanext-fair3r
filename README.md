@@ -43,14 +43,6 @@ To install ckanext-fair3r:
 	# The app context (could be DEV, DEMO, or nothing)
 	ckanext.fair3r.context = DEV
 
-## Features
-
-#### Better emails (from html templates)
-#### Download all ressources of dataset in 1 click
-#### Secure activity feed
-#### Redirect to a better "create dataset" form application (FCO)
-
-
 
 ## Developer installation
 
@@ -66,6 +58,3 @@ do:
 ## Tests
 
 TODO
-
-
-# Ckanext documentation can be found in ckanext-fair3r/documentation/ directory
