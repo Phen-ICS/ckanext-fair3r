@@ -1,7 +1,7 @@
 {% if not h.organizations_available('create_dataset')
   and not h.check_config_permission('ckan.auth.create_unowned_dataset') %}
 
-  {% snippet "package/snippets/cannot_create_package.html" pkg_dict=pkg_dict %}
+  {% snippet "package/snippets/cannot_create_package.html", pkg_dict=pkg_dict %}
 
 {% else %}
   {% extends "package/base.html" %}
