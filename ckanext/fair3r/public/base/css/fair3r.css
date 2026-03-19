@@ -629,3 +629,8 @@ main.hero-no-gradient{ background-image: white !important; }
   .fair3r-dataset-card { padding: 16px; }
   .masthead .main-navbar ul li a { font-size: 14px; }
 }
+
+/* 15. Dev */
+#flDebug .flDebugPanelContentParent {
+  overflow-y: scroll;
+}

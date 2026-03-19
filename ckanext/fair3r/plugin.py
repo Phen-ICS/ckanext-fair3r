@@ -1,4 +1,5 @@
 import ckan.plugins as plugins
+from logging import getLogger
 import ckan.plugins.toolkit as toolkit  # module containing toolkit functions, classes and exceptions for use by CKAN extensions.
 import ckan.lib.mailer as ckan_mailer
 from ckan.common import current_user, request
@@ -17,6 +18,7 @@ from ckanext.fair3r.blueprints.sitemap import sitemap
 #CLI/admin hooks: register custom commands (`IClick`).
 #Validation and schema: implement `IDatasetForm` or `IValidators`.
 
+log = getLogger(__name__)
 
 class Fair3RPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
