@@ -7,18 +7,18 @@ setup(
     # message extraction at
     # http://babel.pocoo.org/docs/messages/#extraction-method-mapping-and-configuration
     message_extractors={
-        'ckanext': [
-            ('**.py', 'python', None),
-            ('**.js', 'javascript', None),
-            ('**/templates/**.html', 'ckan', None),
+        "ckanext": [
+            ("**.py", "python", None),
+            ("**.js", "javascript", None),
+            ("**/templates/**.html", "ckan", None),
         ],
     },
-    entry_points = """
+    entry_points="""
         [ckan.plugins]
         fair3r=ckanext.fair3r.plugin:Fair3RPlugin
     """,
     install_requires=[
-        'cryptography==46.0.3',
+        "cryptography==46.0.3",
     ],
-    version="1.5.0"
+    version="1.5.0",
 )

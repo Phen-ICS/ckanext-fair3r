@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import logging
 import os
 import tempfile
 import zipfile
 from typing import Any, cast
 
-from flask import Blueprint, current_app, redirect, request, session, url_for, jsonify, send_file, after_this_request
+from flask import Blueprint, send_file, after_this_request
 
 import ckan.lib.base as base
 import ckan.lib.uploader as uploader
@@ -20,6 +21,7 @@ download_all = Blueprint(
     __name__,
     url_prefix="/dataset",
 )
+log = logging.getLogger(__name__)
 
 
 def _safe_arcname(filename: str, fallback: str) -> str:
@@ -34,13 +36,16 @@ def _safe_arcname(filename: str, fallback: str) -> str:
 
 @download_all.route("/<id>/download-all", methods=["GET"])
 def download(id: str):
-    context = cast(Context, {
-        "model": model,
-        "session": model.Session,
-        "user": current_user.name,
-        "auth_user_obj": current_user,
-        "for_view": True,
-    })
+    context = cast(
+        Context,
+        {
+            "model": model,
+            "session": model.Session,
+            "user": current_user.name,
+            "auth_user_obj": current_user,
+            "for_view": True,
+        },
+    )
 
     get_action = logic.get_action
     NotFound = logic.NotFound
@@ -55,9 +60,7 @@ def download(id: str):
 
     resources: list[dict[str, Any]] = package.get("resources", [])
 
-    uploaded_resources = [
-        r for r in resources if r.get("url_type") == "upload"
-    ]
+    uploaded_resources = [r for r in resources if r.get("url_type") == "upload"]
 
     if not uploaded_resources:
         return base.abort(404, _("No uploaded resources available to download"))
@@ -71,6 +74,7 @@ def download(id: str):
         lines.append("Dataset metadata")
         lines.append("=================")
         lines.append("")
+
         def add(k: str, v: Any):
             if v is None:
                 v = ""
@@ -161,36 +165,44 @@ def download(id: str):
         return "\n".join(lines)
 
     try:
-        with zipfile.ZipFile(temp_file_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        with zipfile.ZipFile(
+            temp_file_path, "w", compression=zipfile.ZIP_DEFLATED
+        ) as zf:
             # Add dataset metadata summary file
             metadata_text = _format_dataset_metadata_text(package)
             dataset_name = package.get("name") or package.get("id") or "dataset"
-            meta_filename = _safe_arcname(f"{dataset_name}-metadata.txt", "metadata.txt")
+            meta_filename = _safe_arcname(
+                f"{dataset_name}-metadata.txt", "metadata.txt"
+            )
             zf.writestr(meta_filename, metadata_text)
 
             for res in uploaded_resources:
+                res_id = res.get("id")
+                if not res_id:
+                    continue
+
                 try:
-                    res_id = res["id"]
                     upload = uploader.get_resource_uploader(res)
                     file_path = upload.get_path(res_id)
-                    if not os.path.exists(file_path):
-                        continue
+                except Exception as e:
+                    log.warning("Skipping resource %s in archive build: %s", res_id, e)
+                    file_path = None
 
-                    # Try to build a friendly filename
-                    url = res.get("url", "") or ""
-                    # In CKAN uploaded resources, the URL often ends with /download/<filename>
-                    candidate_filename = ""
-                    if "/download/" in url:
-                        candidate_filename = url.split("/download/")[-1]
-                    arcname = _safe_arcname(
-                        candidate_filename,
-                        f"{res.get('name') or 'resource'}-{res_id}{os.path.splitext(file_path)[1]}"
-                    )
-
-                    zf.write(file_path, arcname=arcname)
-                except Exception:
-                    # Skip problematic resource entries silently
+                if not file_path or not os.path.exists(file_path):
                     continue
+
+                # Try to build a friendly filename
+                url = res.get("url", "") or ""
+                # In CKAN uploaded resources, the URL often ends with /download/<filename>
+                candidate_filename = ""
+                if "/download/" in url:
+                    candidate_filename = url.split("/download/")[-1]
+                arcname = _safe_arcname(
+                    candidate_filename,
+                    f"{res.get('name') or 'resource'}-{res_id}{os.path.splitext(file_path)[1]}",
+                )
+
+                zf.write(file_path, arcname=arcname)
 
         response = send_file(
             temp_file_path,
@@ -215,5 +227,3 @@ def download(id: str):
         except OSError:
             pass
         return base.abort(500, _("Failed to build ZIP archive"))
-
-
