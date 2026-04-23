@@ -47,7 +47,9 @@ To temporary patch the CKAN configuration for the duration of a test you can use
     def test_some_action():
         pass
 """
-import ckanext.fair3r.plugin as plugin
+
+import pytest
+from ckan.plugins import plugin_loaded
 
 
 @pytest.mark.ckan_config("ckan.plugins", "fair3r")

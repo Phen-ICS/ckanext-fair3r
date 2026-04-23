@@ -26,7 +26,9 @@ def restrict_activity_streams():
     if not obj_id_or_name:
         return None
 
-    group_type = "organization" if endpoint.endswith("organization_activity") else "group"
+    group_type = (
+        "organization" if endpoint.endswith("organization_activity") else "group"
+    )
 
     # Get group/org dict to obtain canonical id for membership check and
     # to pass into the template when rendering the forbidden page.
@@ -52,5 +54,3 @@ def restrict_activity_streams():
         return toolkit.render(template, extra_vars=extra_vars)
 
     return None
-
-

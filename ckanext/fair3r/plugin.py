@@ -12,19 +12,19 @@ from ckanext.fair3r.blueprints.dataset_choice import dataset_choice
 from ckanext.fair3r.blueprints.fdf import fdf
 from ckanext.fair3r.blueprints.sitemap import sitemap
 
-#Routing: register blueprints (`IBlueprint`) to expose custom endpoints.
-#Templating/theming: add template/public asset paths (`IConfigurer`) for overrides.
-#Authz/action overrides: expose `get_auth_functions` (`IAuthFunctions`) or `get_actions`.
-#CLI/admin hooks: register custom commands (`IClick`).
-#Validation and schema: implement `IDatasetForm` or `IValidators`.
+# Routing: register blueprints (`IBlueprint`) to expose custom endpoints.
+# Templating/theming: add template/public asset paths (`IConfigurer`) for overrides.
+# Authz/action overrides: expose `get_auth_functions` (`IAuthFunctions`) or `get_actions`.
+# CLI/admin hooks: register custom commands (`IClick`).
+# Validation and schema: implement `IDatasetForm` or `IValidators`.
 
 log = getLogger(__name__)
+
 
 class Fair3RPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IBlueprint)
-
 
     # IConfigurer
 
@@ -38,16 +38,16 @@ class Fair3RPlugin(plugins.SingletonPlugin):
 
     def get_helpers(self):
         return {
-            'fair3r_current_user': self.fair3r_current_user,
-            'fair3r_is_authenticated': self.fair3r_is_authenticated,
-            'fair3r_is_resource_read': self.fair3r_is_resource_read,
-            'fair3r_context': self.fair3r_context,
-            'fair3r_is_superadmin': self.fair3r_is_superadmin
+            "fair3r_current_user": self.fair3r_current_user,
+            "fair3r_is_authenticated": self.fair3r_is_authenticated,
+            "fair3r_is_resource_read": self.fair3r_is_resource_read,
+            "fair3r_context": self.fair3r_context,
+            "fair3r_is_superadmin": self.fair3r_is_superadmin,
         }
 
     def fair3r_context(self):
         """Fetch the fair3r context from the configuration"""
-        return toolkit.config.get('ckanext.fair3r.context', None)
+        return toolkit.config.get("ckanext.fair3r.context", None)
 
     def fair3r_is_superadmin(self):
         """Check if the current user is a superadmin"""
@@ -79,4 +79,12 @@ class Fair3RPlugin(plugins.SingletonPlugin):
 
     def get_blueprint(self):
         """Register extension blueprints (FCO integration, download-all, guards, account request, dataset creation, FDF, sitemap)."""
-        return [fco_integration, download_all, activity_guard, account_request, dataset_choice, fdf, sitemap]
+        return [
+            fco_integration,
+            download_all,
+            activity_guard,
+            account_request,
+            dataset_choice,
+            fdf,
+            sitemap,
+        ]
