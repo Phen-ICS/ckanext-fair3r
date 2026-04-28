@@ -342,7 +342,7 @@ main.hero-no-gradient{ background-image: white !important; }
   font-size: 16px;
 }
 
-.prod-badge{
+.production-badge{
   background-color: #8bf4a6;
   font-weight: bold;
   padding: 6px;
@@ -350,7 +350,7 @@ main.hero-no-gradient{ background-image: white !important; }
   font-size: 12px;
 }
 
-.demo-badge{
+.validation-badge{
   background-color: #2f92fb;
   font-weight: bold;
   padding: 6px;

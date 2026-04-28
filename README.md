@@ -40,7 +40,7 @@ To install ckanext-fair3r:
 
     exemple: 
 
-	# The app context (could be DEV, DEMO, or nothing)
+	# The app context (could be DEV, VALIDATION, or PRODUCTION)
 	ckanext.fair3r.context = DEV
 
 
