@@ -39,21 +39,53 @@ lint:ruff:
   stage: validate
   script:
     - pip install ruff
-    - ruff check ckanext
+    - |
+      set +e
+      ruff check ckanext > ruff.out 2>&1
+      status=$?
+      python .ci/junit_report.py ruff-check --input ruff.out --xml report-ruff.xml --status "$status"
+      set -e
+      test $status -eq 0
+  artifacts:
+    when: always
+    reports:
+      junit: report-ruff.xml
+    paths:
+      - report-ruff.xml
 
 # Format check (ruff format)
 lint:ruff-format:
   stage: validate
   script:
     - pip install ruff
-    - ruff format --check ckanext
+    - |
+      set +e
+      ruff format --check ckanext > ruff-format.out 2>&1
+      status=$?
+      python .ci/junit_report.py ruff-format --input ruff-format.out --xml report-ruff-format.xml --status "$status"
+      set -e
+      test $status -eq 0
+  artifacts:
+    when: always
+    reports:
+      junit: report-ruff-format.xml
+    paths:
+      - report-ruff-format.xml
 
 # Security scan (bandit)
 security:bandit:
   stage: validate
   script:
     - pip install bandit
-    - bandit -r ckanext -x ckanext/fair3r/tests
+    - bandit -r ckanext -x ckanext/fair3r/tests -f json -o report-bandit.json || true
+    - python .ci/junit_report.py bandit --json report-bandit.json --xml report-bandit.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report-bandit.xml
+    paths:
+      - report-bandit.xml
+      - report-bandit.json
 
 # Python dependency audit
 security:pip-audit:
@@ -61,7 +93,15 @@ security:pip-audit:
   allow_failure: true
   script:
     - pip install pip-audit
-    - pip-audit
+    - pip-audit -f json -o report-pip-audit.json || true
+    - python .ci/junit_report.py pip-audit --json report-pip-audit.json --xml report-pip-audit.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report-pip-audit.xml
+    paths:
+      - report-pip-audit.xml
+      - report-pip-audit.json
 
 # Build Python package
 build:package:
