@@ -342,6 +342,14 @@ main.hero-no-gradient{ background-image: white !important; }
   font-size: 16px;
 }
 
+.integration-badge{
+  background-color: #ff6122;
+  font-weight: bold;
+  padding: 6px;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
 .production-badge{
   background-color: #8bf4a6;
   font-weight: bold;
