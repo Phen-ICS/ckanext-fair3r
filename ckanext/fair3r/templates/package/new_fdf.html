@@ -1,0 +1,98 @@
+{% extends "package/new.html" %}
+
+{% set ns = namespace(fdf_json='') %}
+{% if data.get('fdf_output_json') %}
+  {% set ns.fdf_json = data.get('fdf_output_json') %}
+{% endif %}
+{% for extra in (data.get('extras', []) or []) %}
+  {% set extra_key = (extra.get('key') if extra.get is defined else extra.key) %}
+  {% set extra_value = (extra.get('value') if extra.get is defined else extra.value) %}
+  {% if extra_key == 'fdf_output_json' and not ns.fdf_json %}
+    {% set ns.fdf_json = extra_value %}
+  {% endif %}
+{% endfor %}
+
+{% block primary_content %}
+<article class="module">
+  {% block primary_content_inner %}
+  <form id="dataset-edit" class="dataset-form form-horizontal fdf-dataset-form" method="post" data-module="basic-form" novalidate>
+    {% block stages %}
+      {{ h.snippet('package/snippets/stages.html', stages=stage, pkg_name=data.get('name', '')) }}
+    {% endblock %}
+
+    <div class="module-content">
+      {% block errors %}
+      {% if error_summary %}
+      <div class="error-explanation alert alert-error">
+        <p>{{ _('The form contains invalid entries:') }}</p>
+        <ul>
+          {% for key, error in error_summary.items() %}
+          <li>{{ key }}: {{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% endblock %}
+
+      {% block basic_fields %}
+      <fieldset>
+        {% snippet 'package/snippets/package_basic_fields.html', data=data, errors=errors, licences=licences, groups_available=groups_available, dataset_type=dataset_type %}
+      </fieldset>
+      {% endblock %}
+
+      {% block metadata_fields %}
+      <fieldset>
+        {% snippet 'package/snippets/package_metadata_fields_no_custom.html', data=data, errors=errors %}
+      </fieldset>
+      {% endblock %}
+
+      {% snippet 'package/snippets/fdf_metadata_panel.html', use_fdf=use_fdf, fdf_json=ns.fdf_json %}
+    </div>
+
+    {% block form_actions %}
+    <div class="form-actions">
+      <button class="btn btn-primary" name="save" type="submit">{{ _('Next: Add Data') }}</button>
+    </div>
+    {% endblock %}
+  </form>
+  {% endblock %}
+</article>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  {% if use_fdf %}
+  <script type="text/javascript">
+    window.FDF_SCHEMA = {{ h.dump_json(fdf_schema) | safe }};
+
+    var existingFDFData = {{ h.dump_json(ns.fdf_json or '{}') | safe }};
+    if (existingFDFData && typeof existingFDFData === 'string') {
+      try {
+        existingFDFData = JSON.parse(existingFDFData);
+      } catch (e) {
+        existingFDFData = {};
+      }
+    }
+
+    window.FDF_DATA = existingFDFData || {};
+    window.FDF_EXISTING_DATA = window.FDF_DATA;
+  </script>
+  {% asset 'fair3r/fair3r-js' %}
+  {% endif %}
+{% endblock %}
+
+{% block secondary_content %}
+<section class="module module-narrow module-shallow">
+  <h2 class="module-heading">
+    <i class="fa fa-info-circle"></i> {{ _('Fair3R Dataset Form') }}
+  </h2>
+  <div class="module-content">
+    <p>
+      {% trans %}
+      The Fair3R Dataset Form (FDF) is a dynamic ontology-driven form.
+      Metadata fields are generated from a JSON schema and may query external databases.
+      {% endtrans %}
+    </p>
+  </div>
+</section>
+{% endblock %}

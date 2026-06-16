@@ -5,6 +5,8 @@ Utility functions for the Fair3R extension.
 This module contains common utility functions used across the extension.
 """
 
+import os
+
 
 def asbool(value):
     """
@@ -30,3 +32,11 @@ def asbool(value):
     if isinstance(value, str):
         return value.strip().lower() in ("true", "1", "yes", "on")
     return bool(value)
+
+
+def get_schema_json_path():
+    """
+    Return the absolute path to the FDF schema JSON file.
+    """
+    plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(plugin_dir, "schema", "fdf_schema.json")

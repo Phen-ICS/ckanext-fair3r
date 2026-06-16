@@ -4,3 +4,4 @@ include requirements.txt
 recursive-include ckanext/fair3r *.html *.json *.js *.less *.css *.mo *.yml
 recursive-include ckanext/fair3r/migration *.ini *.py *.mako
 recursive-include ckanext/fair3r/public *.*
+recursive-include ckanext/fair3r/tests *.py *.ini

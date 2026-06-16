@@ -8,8 +8,7 @@ Compatibility with core CKAN versions:
 
 | CKAN version    | Compatible? |
 |-----------------|-------------|
-| 2.10.7          | yes         |
-| 2.11            | not tested  |
+| 2.11.5          | yes         |
 
 
 ## Installation
@@ -54,7 +53,13 @@ do:
     python setup.py develop
     pip install -r dev-requirements.txt
 
+## Fix code formating
+
+ruff format .
+ruff check . --fix
 
 ## Tests
 
-TODO
+```shell
+docker exec -u ckan -it ckan-app pytest --ckan-ini=/plugins/ckanext-fair3r/test.ini /plugins/ckanext-fair3r/ckanext/fair3r/tests
+```

@@ -1,0 +1,88 @@
+{% ckan_extends %}
+
+{% block metadata_fields %}
+  {{ super() }}
+
+  {% set ns = namespace(fdf_json='') %}
+  {% if data and data.extras %}
+    {% for extra in data.extras %}
+      {% if extra.key == 'fdf_output_json' %}
+        {% set ns.fdf_json = extra.value %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  {% if ns.fdf_json %}
+  <script type="text/javascript">
+    // Hide author/maintainer and custom fields when editing FDF datasets
+    function hideFDFEditFields() {
+      console.log('Hiding FDF edit fields...');
+      
+      var fieldsToHide = ['author', 'author_email', 'maintainer', 'maintainer_email'];
+      var hiddenCount = 0;
+      
+      fieldsToHide.forEach(function(fieldName) {
+        var input = document.querySelector('input[name="' + fieldName + '"]') ||
+                    document.getElementById('field-' + fieldName) ||
+                    document.getElementById('field-' + fieldName.replace('_', '-'));
+        if (input) {
+          var controlGroup = input.closest('.control-group') || 
+                           input.closest('.form-group') ||
+                           input.parentElement.parentElement;
+          if (controlGroup) {
+            controlGroup.style.display = 'none';
+            hiddenCount++;
+            console.log('Hidden field:', fieldName);
+          }
+        }
+      });
+      
+      console.log('Hidden ' + hiddenCount + ' author/maintainer fields');
+      
+      // Hide custom fields (extras)
+      var customFieldInputs = document.querySelectorAll('input[name^="extras__"]');
+      var extrasHiddenCount = 0;
+      customFieldInputs.forEach(function(input) {
+        var controlGroup = input.closest('.control-group') || input.closest('.form-group');
+        if (controlGroup) {
+          controlGroup.style.display = 'none';
+          extrasHiddenCount++;
+        }
+      });
+      
+      if (extrasHiddenCount > 0) {
+        console.log('Hidden ' + extrasHiddenCount + ' custom field inputs');
+      }
+    }
+    
+    // Run immediately
+    hideFDFEditFields();
+    
+    // Run after DOM loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', hideFDFEditFields);
+    }
+    
+    // Run with delays as fallback
+    setTimeout(hideFDFEditFields, 100);
+    setTimeout(hideFDFEditFields, 500);
+  </script>
+  
+  <fieldset>
+    <legend>{{ _('FAIR3R Metadata') }}</legend>
+    <div class="form-group">
+      <div id="fdf-alert" class="alert alert-info">
+        {{ _('Loading FAIR3R dynamic form fields...') }}
+      </div>
+      <div id="fdf-form-container" data-module="fdf-form-module"></div>
+      <input type="hidden" name="fdf_output_json" id="fdf-output-json" value="" />
+    </div>
+  </fieldset>
+
+  <script type="text/javascript">
+    window.FDF_SCHEMA = {{ h.dump_json(h.fdf_schema()) | safe }};
+    window.FDF_DATA = {{ ns.fdf_json | safe }};
+  </script>
+  {% asset 'fair3r/fair3r-js' %}
+  {% endif %}
+{% endblock %}

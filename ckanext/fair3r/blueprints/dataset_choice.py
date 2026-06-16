@@ -2,7 +2,7 @@
 Dataset Creation Blueprint
 
 This blueprint handles the neutral dataset creation choice page that allows users
-to choose between different dataset creation methods (CKAN standard, FCO, FDF).
+to choose between different dataset creation methods (CKAN standard & FDF).
 """
 
 import logging
@@ -25,20 +25,16 @@ def dataset_creation():
 
     This route shows a choice between:
     - Standard CKAN form
-    - FCO (Fair3R Custom Overlay) interface (only visible to superadmins)
-    - FDF (Fair3R Dataset Form) interface (if enabled)
+    - FDF (Fair3R Dataset Form) interface
     """
     # Evaluate configuration flags
-    enable_fco = asbool(
-        toolkit.config.get("ckanext.fair3r.enable_fco_integration", False)
-    )
     enable_fdf = asbool(
-        toolkit.config.get("ckanext.fair3r.enable_fdf_integration", False)
+        toolkit.config.get("ckanext.fair3r.enable_fdf_integration", True)
     )
 
-    # If both integrations are disabled, just fall back to the normal CKAN flow
-    if not enable_fco and not enable_fdf:
-        return redirect(toolkit.url_for("fco_integration.ckan_dataset_creation"))
+    # If FDF is disabled, just fall back to the normal CKAN flow
+    if not enable_fdf:
+        return redirect(toolkit.url_for("standard_creation.standard_dataset_creation"))
     else:
         return toolkit.render(
             "package/creation_choice.html",
@@ -46,6 +42,5 @@ def dataset_creation():
                 "pkg_dict": None,
                 "dataset_type": "dataset",
                 "enable_fdf": enable_fdf,
-                "enable_fco": enable_fco,
             },
         )

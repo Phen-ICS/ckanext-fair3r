@@ -110,8 +110,8 @@ def handle_forbidden(error):
 
         if is_dataset_new_path or "unauthorized to create a package" in lower_msg:
             return toolkit.redirect_to("account_request.request_account")
-    except Exception as e:
-        # Fall back to default handling if we cannot inspect the error safely.
-        log.warning("account_request 403 handler fallback: %s", e)
+    except Exception as exc:
+        # If anything goes wrong, fall back to default handling
+        log.warning("Account request redirect fallback failed: %s", exc)
 
     return error

@@ -1,0 +1,658 @@
+{#
+Display FDF metadata dynamically based on schema display_mapping
+100% resilient to schema changes - no code modification needed
+CSS styling: /public/base/css/fair3r.css (section 14. FDF Metadata Display)
+#}
+
+{% set parse_fdf = h|attr('parse_fdf_json') %}
+{% if fdf_data is not defined %}
+  {% set fdf_data = parse_fdf(fdf_json) if fdf_json and parse_fdf else {} %}
+{% endif %}
+{% set render_only_section = single_section if single_section is defined and single_section else none %}
+{% set hide_section_heading = hide_heading if hide_heading is defined else false %}
+
+{% if fdf_data %}
+<div class="fdf-metadata">
+  {% set schema_sections = [render_only_section] if render_only_section else h.fdf_schema_sections() %}
+  
+  {% for section in schema_sections %}
+    {% set section_data = h.extract_fdf_section_data(fdf_data, section) %}
+    {% set display_type = section.display_mapping.display_type if section.display_mapping else 'text' %}
+    {% set section_accent_color = section.display_mapping.accent_color if section.display_mapping and section.display_mapping.accent_color else '#3c8dbc' %}
+    
+    {% if section_data %}
+      {% if not hide_section_heading %}
+        <h4>{{ section.icon }} {{ section.title }}</h4>
+      {% endif %}
+      {% set section_labels = section.display_mapping.labels if section.display_mapping and section.display_mapping.labels else {} %}
+      
+      {# Composite section (title: publicationYear, types, titles) #}
+      {% if display_type == 'composite' %}
+        {% if section_data is mapping %}
+          {# Detect repeatable composite: check if we have multiple array sources #}
+          {% set array_sources = {} %}
+          {% for key, value in section_data.items() %}
+            {% if value is iterable and value is not string and value|length > 0 %}
+              {% set _ = array_sources.update({key: value}) %}
+            {% endif %}
+          {% endfor %}
+          {% set is_repeatable = array_sources|length > 1 %}
+          {% set single_subject_repeatable = section.repeatable and section.subject_scheme and array_sources|length == 1 and array_sources.subjects is defined %}
+          
+          {% if is_repeatable %}
+            {# REPEATABLE COMPOSITE: Display each iteration as separate card (Chemicals, Involved Genes, etc.) #}
+            {% set ns = namespace(max_len=0) %}
+            {% for values in array_sources.values() %}
+              {% if values|length > ns.max_len %}
+                {% set ns.max_len = values|length %}
+              {% endif %}
+            {% endfor %}
+            {% set num_iterations = ns.max_len %}
+            {% for idx in range(num_iterations) %}
+              <div class="fdf-composite-card" style="--fdf-accent-color: {{ section_accent_color }}; margin-bottom: 1.5em;">
+                <table class="table table-condensed fdf-composite-table">
+                  <tbody>
+                    {% for key, values in array_sources.items() %}
+                      {% set value_at_idx = values[idx] if idx < values|length else none %}
+                      {% if value_at_idx %}
+                        {% if value_at_idx is mapping %}
+                          {# For object items, display each field as a row #}
+                          {% for field_key, field_val in value_at_idx.items() %}
+                            {% if field_key != 'valueURI' %}
+                            <tr>
+                              <th scope="row" style="width: 220px;">{{ section_labels.get(field_key, field_key|replace('_', ' ')|title) }}</th>
+                              <td>
+                                {% if field_key == 'subject' and value_at_idx.valueURI %}
+                                  {# Handle subject with URI link #}
+                                  {% set uri = value_at_idx.valueURI %}
+                                  {% set is_external = uri.startswith('http://') or uri.startswith('https://') %}
+                                  {% if is_external %}
+                                    <a href="{{ uri }}" target="_blank" rel="noopener noreferrer">{{ field_val }}</a>
+                                  {% else %}
+                                    {{ field_val }}
+                                  {% endif %}
+                                {% else %}
+                                  {{ field_val }}
+                                {% endif %}
+                              </td>
+                            </tr>
+                            {% endif %}
+                          {% endfor %}
+                        {% else %}
+                          {# For simple values (strings, numbers) #}
+                          <tr>
+                            <th scope="row" style="width: 220px;">{{ section_labels.get(key, key|replace('_', ' ')|title) }}</th>
+                            <td>{{ value_at_idx }}</td>
+                          </tr>
+                        {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% endfor %}
+          {% elif single_subject_repeatable %}
+            {# REPEATABLE COMPOSITE WITH SINGLE SUBJECT SOURCE: group subjects by primary subject scheme #}
+            {% set grouped = namespace(items=[], current=[]) %}
+            {% for item in array_sources.subjects %}
+              {% if item.subjectScheme == section.subject_scheme and grouped.current %}
+                {% set grouped.items = grouped.items + [grouped.current] %}
+                {% set grouped.current = [item] %}
+              {% else %}
+                {% set grouped.current = grouped.current + [item] %}
+              {% endif %}
+            {% endfor %}
+            {% if grouped.current %}
+              {% set grouped.items = grouped.items + [grouped.current] %}
+            {% endif %}
+
+            {% for subject_group in grouped.items %}
+              {% set ns = namespace(by_scheme={}) %}
+              {% for item in subject_group %}
+                {% set scheme = item.subjectScheme or 'Value' %}
+                {% set existing = ns.by_scheme.get(scheme, []) %}
+                {% set _ = ns.by_scheme.update({scheme: existing + [item]}) %}
+              {% endfor %}
+
+              <div class="fdf-composite-card" style="--fdf-accent-color: {{ section_accent_color }}; margin-bottom: 1.5em;">
+                <table class="table table-condensed fdf-composite-table">
+                  <tbody>
+                    {% if section_labels %}
+                      {% for scheme, label in section_labels.items() %}
+                        {% set grouped_items = ns.by_scheme.get(scheme, []) %}
+                        {% if grouped_items %}
+                          <tr>
+                            <th scope="row" style="width: 220px;">{{ label }}</th>
+                            <td>
+                              {% for item in grouped_items %}
+                                {% set uri = item.valueURI if item.valueURI else '' %}
+                                {% set is_external_uri = uri.startswith('http://') or uri.startswith('https://') %}
+                                {% set display_subject = (item.subject or '')
+                                  |replace('Gene: ', '')
+                                  |replace('Allele: ', '')
+                                  |replace('Gene locus: ', '')
+                                  |replace('Mutation type: ', '')
+                                  |replace('Transgene origin: ', '')
+                                  |replace('Strain: ', '')
+                                  |replace('Treatment protocol: ', '')
+                                  |replace('Treatment design: ', '') %}
+                                {% if is_external_uri %}
+                                  <a href="{{ uri }}" target="_blank" rel="noopener noreferrer" title="{{ uri }}">{{ display_subject }}</a>
+                                {% else %}
+                                  {{ display_subject }}
+                                {% endif %}
+                                {% if not loop.last %}<br/>{% endif %}
+                              {% endfor %}
+                            </td>
+                          </tr>
+                        {% endif %}
+                      {% endfor %}
+                    {% else %}
+                      {% for scheme, grouped_items in ns.by_scheme.items() %}
+                        <tr>
+                          <th scope="row" style="width: 220px;">{{ scheme }}</th>
+                          <td>
+                            {% for item in grouped_items %}
+                              {% set uri = item.valueURI if item.valueURI else '' %}
+                              {% set is_external_uri = uri.startswith('http://') or uri.startswith('https://') %}
+                              {% set display_subject = (item.subject or '')
+                                |replace('Gene: ', '')
+                                |replace('Allele: ', '')
+                                |replace('Gene locus: ', '')
+                                |replace('Mutation type: ', '')
+                                |replace('Transgene origin: ', '')
+                                |replace('Strain: ', '')
+                                |replace('Treatment protocol: ', '')
+                                |replace('Treatment design: ', '') %}
+                              {% if is_external_uri %}
+                                <a href="{{ uri }}" target="_blank" rel="noopener noreferrer" title="{{ uri }}">{{ display_subject }}</a>
+                              {% else %}
+                                {{ display_subject }}
+                              {% endif %}
+                              {% if not loop.last %}<br/>{% endif %}
+                            {% endfor %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            {% endfor %}
+          {% else %}
+            {# NON-REPEATABLE COMPOSITE: Original logic (Resource Description, grouped by scheme) #}
+            <div class="fdf-composite-card" style="--fdf-accent-color: {{ section_accent_color }};">
+              <table class="table table-condensed fdf-composite-table">
+                <tbody>
+                  {% for key, value in section_data.items() %}
+                    {% set first_item = value[0] if value is iterable and value is not string and value|length > 0 else none %}
+                    {% if key == 'subjects' and first_item is mapping and first_item.subject is defined %}
+                      {% set ns = namespace(grouped={}) %}
+                      {% for item in value %}
+                        {% set scheme = (item.subjectScheme or 'Value') %}
+                        {% set existing = ns.grouped.get(scheme, []) %}
+                        {% set _ = ns.grouped.update({scheme: existing + [item]}) %}
+                      {% endfor %}
+
+                      {% if section_labels %}
+                        {% for scheme, label in section_labels.items() %}
+                          {% set grouped_items = ns.grouped.get(scheme, []) %}
+                          {% if grouped_items %}
+                            <tr>
+                              <th scope="row" style="width: 220px;">{{ label }}</th>
+                              <td>
+                                {% for item in grouped_items %}
+                                  {% set uri = item.valueURI if item.valueURI else '' %}
+                                  {% set is_external_uri = uri.startswith('http://') or uri.startswith('https://') %}
+                                  {% set display_subject = (item.subject or '')
+                                    |replace('Gene: ', '')
+                                    |replace('Allele: ', '')
+                                    |replace('Gene locus: ', '')
+                                    |replace('Mutation type: ', '')
+                                    |replace('Transgene origin: ', '')
+                                    |replace('Strain: ', '')
+                                    |replace('Treatment protocol: ', '')
+                                    |replace('Treatment design: ', '') %}
+                                  {% if is_external_uri %}
+                                    <a href="{{ uri }}" target="_blank" rel="noopener noreferrer" title="{{ uri }}">{{ display_subject }}</a>
+                                  {% else %}
+                                    {{ display_subject }}
+                                  {% endif %}
+                                  {% if not loop.last %}<br/>{% endif %}
+                                {% endfor %}
+                              </td>
+                            </tr>
+                          {% endif %}
+                        {% endfor %}
+                      {% else %}
+                        {% for scheme, grouped_items in ns.grouped.items() %}
+                          <tr>
+                            <th scope="row" style="width: 220px;">{{ scheme }}</th>
+                            <td>
+                              {% for item in grouped_items %}
+                                {% set uri = item.valueURI if item.valueURI else '' %}
+                                {% set is_external_uri = uri.startswith('http://') or uri.startswith('https://') %}
+                                {% set display_subject = (item.subject or '')
+                                  |replace('Gene: ', '')
+                                  |replace('Allele: ', '')
+                                  |replace('Gene locus: ', '')
+                                  |replace('Mutation type: ', '')
+                                  |replace('Transgene origin: ', '')
+                                  |replace('Strain: ', '')
+                                  |replace('Treatment protocol: ', '')
+                                  |replace('Treatment design: ', '') %}
+                                {% if is_external_uri %}
+                                  <a href="{{ uri }}" target="_blank" rel="noopener noreferrer" title="{{ uri }}">{{ display_subject }}</a>
+                                {% else %}
+                                  {{ display_subject }}
+                                {% endif %}
+                                {% if not loop.last %}<br/>{% endif %}
+                              {% endfor %}
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      {% endif %}
+                    {% else %}
+                      <tr>
+                        <th scope="row" style="width: 150px;">{{ section_labels.get(key, key|replace('_', ' ')|title) }}</th>
+                        <td>
+                          {% if value is mapping %}
+                            {% for k, v in value.items() %}
+                              <strong>{{ k|replace('_', ' ')|title }}:</strong>
+                              {% set nested_uri = (v|string)|trim %}
+                              {% if nested_uri.startswith('http://') or nested_uri.startswith('https://') %}
+                                <a href="{{ nested_uri }}" target="_blank" rel="noopener noreferrer" title="{{ nested_uri }}">{{ nested_uri }}</a>
+                              {% else %}
+                                {{ v }}
+                              {% endif %}
+                              {% if not loop.last %}<br/>{% endif %}
+                            {% endfor %}
+                          {% elif value is iterable and value is not string %}
+                            {% for item in value %}
+                              {% if item is mapping %}
+                                {% for k, v in item.items() %}
+                                  {% set list_uri = (v|string)|trim %}
+                                  {% if list_uri.startswith('http://') or list_uri.startswith('https://') %}
+                                    <a href="{{ list_uri }}" target="_blank" rel="noopener noreferrer" title="{{ list_uri }}">{{ list_uri }}</a>
+                                  {% else %}
+                                    {{ v }}
+                                  {% endif %}{% if not loop.last %} • {% endif %}
+                                {% endfor %}
+                              {% else %}
+                                {% set list_item_uri = (item|string)|trim %}
+                                {% if list_item_uri.startswith('http://') or list_item_uri.startswith('https://') %}
+                                  <a href="{{ list_item_uri }}" target="_blank" rel="noopener noreferrer" title="{{ list_item_uri }}">{{ list_item_uri }}</a>
+                                {% else %}
+                                  {{ item }}
+                                {% endif %}
+                              {% endif %}
+                              {% if not loop.last %}<br/>{% endif %}
+                            {% endfor %}
+                          {% else %}
+                            {% set raw_uri = (value|string)|trim %}
+                            {% if raw_uri.startswith('http://') or raw_uri.startswith('https://') %}
+                              <a href="{{ raw_uri }}" target="_blank" rel="noopener noreferrer" title="{{ raw_uri }}">{{ raw_uri }}</a>
+                            {% else %}
+                              {{ value }}
+                            {% endif %}
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endif %}
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% endif %}
+        {% endif %}
+      
+      {# Authors & Contributors merged #}
+      {% elif display_type == 'authors_merged' %}
+        {% if section_data is mapping %}
+          {% set merged_data = section_data %}
+        {% elif section_data is iterable and section_data is not string %}
+          {% set merged_data = {'creators': [], 'contributors': section_data} %}
+        {% else %}
+          {% set merged_data = {'creators': [], 'contributors': []} %}
+        {% endif %}
+        {% set allow_new_names_from_contributors = (merged_data.creators|length == 0) %}
+        {% set show_contributor_types = allow_new_names_from_contributors %}
+        {% set ns = namespace(authors={}) %}
+        
+        {# Merge creators and contributors #}
+        {% for creator in merged_data.creators or [] %}
+          {% set creator_name = (creator.organization_name or '')|trim %}
+          {% if not creator_name %}
+            {% set creator_name = ((creator.givenName or '') ~ ' ' ~ (creator.familyName or ''))|trim %}
+          {% endif %}
+          {% if not creator_name %}
+            {% set creator_name = (creator.name or '')|trim %}
+          {% endif %}
+
+          {% if creator_name and creator_name not in ns.authors %}
+            {% set _ = ns.authors.update({creator_name: {
+              'name': creator_name,
+              'email': creator.email,
+              'affiliation': creator.affiliation or [],
+              'nameIdentifiers': creator.nameIdentifiers or [],
+              'contributor_types': [],
+              'roles': creator.contributorRoles or []
+            }}) %}
+          {% elif creator_name and creator_name in ns.authors %}
+            {% set existing_creator = ns.authors[creator_name] %}
+            {% set merged_name_ids = (existing_creator.nameIdentifiers or []) + (creator.nameIdentifiers or []) %}
+            {% set merged_affiliations = (existing_creator.affiliation or []) + (creator.affiliation or []) %}
+            {% set merged_roles = (existing_creator.roles or []) + (creator.contributorRoles or []) %}
+            {% set _ = existing_creator.update({
+              'email': existing_creator.email or creator.email,
+              'affiliation': merged_affiliations,
+              'nameIdentifiers': merged_name_ids,
+              'roles': merged_roles
+            }) %}
+          {% endif %}
+        {% endfor %}
+        
+        {% for contrib in merged_data.contributors or [] %}
+          {% set contrib_name = (contrib.name or '')|trim %}
+          {% if not contrib_name %}
+            {% set contrib_name = ((contrib.givenName or '') ~ ' ' ~ (contrib.familyName or ''))|trim %}
+          {% endif %}
+          {% if not contrib_name %}
+            {% set contrib_name = (contrib.organization_name or '')|trim %}
+          {% endif %}
+          {% if contrib_name %}
+            {% set contrib_type = (contrib.contributorType or '')|trim %}
+            {% if contrib_name not in ns.authors %}
+              {% if allow_new_names_from_contributors %}
+                {% set _ = ns.authors.update({contrib_name: {
+                  'name': contrib_name,
+                  'email': '',
+                  'affiliation': contrib.affiliation or [],
+                  'nameIdentifiers': contrib.nameIdentifiers or [],
+                  'contributor_types': [contrib_type] if contrib_type else [],
+                  'roles': contrib.contributorRoles or []
+                }}) %}
+              {% endif %}
+            {% else %}
+              {% set existing = ns.authors[contrib_name] %}
+              {% set merged_types = (existing.contributor_types or []) + ([contrib_type] if contrib_type else []) %}
+              {% set merged_affiliations = (existing.affiliation or []) + (contrib.affiliation or []) %}
+              {% set merged_name_ids = (existing.nameIdentifiers or []) + (contrib.nameIdentifiers or []) %}
+              {% set _ = existing.update({
+                'roles': (existing.roles or []) + (contrib.contributorRoles or []),
+                'contributor_types': merged_types,
+                'affiliation': merged_affiliations,
+                'nameIdentifiers': merged_name_ids
+              }) %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        
+        <div class="authors-list">
+          {% for author_name in ns.authors.keys() | sort %}
+            {% set author = ns.authors[author_name] %}
+            <div style="margin-bottom: 2em; padding: 1em; border-left: 4px solid {{ section_accent_color }};">
+              <h5 style="margin-top: 0;">{{ author.name }}</h5>
+              
+              {% if author.email or author.affiliation or author.nameIdentifiers or (show_contributor_types and author.contributor_types) %}
+                <table class="table table-condensed" style="margin-bottom: 1em;">
+                  <tbody>
+                    {% if show_contributor_types and author.contributor_types %}
+                      {% set seen_types = namespace(values=[]) %}
+                      {% for t in author.contributor_types %}
+                        {% if t and t not in seen_types.values %}
+                          {% set seen_types.values = seen_types.values + [t] %}
+                        {% endif %}
+                      {% endfor %}
+                      {% if seen_types.values %}
+                        <tr>
+                          <th scope="row" style="width: 120px;">{{ _('Contributor Type') }}</th>
+                          <td>{{ seen_types.values|join(', ') }}</td>
+                        </tr>
+                      {% endif %}
+                    {% endif %}
+                    {% if author.email %}
+                      <tr>
+                        <th scope="row" style="width: 120px;">{{ _('Email') }}</th>
+                        <td><a href="mailto:{{ author.email }}">{{ author.email }}</a></td>
+                      </tr>
+                    {% endif %}
+                    {% if author.affiliation %}
+                      <tr>
+                        <th scope="row">{{ _('Affiliation') }}</th>
+                        <td>
+                          {% set aff_seen = namespace(values=[], rendered=0) %}
+                          {% for aff in author.affiliation %}
+                            {% set aff_uri = (aff.affiliationIdentifier or '')|string|trim %}
+                            {% if ' — ' in aff_uri %}
+                              {% set aff_uri = aff_uri.split(' — ')[0]|trim %}
+                            {% endif %}
+                            {% if aff_uri and not (aff_uri.startswith('http://') or aff_uri.startswith('https://')) %}
+                              {% if aff.affiliationIdentifierScheme == 'ROR' %}
+                                {% set aff_candidate = aff_uri
+                                  |replace('https://ror.org/', '')
+                                  |replace('http://ror.org/', '')
+                                  |replace('ror.org/', '')
+                                  |replace('ROR:', '')
+                                  |replace('ror:', '')
+                                  |trim %}
+                                {% if aff_candidate
+                                  and ' ' not in aff_candidate
+                                  and '/' not in aff_candidate
+                                  and ':' not in aff_candidate
+                                  and aff_candidate|length >= 6
+                                  and aff_candidate|length <= 12 %}
+                                  {% set aff_uri = 'https://ror.org/' ~ aff_candidate %}
+                                {% endif %}
+                              {% endif %}
+                            {% endif %}
+                            {% set aff_label = (aff.affiliation or '')|string|trim %}
+                            {% set aff_key = ((aff_label|lower) ~ '|' ~ (aff_uri|lower)) %}
+                            {% if aff_label and aff_key not in aff_seen.values %}
+                              {% set aff_seen.values = aff_seen.values + [aff_key] %}
+                              {% if aff_seen.rendered > 0 %}<br/>{% endif %}
+                              {% if aff_uri.startswith('http://') or aff_uri.startswith('https://') %}
+                                <a href="{{ aff_uri }}" target="_blank" rel="noopener noreferrer">{{ aff_label }}</a>
+                              {% else %}
+                                {{ aff_label }}
+                              {% endif %}
+                              {% set aff_seen.rendered = aff_seen.rendered + 1 %}
+                            {% endif %}
+                          {% endfor %}
+                          {% if aff_seen.rendered == 0 %}-{% endif %}
+                        </td>
+                      </tr>
+                    {% endif %}
+                    {% if author.nameIdentifiers %}
+                      <tr>
+                        <th scope="row">{{ _('Identifiers') }}</th>
+                        <td>
+                          {% set id_seen = namespace(values=[], rendered=0) %}
+                          {% for id in author.nameIdentifiers %}
+                            {% set identifier_uri = (id.nameIdentifier or '')|string|trim %}
+                            {% if ' — ' in identifier_uri %}
+                              {% set identifier_uri = identifier_uri.split(' — ')[0]|trim %}
+                            {% endif %}
+                            {% if identifier_uri and not (identifier_uri.startswith('http://') or identifier_uri.startswith('https://')) %}
+                              {% if id.nameIdentifierScheme == 'ORCID' %}
+                                {% set identifier_uri = 'https://orcid.org/' ~ identifier_uri %}
+                              {% elif id.nameIdentifierScheme == 'ROR' %}
+                                {% set identifier_uri = 'https://ror.org/' ~ identifier_uri %}
+                              {% endif %}
+                            {% endif %}
+                            {% set id_scheme = (id.nameIdentifierScheme or 'ID')|string|trim %}
+                            {% set id_key = ((id_scheme|lower) ~ '|' ~ (identifier_uri|lower)) %}
+                            {% if id_key not in id_seen.values %}
+                              {% set id_seen.values = id_seen.values + [id_key] %}
+                              {% if id_seen.rendered > 0 %}<br/>{% endif %}
+                              {% if identifier_uri.startswith('http://') or identifier_uri.startswith('https://') %}
+                                <a href="{{ identifier_uri }}" target="_blank" rel="noopener noreferrer" title="{{ id_scheme }}">
+                                  {{ id_scheme }}
+                                </a>
+                              {% else %}
+                                {{ id_scheme }}
+                              {% endif %}
+                              {% set id_seen.rendered = id_seen.rendered + 1 %}
+                            {% endif %}
+                          {% endfor %}
+                          {% if id_seen.rendered == 0 %}-{% endif %}
+                        </td>
+                      </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              {% endif %}
+              
+              {% if author.roles %}
+                <strong style="display: block; margin-bottom: 0.5em;">{{ _('Roles (CRediT)') }}</strong>
+                <ul class="unstyled" style="margin: 0;">
+                  {% for role in author.roles %}
+                    <li>
+                      <a href="{{ role.contributorRoleURI or '#' }}" target="_blank" rel="noopener noreferrer" title="CRediT">
+                        {{ role.contributorRole }}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      
+      {# Descriptions (abstract, methods, etc.) #}
+      {% elif display_type == 'descriptions' %}
+        {% for desc in section_data %}
+          <div style="margin-bottom: 1em;">
+            <strong>{{ desc.descriptionType }}:</strong>
+            <p style="margin: 0.5em 0 0 0;">{{ desc.description }}</p>
+          </div>
+        {% endfor %}
+
+      {# Related resources / references #}
+      {% elif display_type == 'related_identifiers' %}
+        <div class="fdf-composite-card" style="--fdf-accent-color: {{ section_accent_color }};">
+          <table class="table table-condensed fdf-composite-table">
+            <thead>
+              <tr>
+                <th>{{ section_labels.get('relatedIdentifier', 'Identifier') }}</th>
+                <th style="width: 140px;">{{ section_labels.get('relatedIdentifierType', 'Type') }}</th>
+                <th style="width: 180px;">{{ section_labels.get('relationType', 'Relation') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in section_data %}
+                {% set rid = (item.relatedIdentifier or '')|string|trim %}
+                {% set rid_type = item.relatedIdentifierType or '' %}
+                {% set relation = item.relationType or '' %}
+                {% set is_external_uri = rid.startswith('http://') or rid.startswith('https://') %}
+                <tr>
+                  <td>
+                    {% if is_external_uri %}
+                      <a href="{{ rid }}" target="_blank" rel="noopener noreferrer" title="{{ rid }}">
+                        {{ rid }}
+                        <i class="fa fa-external-link"></i>
+                      </a>
+                    {% else %}
+                      {{ rid }}
+                    {% endif %}
+                  </td>
+                  <td>{{ rid_type }}</td>
+                  <td>{{ relation }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      {# List with links (genes, chemicals, organisms, anatomy) #}
+      {% elif display_type == 'list_links' %}
+        <ul style="margin-bottom: 1em;">
+          {% for item in section_data %}
+            {% set uri = item.valueURI if item.valueURI else '' %}
+            {% set is_external_uri = uri.startswith('http://') or uri.startswith('https://') %}
+            {% set display_subject = (item.subject or '')
+              |replace('Gene: ', '')
+              |replace('Allele: ', '')
+              |replace('Gene locus: ', '')
+              |replace('Mutation type: ', '')
+              |replace('Treatment protocol: ', '')
+              |replace('Treatment design: ', '') %}
+            <li>
+              {% if is_external_uri %}
+                <a href="{{ uri }}" target="_blank" rel="noopener noreferrer" title="{{ uri }}">
+                  {{ display_subject }}
+                  <i class="fa fa-external-link"></i>
+                </a>
+              {% else %}
+                {{ display_subject }}
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      
+      {# List with links showing scheme (diseases with DOID/EFO) #}
+      {% elif display_type == 'list_links_with_scheme' %}
+        <ul style="margin-bottom: 1em;">
+          {% for item in section_data %}
+            {% set uri = item.valueURI if item.valueURI else '' %}
+            {% set is_external_uri = uri.startswith('http://') or uri.startswith('https://') %}
+            <li>
+              <strong>{{ item.subjectScheme }}:</strong>
+              {% if is_external_uri %}
+                <a href="{{ uri }}" target="_blank" rel="noopener noreferrer" title="{{ uri }}">
+                  {{ item.subject }}
+                  <i class="fa fa-external-link"></i>
+                </a>
+              {% else %}
+                {{ item.subject }}
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      
+      {# Badges (experimental interventions) #}
+      {% elif display_type == 'badges' %}
+        <p>
+          {% for item in section_data %}
+            <span class="label label-info">{{ item }}</span>
+          {% endfor %}
+        </p>
+      
+      {# Plain text #}
+      {% elif display_type == 'text' %}
+        <p>{{ section_data }}</p>
+
+      {# Resilient fallback for unknown display_type values #}
+      {% else %}
+        {% if section_data is mapping %}
+          <table class="table table-condensed">
+            <tbody>
+              {% for key, value in section_data.items() %}
+                <tr>
+                  <th scope="row" style="width: 180px;">{{ key }}</th>
+                  <td>{{ value }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% elif section_data is iterable and section_data is not string %}
+          <ul style="margin-bottom: 1em;">
+            {% for item in section_data %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>{{ section_data }}</p>
+        {% endif %}
+      
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+
+</div>
+{% elif fdf_json %}
+<details>
+  <summary>{{ _('FAIR Metadata (raw JSON)') }}</summary>
+  <pre style="white-space: pre-wrap; max-height: 300px; overflow: auto;">{{ fdf_json }}</pre>
+</details>
+{% endif %}

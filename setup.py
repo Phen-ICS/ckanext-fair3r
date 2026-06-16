@@ -20,5 +20,8 @@ setup(
     install_requires=[
         "cryptography==46.0.3",
     ],
-    version="1.5.2",
+    package_data={
+        "ckanext.fair3r.tests": ["test.ini"],
+    },
+    version="3.0.0",
 )

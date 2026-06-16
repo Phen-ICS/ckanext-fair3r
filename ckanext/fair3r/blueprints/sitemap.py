@@ -6,7 +6,7 @@ The sitemap includes home page, create dataset page, organizations, and datasets
 """
 
 import logging
-from html import escape
+from xml.etree.ElementTree import Element, SubElement, tostring  # nosec B405
 
 from flask import Blueprint, Response
 import ckan.plugins.toolkit as toolkit
@@ -14,25 +14,6 @@ import ckan.plugins.toolkit as toolkit
 log = logging.getLogger(__name__)
 
 sitemap = Blueprint("sitemap", __name__)
-
-
-def _render_sitemap_xml(entries: list[tuple[str, str, str]]) -> str:
-    lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    ]
-    for loc, changefreq, priority in entries:
-        lines.extend(
-            [
-                "  <url>",
-                f"    <loc>{escape(loc)}</loc>",
-                f"    <changefreq>{escape(changefreq)}</changefreq>",
-                f"    <priority>{escape(priority)}</priority>",
-                "  </url>",
-            ]
-        )
-    lines.append("</urlset>")
-    return "\n".join(lines)
 
 
 @sitemap.route("/sitemap.xml")
@@ -55,22 +36,36 @@ def sitemap_xml():
             log.warning("ckan.site_url not configured, sitemap may have incorrect URLs")
             site_url = "http://localhost:5000"
 
-        entries: list[tuple[str, str, str]] = []
+        # Create root element
+        urlset = Element("urlset")
+        urlset.set("xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9")
 
         # Context for API calls (no authentication needed for public data)
         context = {"ignore_auth": True}
 
         # 1. Home page
-        entries.append((f"{site_url}/", "daily", "1.0"))
+        url_elem = SubElement(urlset, "url")
+        SubElement(url_elem, "loc").text = f"{site_url}/"
+        SubElement(url_elem, "changefreq").text = "daily"
+        SubElement(url_elem, "priority").text = "1.0"
 
         # 2. Create dataset page
-        entries.append((f"{site_url}/dataset/new", "monthly", "0.8"))
+        url_elem = SubElement(urlset, "url")
+        SubElement(url_elem, "loc").text = f"{site_url}/dataset/new"
+        SubElement(url_elem, "changefreq").text = "monthly"
+        SubElement(url_elem, "priority").text = "0.8"
 
         # 3. Organizations list page
-        entries.append((f"{site_url}/organization", "weekly", "0.9"))
+        url_elem = SubElement(urlset, "url")
+        SubElement(url_elem, "loc").text = f"{site_url}/organization"
+        SubElement(url_elem, "changefreq").text = "weekly"
+        SubElement(url_elem, "priority").text = "0.9"
 
         # 4. Datasets list page
-        entries.append((f"{site_url}/dataset", "daily", "0.9"))
+        url_elem = SubElement(urlset, "url")
+        SubElement(url_elem, "loc").text = f"{site_url}/dataset"
+        SubElement(url_elem, "changefreq").text = "daily"
+        SubElement(url_elem, "priority").text = "0.9"
 
         # 5. Get and add all organizations
         try:
@@ -81,9 +76,12 @@ def sitemap_xml():
             for org in orgs:
                 org_name = org.get("name", "")
                 if org_name:
-                    entries.append(
-                        (f"{site_url}/organization/{org_name}", "weekly", "0.7")
-                    )
+                    url_elem = SubElement(urlset, "url")
+                    SubElement(
+                        url_elem, "loc"
+                    ).text = f"{site_url}/organization/{org_name}"
+                    SubElement(url_elem, "changefreq").text = "weekly"
+                    SubElement(url_elem, "priority").text = "0.7"
 
         except Exception as e:
             log.warning(f"Error fetching organizations for sitemap: {e}")
@@ -95,18 +93,22 @@ def sitemap_xml():
 
             for dataset_name in datasets:
                 if dataset_name:
-                    entries.append(
-                        (f"{site_url}/dataset/{dataset_name}", "weekly", "0.6")
-                    )
+                    url_elem = SubElement(urlset, "url")
+                    SubElement(
+                        url_elem, "loc"
+                    ).text = f"{site_url}/dataset/{dataset_name}"
+                    SubElement(url_elem, "changefreq").text = "weekly"
+                    SubElement(url_elem, "priority").text = "0.6"
 
         except Exception as e:
             log.warning(f"Error fetching datasets for sitemap: {e}")
 
-        xml = _render_sitemap_xml(entries)
+        # Convert XML tree to bytes
+        xml_bytes = tostring(urlset, encoding="utf-8")
 
         # Return XML response
         return Response(
-            xml,
+            xml_bytes,
             mimetype="application/xml",
             headers={"Content-Type": "application/xml; charset=utf-8"},
         )
@@ -117,9 +119,14 @@ def sitemap_xml():
         site_url = toolkit.config.get("ckan.site_url", "http://localhost:5000").rstrip(
             "/"
         )
-        xml = _render_sitemap_xml([(f"{site_url}/", "daily", "1.0")])
+        urlset = Element("urlset")
+        urlset.set("xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9")
+        url_elem = SubElement(urlset, "url")
+        SubElement(url_elem, "loc").text = f"{site_url}/"
+
+        rough_string = tostring(urlset, encoding="utf-8")
         return Response(
-            xml,
+            rough_string,
             mimetype="application/xml",
             headers={"Content-Type": "application/xml; charset=utf-8"},
         )

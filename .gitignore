@@ -37,6 +37,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+report-unit.xml
 
 # Sphinx documentation
 docs/_build/
@@ -54,3 +55,5 @@ docs/_build/
 .coverage/
 .coverage.xml/
 .coverage.xml/
+
+.vscode/settings.json

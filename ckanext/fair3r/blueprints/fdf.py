@@ -5,35 +5,136 @@ This blueprint handles the FDF dataset creation form, which is part of ckanext-f
 """
 
 import logging
-
-from flask import Blueprint, redirect
+from flask import Blueprint, redirect, request
 import ckan.plugins.toolkit as toolkit
+import ckan.logic as logic
+import ckan.model as model
+from ckan.common import _
 from ckanext.fair3r.lib.decorators import login_required
-from ckanext.fair3r.lib.utils import asbool
+from ckanext.fair3r.lib.fdf.context import build_fdf_context
+from ckanext.fair3r.lib.fdf.schema import load_fdf_schema
+from ckanext.fair3r.lib.fdf.form import extract_fdf_output_json
+from ckanext.fair3r.lib.fdf.utils import is_fdf_dataset
+from ckanext.fair3r.lib.fdf.render import (
+    render_fdf_create_template,
+    dispatch_standard_dataset_edit,
+)
+from ckanext.fair3r.lib.fdf.package import prepare_fdf_package_data
+from ckanext.fair3r.lib.fdf.validation import validate_fdf_output_json
+from ckanext.fair3r.lib.fdf.render import render_fdf_dataset_edit
+from ckanext.fair3r.lib.fdf.doi import sync_datacite_metadata
 
 log = logging.getLogger(__name__)
 
+
 fdf = Blueprint("fdf", __name__)
 
+NotAuthorized = logic.NotAuthorized
+NotFound = logic.NotFound
+ValidationError = logic.ValidationError
+get_action = logic.get_action
 
-@fdf.route("/dataset/new/fdf")
+
+@fdf.route("/dataset/new/fdf", methods=["GET", "POST"])
 @login_required(redirect_to="user.login")
 def fdf_dataset_creation():
     """
-    FDF (Fair3R Dataset Form) dataset creation.
-
-    This route provides access to the Fair3R Dataset Form interface for
-    dataset creation. This is part of ckanext-fair3r.
+    Render standard CKAN new dataset page with FDF metadata fields appended.
+    Handles both GET (display form) and POST (submit form).
     """
-    enable_fdf = asbool(
-        toolkit.config.get("ckanext.fair3r.enable_fdf_integration", False)
+    package_type = "dataset"
+    context = build_fdf_context()
+    schema_json = load_fdf_schema()
+
+    # Handle POST - form submission
+    if request.method == "POST":
+        try:
+            # Get form data
+
+            # IMPORTANT: Extract fdf_output_json BEFORE clean_dict might remove it
+            fdf_output_json = request.form.get("fdf_output_json")
+
+            fdf_output_json, fdf_errors, fdf_error_summary = extract_fdf_output_json(
+                request.form, schema_json, validate_fdf_output_json
+            )
+            if fdf_errors:
+                errors = fdf_errors
+                error_summary = fdf_error_summary
+                raise ValidationError(errors)
+
+            data_dict = prepare_fdf_package_data(
+                request.form,
+                package_type,
+                fdf_output_json,
+                state="draft",
+                log_label="create",
+            )
+
+            # Create the dataset
+            created_package = get_action("package_create")(context, data_dict)
+
+            try:
+                sync_datacite_metadata(
+                    created_package, context, toolkit, logic.get_action
+                )
+            except Exception as e:
+                log.error(
+                    "Fallback DOI sync failed after package_create: %s",
+                    e,
+                    exc_info=True,
+                )
+
+            # Redirect to add resources
+            return redirect(
+                toolkit.url_for("dataset_resource.new", id=created_package.get("name"))
+            )
+
+        except ValidationError as e:
+            model.Session.rollback()
+            log.error("Validation error: %s", e.error_dict)
+            errors = e.error_dict or {"FAIR Metadata (FDF)": [_("Validation failed")]}
+            error_summary = e.error_summary or {
+                k: v[0] if isinstance(v, list) and v else str(v)
+                for k, v in errors.items()
+            }
+        except NotAuthorized:
+            model.Session.rollback()
+            log.error("Not authorized to create dataset")
+            toolkit.abort(403, toolkit._("Unauthorized to create a package"))
+        except Exception as e:
+            model.Session.rollback()
+            log.error("Error creating dataset: %s", e, exc_info=True)
+            errors = {"error": [str(e)]}
+            error_summary = {"Error": str(e)}
+    else:
+        # GET - display form
+        errors = {}
+        error_summary = {}
+
+    # Get form data from POST or use empty dict
+    data = request.form.to_dict() if request.method == "POST" else {}
+    return render_fdf_create_template(
+        data, errors, error_summary, package_type, schema_json, context
     )
 
-    # If FDF integration is disabled, fall back to standard CKAN form
-    if not enable_fdf:
-        return redirect(toolkit.url_for("fco_integration.ckan_dataset_creation"))
 
-    # Render the FDF template
-    return toolkit.render(
-        "package/fdf_form.html", {"pkg_dict": None, "dataset_type": "dataset"}
-    )
+@fdf.route("/dataset/edit/<id>", methods=["GET", "POST"])
+@login_required(redirect_to="user.login")
+def fdf_dataset_edit_dispatch(id):
+    """
+    Canonical dataset edit entrypoint.
+
+    Uses FDF edit flow only for datasets containing a valid `fdf_output_json`.
+    Falls back to the standard CKAN edit flow otherwise.
+    """
+    context = build_fdf_context(for_edit=True)
+
+    try:
+        pkg_dict = logic.get_action("package_show")(context, {"id": id})
+    except Exception:
+        return dispatch_standard_dataset_edit(id=id, package_type="dataset")
+
+    if is_fdf_dataset(pkg_dict):
+        return render_fdf_dataset_edit(id=id, initial_pkg_dict=pkg_dict)
+
+    return dispatch_standard_dataset_edit(id=id, package_type="dataset")

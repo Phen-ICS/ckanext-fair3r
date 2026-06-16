@@ -16,12 +16,14 @@ from typing import Any, Iterable
 from xml.sax.saxutils import escape
 
 
-def _write_xml(path: str, testsuite: str, tests: int, failures: int, cases: Iterable[str]) -> None:
+def _write_xml(
+    path: str, testsuite: str, tests: int, failures: int, cases: Iterable[str]
+) -> None:
     xml = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         f'<testsuite name="{escape(testsuite)}" tests="{tests}" failures="{failures}" errors="0" skipped="0">\n'
         + "\n".join(cases)
-        + '\n</testsuite>\n'
+        + "\n</testsuite>\n"
     )
     Path(path).write_text(xml, encoding="utf-8")
 
@@ -40,8 +42,8 @@ def _cmd_ruff_format(args: argparse.Namespace) -> int:
     failure = '<failure message="ruff format check failed" />' if status != 0 else ""
     case = (
         f'<testcase classname="lint" name="{escape(args.test_name)}">'
-        f'{failure}<system-out>{escape(output)}</system-out>'
-        '</testcase>'
+        f"{failure}<system-out>{escape(output)}</system-out>"
+        "</testcase>"
     )
     _write_xml(args.xml, "lint.ruff_format", 1, 1 if status != 0 else 0, [case])
     return 1 if status != 0 else 0
@@ -60,8 +62,8 @@ def _cmd_ruff_check(args: argparse.Namespace) -> int:
     failure = '<failure message="ruff check failed" />' if status != 0 else ""
     case = (
         f'<testcase classname="lint" name="{escape(args.test_name)}">'
-        f'{failure}<system-out>{escape(output)}</system-out>'
-        '</testcase>'
+        f"{failure}<system-out>{escape(output)}</system-out>"
+        "</testcase>"
     )
     _write_xml(args.xml, "lint.ruff", 1, 1 if status != 0 else 0, [case])
     return 1 if status != 0 else 0
@@ -92,7 +94,11 @@ def _cmd_bandit(args: argparse.Namespace) -> int:
         more_info = issue.get("more_info", "")
         code = (issue.get("code") or "").rstrip()
 
-        cwe = issue.get("issue_cwe", {}) if isinstance(issue.get("issue_cwe"), dict) else {}
+        cwe = (
+            issue.get("issue_cwe", {})
+            if isinstance(issue.get("issue_cwe"), dict)
+            else {}
+        )
         cwe_id = cwe.get("id")
         cwe_link = cwe.get("link")
 
@@ -112,7 +118,11 @@ def _cmd_bandit(args: argparse.Namespace) -> int:
         msg = f"{test_id} [{severity}/{confidence}] {filename}:{line}"
         details = text
         if more_info:
-            details = f"{details}\nMore info: {more_info}" if details else f"More info: {more_info}"
+            details = (
+                f"{details}\nMore info: {more_info}"
+                if details
+                else f"More info: {more_info}"
+            )
         if code:
             details = f"{details}\n\nCode:\n{code}" if details else f"Code:\n{code}"
 
