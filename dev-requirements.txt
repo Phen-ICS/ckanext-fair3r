@@ -1,5 +1,1 @@
-pytest==7.4.4
-coverage==6.5.0
 flask-debugtoolbar==0.16.0
-pytest_factoryboy==2.8.1
-pylons==1.0.3
