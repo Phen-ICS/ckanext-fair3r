@@ -1,0 +1,44 @@
+{% ckan_extends %}
+
+{% block extras scoped %}
+  {% set ns = namespace(fdf_json_value='') %}
+  {% for extra in h.sorted_extras(pkg_dict.extras) %}
+    {% set key, value = extra %}
+    {% if key == 'fdf_output_json' %}
+      {% set ns.fdf_json_value = value %}
+    {% elif key.startswith('datacite.') %}
+      {# Skip datacite.* extras - technical metadata for DOI plugin #}
+    {% else %}
+      <tr rel="dc:relation" resource="_:extra{{ loop.index }}">
+        <th scope="row" class="dataset-label" property="rdfs:label">{{ _(key|e) }}</th>
+        <td class="dataset-details" property="rdf:value">{{ value }}</td>
+      </tr>
+    {% endif %}
+  {% endfor %}
+
+  {% if ns.fdf_json_value %}
+    {% set parse_fdf = h|attr('parse_fdf_json') %}
+    {% set fdf_data = parse_fdf(ns.fdf_json_value) if parse_fdf else {} %}
+    {% if fdf_data %}
+      {% set schema_sections = h.fdf_schema_sections() %}
+      {% for section in schema_sections %}
+        {% set section_data = h.extract_fdf_section_data(fdf_data, section) %}
+        {% if section_data %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ section.icon }} {{ section.title }}</th>
+            <td class="dataset-details">
+              {% snippet 'package/snippets/fdf_metadata_display.html', fdf_data=fdf_data, single_section=section, hide_heading=true %}
+            </td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <tr>
+        <th scope="row" class="dataset-label">{{ _('FAIR Metadata (raw JSON)') }}</th>
+        <td class="dataset-details">
+          <pre style="white-space: pre-wrap; max-height: 300px; overflow: auto;">{{ ns.fdf_json_value }}</pre>
+        </td>
+      </tr>
+    {% endif %}
+  {% endif %}
+{% endblock %}

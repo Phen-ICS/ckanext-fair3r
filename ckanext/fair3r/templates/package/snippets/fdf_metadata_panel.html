@@ -1,0 +1,13 @@
+{% if use_fdf %}
+<hr/>
+<fieldset class="fdf-metadata-fieldset">
+  <legend>{{ _('FAIR3R Metadata') }}</legend>
+  <div class="form-group">
+    <div id="fdf-alert" class="alert alert-info">
+      {{ _('Loading FAIR3R dynamic form fields...') }}
+    </div>
+    <div id="fdf-form-container" data-module="fdf-form-module"></div>
+    <input type="hidden" name="fdf_output_json" id="fdf-output-json" value="{% if fdf_json %}{{ fdf_json }}{% endif %}" />
+  </div>
+</fieldset>
+{% endif %}

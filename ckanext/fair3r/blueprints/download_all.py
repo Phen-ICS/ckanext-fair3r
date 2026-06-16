@@ -23,6 +23,8 @@ download_all = Blueprint(
 )
 log = logging.getLogger(__name__)
 
+log = logging.getLogger(__name__)
+
 
 def _safe_arcname(filename: str, fallback: str) -> str:
     name = (filename or "").strip().replace("\\", "/")
@@ -188,8 +190,25 @@ def download(id: str):
                     log.warning("Skipping resource %s in archive build: %s", res_id, e)
                     file_path = None
 
-                if not file_path or not os.path.exists(file_path):
-                    continue
+                    # Try to build a friendly filename
+                    url = res.get("url", "") or ""
+                    # In CKAN uploaded resources, the URL often ends with /download/<filename>
+                    candidate_filename = ""
+                    if "/download/" in url:
+                        candidate_filename = url.split("/download/")[-1]
+                    arcname = _safe_arcname(
+                        candidate_filename,
+                        f"{res.get('name') or 'resource'}-{res_id}{os.path.splitext(file_path)[1]}",
+                    )
+
+                    zf.write(file_path, arcname=arcname)
+                except Exception as exc:
+                    # Skip problematic resource entries, but keep traceability.
+                    log.warning(
+                        "Skipping resource in download-all archive build for dataset %s: %s",
+                        package.get("id") or package.get("name"),
+                        exc,
+                    )
 
                 # Try to build a friendly filename
                 url = res.get("url", "") or ""

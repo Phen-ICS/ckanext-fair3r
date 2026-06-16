@@ -1,14 +1,15 @@
-# fair3r-js:
-#   filter: rjsmin
-#   output: ckanext-fair3r/%(version)s-fair3r.js
-#   contents:
-#     - js/fair3r.js
-#   extra:
-#     preload:
-#       - base/main
+fair3r-css:
+  filters: cssrewrite
+  output: ckanext-fair3r/%(version)s-fair3r.css
+  contents:
+    - css/fair3r.css
 
-# fair3r-css:
-#   filter: cssrewrite
-#   output: ckanext-fair3r/%(version)s-fair3r.css
-#   contents:
-#     - css/fair3r.css
+fair3r-js:
+  filters: rjsmin
+  output: ckanext-fair3r/%(version)s-fair3r.js
+  contents:
+    - js/script.js
+    - js/fdf-form.js
+  extra:
+    preload:
+      - base/main

@@ -1,0 +1,106 @@
+{% extends "package/base.html" %}
+
+{% block content_primary %}
+  <article class="module">
+    {% block primary_content_inner %}
+
+    {% block form %}
+      {{ h.snippet(form_snippet, pkg_dict=pkg_dict, **form_vars) }}
+    {% endblock %}
+
+    {% endblock %}
+  </article>
+
+  {% set ns = namespace(fdf_json='') %}
+  {% if pkg_dict and pkg_dict.extras %}
+    {% for extra in pkg_dict.extras %}
+      {% if extra.get('key') == 'fdf_output_json' or extra.key == 'fdf_output_json' %}
+        {% set ns.fdf_json = extra.get('value') or extra.value %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  {# ALWAYS add hidden field to main form - needed for FDF form submissions #}
+  <script type="text/javascript">
+    // Run immediately to ensure field exists before FDF module initializes
+    (function() {
+      function addFDFFieldToForm() {
+        var mainForm = document.querySelector('form.dataset-form') || 
+                       document.getElementById('dataset-edit') ||
+                       document.querySelector('form');
+        
+        if (mainForm) {
+          var existingInput = mainForm.querySelector('input[name="fdf_output_json"]');
+          if (!existingInput) {
+            var hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'fdf_output_json';
+            hiddenInput.id = 'fdf-output-json';
+            hiddenInput.value = '{{ ns.fdf_json | safe }}'; // Populate with existing value if any
+            mainForm.appendChild(hiddenInput);
+            console.log('✅ Added fdf_output_json hidden field to main form');
+            return true;
+          } else {
+            console.log('✅ fdf_output_json field already exists');
+            return true;
+          }
+        } else {
+          console.warn('⚠️ Main form not found yet, will retry...');
+          return false;
+        }
+      }
+      
+      // Try immediately
+      if (!addFDFFieldToForm()) {
+        // If form not found, wait for DOM
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', addFDFFieldToForm);
+        } else {
+          setTimeout(addFDFFieldToForm, 50);
+        }
+      }
+    })();
+  </script>
+
+  {% if ns.fdf_json %}
+        } else {
+          // DOM already loaded, try with small delay
+          setTimeout(addFDFFieldToForm, 50);
+        }
+      }
+    })();
+  </script>
+  
+  <article class="module" style="margin-top: 40px;">
+    <h2>{{ _('FAIR3R Metadata') }}</h2>
+    <div class="module-content">
+      <div id="fdf-alert" class="alert alert-info">
+        {{ _('Loading FAIR3R dynamic form fields...') }}
+      </div>
+      <div id="fdf-form-container" data-module="fdf-form-module"></div>
+    </div>
+  </article>
+
+  <script type="text/javascript">
+    window.FDF_SCHEMA = {{ h.dump_json(h.fdf_schema()) | safe }};
+    window.FDF_DATA = {{ ns.fdf_json | safe }};
+  </script>
+  {% asset 'fair3r/fair3r-js' %}
+  {% endif %}
+{% endblock %}
+
+{% block secondary_content %}
+<section class="module module-narrow module-shallow">
+  <h2 class="module-heading">
+    <i class="fa fa-info-circle"></i> {{ _('Fair3R Dataset Form') }}
+  </h2>
+  <div class="module-content">
+    <p>
+      {% trans %}
+      The Fair3R Dataset Form (FDF) is a dynamic ontology-driven form.
+      Metadata fields are generated from a JSON schema and may query external databases.
+      {% endtrans %}
+    </p>
+  </div>
+</section>
+{% endblock %}

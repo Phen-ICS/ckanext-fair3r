@@ -214,6 +214,64 @@ main.hero-no-gradient{ background-image: white !important; }
   background-size: 80%;
 }
 
+/* FDF API loading indicator */
+@keyframes fdf-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.fdf-api-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--fair3r-color-muted);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--fair3r-color-border);
+  background: var(--fair3r-color-surface-alt);
+}
+
+.fdf-api-loading .spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #dcdcdc;
+  border-top-color: #6c757d;
+  border-radius: 50%;
+  animation: fdf-spin 0.8s linear infinite;
+}
+
+/* FDF dataset form field management */
+.dataset-form.fdf-dataset-form #field-author,
+.dataset-form.fdf-dataset-form #field-author-email,
+.dataset-form.fdf-dataset-form #field-maintainer,
+.dataset-form.fdf-dataset-form #field-maintainer-email,
+.dataset-form.fdf-dataset-form label[for="field-author"],
+.dataset-form.fdf-dataset-form label[for="field-author-email"],
+.dataset-form.fdf-dataset-form label[for="field-maintainer"],
+.dataset-form.fdf-dataset-form label[for="field-maintainer-email"] {
+  display: none !important;
+}
+
+.dataset-form.fdf-dataset-form .control-full:has(#field-author),
+.dataset-form.fdf-dataset-form .control-full:has(#field-author-email),
+.dataset-form.fdf-dataset-form .control-full:has(#field-maintainer),
+.dataset-form.fdf-dataset-form .control-full:has(#field-maintainer-email),
+.dataset-form.fdf-dataset-form [data-module="custom-fields"],
+.dataset-form.fdf-dataset-form fieldset:has([data-module="custom-fields"]),
+.dataset-form.fdf-dataset-form .control-group:has(input[name^="extras__"]),
+.dataset-form.fdf-dataset-form .control-group:has(input[id*="fdf_output_json"]),
+.dataset-form.fdf-dataset-form .control-group:has(input[name*="fdf_output_json"]) {
+  display: none !important;
+}
+
+.dataset-form.fdf-dataset-form .control-custom,
+.dataset-form.fdf-dataset-form .control-custom.disabled,
+.dataset-form.fdf-dataset-form .control-custom .editor {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 /* 7. Boxes & cards */
 .box {
   border-radius: var(--fair3r-radius-md);
@@ -632,7 +690,144 @@ main.hero-no-gradient{ background-image: white !important; }
 .fair3r-dataset-list .dataset-item { margin-bottom: 20px; padding: 0; }
 .fair3r-dataset-list .dataset-item:last-child { margin-bottom: 0; }
 
-/* 14. Responsive tweaks */
+/* 14. FDF Metadata Display */
+.fdf-metadata table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.fdf-metadata table thead th {
+  background-color: #f5f5f5;
+  border-bottom: 2px solid #333;
+  padding: 10px;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.9em;
+  letter-spacing: 0.5px;
+  text-align: left;
+}
+
+/* Stronger alternating row colors */
+.fdf-metadata table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.fdf-metadata table tbody tr:nth-child(even) {
+  background-color: #e8e8e8;
+}
+
+.fdf-metadata table tbody td,
+.fdf-metadata table tbody th {
+  padding: 8px 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Author cards styling - uniform background with better separation */
+.fdf-metadata .authors-list > div {
+  background-color: #f9f9f9;
+  border-left: 4px solid #3c8dbc;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 2em;
+  padding: 1em;
+  border-radius: 3px;
+}
+
+.fdf-metadata .authors-list > div h5 {
+  margin-top: 0;
+  margin-bottom: 0.8em;
+  color: #333;
+  font-size: 1.1em;
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Nested tables in authors section */
+.fdf-metadata .authors-list table {
+  background-color: #fff;
+  margin-bottom: 1em;
+  border: 1px solid #ddd;
+}
+
+.fdf-metadata .authors-list table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.fdf-metadata .authors-list table tbody tr:nth-child(even) {
+  background-color: #f0f0f0;
+}
+
+.fdf-metadata .authors-list table thead th {
+  background-color: #e0e0e0;
+  border-bottom: 2px solid #999;
+  font-size: 0.85em;
+  text-transform: uppercase;
+}
+
+/* Composite card styling - matches author cards design */
+.fdf-metadata .fdf-composite-card {
+  background-color: #f9f9f9;
+  border-left: 4px solid var(--fdf-accent-color, #3c8dbc);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 2em;
+  padding: 1em;
+  border-radius: 3px;
+}
+
+.fdf-metadata .fdf-composite-table {
+  background-color: transparent;
+  margin-bottom: 0;
+  border: none;
+}
+
+.fdf-metadata .fdf-composite-table tbody tr {
+  background-color: transparent;
+  border-bottom: 1px solid #ddd;
+}
+
+.fdf-metadata .fdf-composite-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.fdf-metadata .fdf-composite-table tbody th {
+  color: #333;
+  font-weight: bold;
+  width: 150px;
+  padding: 8px 10px;
+}
+
+.fdf-metadata .fdf-composite-table tbody td {
+  padding: 8px 10px;
+}
+
+.fdf-required-star {
+  color: #d9534f;
+  font-weight: 700;
+}
+
+.fdf-invalid {
+  border-color: #d9534f !important;
+  box-shadow: 0 0 0 1px rgba(217, 83, 79, 0.2);
+}
+
+/* 15. Responsive tweaks */
+/* Dataset additional info: override CKAN core 50/50 split */
+.additional-info th { width: 35% !important; }
+.additional-info td { width: 65% !important; }
+
+.additional-info td.dataset-details .fdf-metadata {
+  margin-bottom: 0;
+}
+
+.additional-info td.dataset-details .fdf-metadata .fdf-composite-card,
+.additional-info td.dataset-details .fdf-metadata .authors-list > div {
+  margin-bottom: 0.75em;
+}
+
+.additional-info td.dataset-details .fdf-metadata .fdf-composite-card:last-child,
+.additional-info td.dataset-details .fdf-metadata .authors-list > div:last-child {
+  margin-bottom: 0;
+}
+
 @media (max-width: 768px) {
   .fair3r-dataset-card { padding: 16px; }
   .masthead .main-navbar ul li a { font-size: 14px; }
