@@ -31,10 +31,13 @@ def dataset_creation():
     enable_fdf = asbool(
         toolkit.config.get("ckanext.fair3r.enable_fdf_integration", True)
     )
+    context = toolkit.config.get("ckanext.fair3r.context", "DEV")
 
     # If FDF is disabled, just fall back to the normal CKAN flow
     if not enable_fdf:
         return redirect(toolkit.url_for("standard_creation.standard_dataset_creation"))
+    if context in "PRODUCTION":
+        return redirect(toolkit.url_for("fdf.fdf_dataset_creation"))
     else:
         return toolkit.render(
             "package/creation_choice.html",
