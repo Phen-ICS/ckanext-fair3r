@@ -18,6 +18,7 @@ from ckanext.fair3r.blueprints.fdf import fdf
 from ckanext.fair3r.blueprints.sitemap import sitemap
 from ckanext.fair3r.blueprints.standard_creation import standard_creation
 from ckanext.doi.interfaces import IDoi  # type: ignore
+from ckanext.fair3r import cli
 import json
 import os
 import logging
@@ -28,7 +29,7 @@ log = logging.getLogger(__name__)
 # Routing: register blueprints (`IBlueprint`) to expose custom endpoints.
 # Templating/theming: add template/public asset paths (`IConfigurer`) for overrides.
 # Authz/action overrides: expose `get_auth_functions` (`IAuthFunctions`) or `get_actions`.
-# CLI/admin hooks: register custom commands (`IClick`).
+# CLI/admin hooks: (removed - tasks now run via cron/Ansible)
 # Validation and schema: implement `IDatasetForm` or `IValidators`.
 
 log = getLogger(__name__)
@@ -41,6 +42,7 @@ class Fair3RPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(IDoi, inherit=True)
+    plugins.implements(plugins.IClick)
 
     # IConfigurer
 
@@ -166,6 +168,9 @@ class Fair3RPlugin(plugins.SingletonPlugin):
             )
 
         return sections
+
+    def get_commands(self):
+        return cli.get_commands()
 
     def extract_fdf_section_data(self, fdf_data, section):
         """
