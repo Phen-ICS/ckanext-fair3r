@@ -73,7 +73,7 @@ def download(id: str):
 
     def _format_dataset_metadata_text(pkg: dict[str, Any]) -> str:
         lines: list[str] = []
-        lines.append("Dataset metadata")
+        lines.append(_("Dataset metadata"))
         lines.append("=================")
         lines.append("")
 
@@ -82,37 +82,37 @@ def download(id: str):
                 v = ""
             lines.append(f"{k}: {v}")
 
-        add("ID", pkg.get("id"))
-        add("Name", pkg.get("name"))
-        add("Title", pkg.get("title"))
-        add("Notes", pkg.get("notes"))
-        add("Author", pkg.get("author"))
-        add("Author Email", pkg.get("author_email"))
-        add("Maintainer", pkg.get("maintainer"))
-        add("Maintainer Email", pkg.get("maintainer_email"))
-        add("License", pkg.get("license_title") or pkg.get("license_id"))
-        add("Owner Org", pkg.get("owner_org"))
-        add("Private", pkg.get("private"))
-        add("Created", pkg.get("metadata_created"))
-        add("Last Modified", pkg.get("metadata_modified"))
-        add("State", pkg.get("state"))
-        add("Type", pkg.get("type"))
+        add(_("ID"), pkg.get("id"))
+        add(_("Name"), pkg.get("name"))
+        add(_("Title"), pkg.get("title"))
+        add(_("Notes"), pkg.get("notes"))
+        add(_("Author"), pkg.get("author"))
+        add(_("Author Email"), pkg.get("author_email"))
+        add(_("Maintainer"), pkg.get("maintainer"))
+        add(_("Maintainer Email"), pkg.get("maintainer_email"))
+        add(_("License"), pkg.get("license_title") or pkg.get("license_id"))
+        add(_("Owner Org"), pkg.get("owner_org"))
+        add(_("Private"), pkg.get("private"))
+        add(_("Created"), pkg.get("metadata_created"))
+        add(_("Last Modified"), pkg.get("metadata_modified"))
+        add(_("State"), pkg.get("state"))
+        add(_("Type"), pkg.get("type"))
 
         # Organization
         org = pkg.get("organization") or {}
         if isinstance(org, dict) and org.get("name"):
             lines.append("")
-            lines.append("Organization")
+            lines.append(_("Organization"))
             lines.append("------------")
-            add("Org ID", org.get("id"))
-            add("Org Name", org.get("name"))
-            add("Org Title", org.get("title"))
+            add(_("Org ID"), org.get("id"))
+            add(_("Org Name"), org.get("name"))
+            add(_("Org Title"), org.get("title"))
 
         # Tags
         tags = pkg.get("tags") or []
         if tags:
             lines.append("")
-            lines.append("Tags")
+            lines.append(_("Tags"))
             lines.append("----")
             for t in tags:
                 if isinstance(t, dict):
@@ -124,7 +124,7 @@ def download(id: str):
         groups = pkg.get("groups") or []
         if groups:
             lines.append("")
-            lines.append("Groups")
+            lines.append(_("Groups"))
             lines.append("------")
             for g in groups:
                 if isinstance(g, dict):
@@ -134,7 +134,7 @@ def download(id: str):
         extras = pkg.get("extras") or []
         if extras:
             lines.append("")
-            lines.append("Extras")
+            lines.append(_("Extras"))
             lines.append("------")
             if isinstance(extras, list):
                 for e in extras:
@@ -146,7 +146,7 @@ def download(id: str):
 
         # Resources list
         lines.append("")
-        lines.append("Resources")
+        lines.append(_("Resources"))
         lines.append("---------")
         for r in pkg.get("resources", []) or []:
             name = r.get("name") or r.get("id")
@@ -156,12 +156,12 @@ def download(id: str):
             included = "upload" if r.get("url_type") == "upload" else "link"
             lines.append(f"- {name}")
             if desc:
-                lines.append(f"  Description: {desc}")
+                lines.append(f"  {_('Description')}: {desc}")
             if fmt:
-                lines.append(f"  Format: {fmt}")
+                lines.append(f"  {_('Format')}: {fmt}")
             if url:
-                lines.append(f"  URL: {url}")
-            lines.append(f"  Type: {included}")
+                lines.append(f"  {_('URL')}: {url}")
+            lines.append(f"  {_('Type')}: {included}")
 
         lines.append("")
         return "\n".join(lines)

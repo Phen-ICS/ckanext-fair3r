@@ -57,3 +57,5 @@ docs/_build/
 .coverage.xml/
 
 .vscode/settings.json
+
+ckanext/fair3r/schema/

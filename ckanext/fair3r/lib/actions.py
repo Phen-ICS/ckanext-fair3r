@@ -216,7 +216,7 @@ def _xenbase_gene_lines(data_dict):
     gene_id = toolkit.get_or_bust(data_dict, "geneId")
     gene_id = str(gene_id).strip()
     if not gene_id:
-        raise toolkit.ValidationError({"geneId": ["geneId is required"]})
+        raise toolkit.ValidationError({"geneId": [toolkit._("geneId is required")]})
 
     # Xenbase geneAjax.do uses an internal numeric ID that is one less than the
     # public accession number in XB-GENE-XXXXXX. Strip the prefix and subtract 1.
@@ -271,13 +271,13 @@ def _rgd_gene_variants(data_dict):
     gene_id = toolkit.get_or_bust(data_dict, "geneId")
     gene_id = str(gene_id).strip()
     if not gene_id:
-        raise toolkit.ValidationError({"geneId": ["geneId is required"]})
+        raise toolkit.ValidationError({"geneId": [toolkit._("geneId is required")]})
 
     # Accept values like "RGD:620474" or "620474" and keep numeric token.
     match = re.search(r"(\d+)$", gene_id)
     if not match:
         raise toolkit.ValidationError(
-            {"geneId": ["geneId must contain a numeric RGD identifier"]}
+            {"geneId": [toolkit._("geneId must contain a numeric RGD identifier")]}
         )
     rgd_gene_id = match.group(1)
 
@@ -359,7 +359,7 @@ def external_lookup(context, data_dict):
     GET /api/3/action/external_lookup?provider=xenbase&resource=gene_lines&geneId=XB-GENE-484088
     """
     if not context.get("user") and not context.get("auth_user_obj"):
-        raise toolkit.NotAuthorized("Authentication required")
+        raise toolkit.NotAuthorized(toolkit._("Authentication required"))
 
     provider = str(data_dict.get("provider") or "").strip().lower()
     resource = str(data_dict.get("resource") or "").strip().lower()
@@ -373,7 +373,10 @@ def external_lookup(context, data_dict):
     raise toolkit.ValidationError(
         {
             "provider": [
-                f"Unsupported external lookup: provider={provider!r}, resource={resource!r}"
+                toolkit._(
+                    "Unsupported external lookup: provider=%(provider)r, resource=%(resource)r"
+                )
+                % {"provider": provider, "resource": resource}
             ]
         }
     )

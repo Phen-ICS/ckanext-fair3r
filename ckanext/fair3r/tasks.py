@@ -19,11 +19,75 @@ import requests
 
 log = logging.getLogger(__name__)
 
-REMOTE_URL = (
-    "https://raw.githubusercontent.com/Phen-ICS/fair3r-fdf-schema/main/fdf_schema.json"
-)
+REMOTE_BASE = "https://raw.githubusercontent.com/Phen-ICS/fair3r-fdf-schema/main"
+REMOTE_URL = f"{REMOTE_BASE}/fdf_schema.json"
+SUPPORTED_SCHEMA_LOCALES = ("fr",)
 SCHEMA_DIR = os.path.join(os.path.dirname(__file__), "schema")
 SCHEMA_PATH = os.path.join(SCHEMA_DIR, "fdf_schema.json")
+I18N_DIR = os.path.join(SCHEMA_DIR, "i18n")
+
+
+def _remote_schema_i18n_url(locale: str) -> str:
+    return f"{REMOTE_BASE}/i18n/{locale}.json"
+
+
+def _atomic_write_json(path, payload):
+    directory = os.path.dirname(path)
+    os.makedirs(directory, exist_ok=True)
+    fd, tmp_path = tempfile.mkstemp(dir=directory, prefix=".tmp_", suffix=".json")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, ensure_ascii=False)
+            handle.write("\n")
+        os.rename(tmp_path, path)
+        os.chmod(path, 0o644)
+    except OSError:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        raise
+
+
+def _download_json(url):
+    response = requests.get(url, timeout=30)
+    response.raise_for_status()
+    return response.json()
+
+
+def _update_schema_i18n_sidecars(result, version):
+    updated = []
+    skipped = []
+    for locale in SUPPORTED_SCHEMA_LOCALES:
+        destination = os.path.join(I18N_DIR, f"{locale}.json")
+        try:
+            payload = _download_json(_remote_schema_i18n_url(locale))
+        except requests.RequestException as exc:
+            skipped.append(f"{locale} ({exc})")
+            log.warning(
+                "Schema i18n update skipped for %s: %s", locale, exc, exc_info=True
+            )
+            continue
+
+        strings = payload.get("strings")
+        if not isinstance(strings, dict):
+            log.error("Invalid schema i18n sidecar for %s (missing strings)", locale)
+            continue
+
+        try:
+            _atomic_write_json(destination, payload)
+        except OSError as exc:
+            log.error("Failed to write schema i18n sidecar %s: %s", destination, exc)
+            continue
+
+        updated.append(locale)
+
+    parts = [f"Schema updated successfully (version: {version})"]
+    if updated:
+        parts.append(f"i18n updated: {', '.join(updated)}")
+    if skipped:
+        parts.append(f"i18n kept local: {', '.join(skipped)}")
+    result["message"] = "; ".join(parts)
 
 
 def update_fdf_schema():
@@ -37,50 +101,28 @@ def update_fdf_schema():
     result = {"success": False, "message": "", "version": None}
 
     try:
-        response = requests.get(REMOTE_URL, timeout=30)
-        response.raise_for_status()
+        schema = _download_json(REMOTE_URL)
     except requests.RequestException as exc:
         result["message"] = f"Failed to fetch schema from GitHub: {exc}"
         log.error("Schema update failed: %s", exc)
         return result
-
-    # Validate JSON before writing
-    try:
-        schema = response.json()
     except (json.JSONDecodeError, ValueError) as exc:
         result["message"] = f"Invalid JSON from remote: {exc}"
         log.error("Schema update failed: %s", exc)
         return result
 
-    # Extract version if present
     version = schema.get("version", "unknown")
     result["version"] = version
 
-    # Ensure the schema directory exists
-    os.makedirs(SCHEMA_DIR, exist_ok=True)
-
-    # Atomic write: write to a temp file first, then rename
     try:
-        fd, tmp_path = tempfile.mkstemp(
-            dir=SCHEMA_DIR, prefix="fdf_schema_", suffix=".tmp"
-        )
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
-            json.dump(schema, f, indent=2, ensure_ascii=False)
-            f.write("\n")
-        os.rename(tmp_path, SCHEMA_PATH)
-        # Ensure the file is readable by all users (fixes permission issues)
-        os.chmod(SCHEMA_PATH, 0o644)
+        _atomic_write_json(SCHEMA_PATH, schema)
     except OSError as exc:
-        # Clean up temp file on failure
-        try:
-            os.unlink(tmp_path)
-        except OSError:
-            pass
         result["message"] = f"Failed to write schema file: {exc}"
         log.error("Schema update failed: %s", exc)
         return result
 
+    _update_schema_i18n_sidecars(result, version)
+
     result["success"] = True
-    result["message"] = f"Schema updated successfully (version: {version})"
     log.info("Schema updated successfully (version: %s)", version)
     return result

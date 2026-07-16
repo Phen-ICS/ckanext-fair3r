@@ -1,4 +1,5 @@
 import click
+
 from ckanext.fair3r.tasks import update_fdf_schema
 
 
@@ -14,7 +15,7 @@ def fair3r():
 
 @fair3r.command(name="update-schema")
 def update_schema():
-    """Doawnload and update FDF schema from github repository."""
+    """Download FDF schema and locale sidecars from the schema repository."""
     result = update_fdf_schema()
     if result["success"]:
         click.secho(result["message"], fg="green")
