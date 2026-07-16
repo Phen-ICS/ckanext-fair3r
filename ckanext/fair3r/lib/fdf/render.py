@@ -109,7 +109,9 @@ def render_fdf_dataset_edit(id, initial_pkg_dict=None):
 
         except logic.ValidationError as e:
             log.error("Validation error updating dataset: %s", e.error_dict)
-            errors = e.error_dict or {"FAIR Metadata (FDF)": [_("Validation failed")]}
+            errors = e.error_dict or {
+                _("FAIR Metadata (FDF)"): [_("Validation failed")]
+            }
             error_summary = {
                 k: v[0] if isinstance(v, list) and v else str(v)
                 for k, v in errors.items()
@@ -117,7 +119,7 @@ def render_fdf_dataset_edit(id, initial_pkg_dict=None):
             _hydrate_tag_string(pkg_dict, request.form.get("tag_string"))
         except Exception as e:
             log.error("Unexpected error updating dataset: %s", e, exc_info=True)
-            toolkit.h.flash_error(f"Error: {str(e)[:100]}")
+            toolkit.h.flash_error(_("Error: %(message)s") % {"message": str(e)[:100]})
             return redirect(toolkit.url_for("dataset.read", id=id))
 
     _hydrate_tag_string(pkg_dict)

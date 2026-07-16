@@ -1,5 +1,8 @@
-ckan.module("fdf-form-module", function ($, _) {
+ckan.module("fdf-form-module", function ($, translate, i18n) {
   "use strict";
+
+  // CKAN passes jed.translate as the 2nd arg (returns an object); use i18n._ for strings.
+  const _ = i18n._;
 
   // Simple debounce implementation since _.debounce may not be available
   const debounce = function(func, wait) {
@@ -473,7 +476,7 @@ ckan.module("fdf-form-module", function ($, _) {
             const dependencyValue = self._getContextValue(api.depends_on, input);
             if (dependencyValue === null || dependencyValue === undefined || String(dependencyValue).trim() === "") {
               resultsContainer.empty().show()
-                .append('<div style="padding:10px; color:#999;">Please select or enter the dependent field first.</div>');
+                .append(`<div style="padding:10px; color:#999;">${_("Please select or enter the dependent field first.")}</div>`);
               return;
             }
           }
@@ -523,7 +526,7 @@ ckan.module("fdf-form-module", function ($, _) {
             if (!res.ok) {
               console.error(`API Error ${res.status}:`, res.statusText);
               resultsContainer.empty().show()
-                .append(`<div style="color:red; padding:10px;">Erreur: ${res.status} ${res.statusText}</div>`);
+                .append(`<div style="color:red; padding:10px;">${_("Error")}: ${res.status} ${res.statusText}</div>`);
               self._setApiLoading(resultsContainer, false);
               return;
             }
@@ -533,14 +536,14 @@ ckan.module("fdf-form-module", function ($, _) {
             let items = self._filterApiResults(getNestedValue(data, api.result_path, []), api, input);
             if (!Array.isArray(items)) {
               resultsContainer.empty().show()
-                .append('<div style="padding:10px; color:#999;">Invalid response format</div>');
+                .append(`<div style="padding:10px; color:#999;">${_("Invalid response format")}</div>`);
               self._setApiLoading(resultsContainer, false);
               return;
             }
 
             resultsContainer.empty().show();
             if (!items || items.length === 0) {
-              resultsContainer.append('<div style="padding:10px; color:#999;">No results</div>');
+              resultsContainer.append(`<div style="padding:10px; color:#999;">${_("No results")}</div>`);
               self._setApiLoading(resultsContainer, false);
               return;
             }
@@ -643,7 +646,7 @@ ckan.module("fdf-form-module", function ($, _) {
           } catch (e) {
             console.error("API search error for " + apiKey, e);
             resultsContainer.empty().show()
-              .append(`<div style="color:red; padding:10px;">Request error: ${e.message}</div>`);
+              .append(`<div style="color:red; padding:10px;">${_("Request error")}: ${e.message}</div>`);
             self._setApiLoading(resultsContainer, false);
           }
         }, 300)
@@ -1108,7 +1111,7 @@ ckan.module("fdf-form-module", function ($, _) {
 
             if (totalItems === 0) {
               if (dependencyMissing) {
-                resultsContainer.append('<div style="padding:10px; color:#999;">Please select or enter the dependent field first.</div>');
+                resultsContainer.append(`<div style="padding:10px; color:#999;">${_("Please select or enter the dependent field first.")}</div>`);
               } else if (unresolvedContext) {
                 resultsContainer.append(`<div style="padding:10px; color:#999;">${self._getApiUnavailableMessage(input)}</div>`);
               } else {
@@ -1268,9 +1271,9 @@ ckan.module("fdf-form-module", function ($, _) {
     },
 
     _formatFieldLabel: function(field) {
-      const safeLabel = field.label || "Field";
+      const safeLabel = field.label || _("Field");
       if (field.required) {
-        return `${safeLabel} <span class="fdf-required-star" title="Required" style="color:#d9534f; margin-left:2px;">*</span>`;
+        return `${safeLabel} <span class="fdf-required-star" title="${_("Required")}" style="color:#d9534f; margin-left:2px;">*</span>`;
       }
       return safeLabel;
     },
@@ -1308,7 +1311,7 @@ ckan.module("fdf-form-module", function ($, _) {
 
       if (loading) {
         resultsContainer.empty().show().append(
-          '<div class="fdf-api-loading"><span class="spinner"></span><span>Searching…</span></div>'
+          `<div class="fdf-api-loading"><span class="spinner"></span><span>${_("Searching…")}</span></div>`
         );
       } else {
         resultsContainer.find('.fdf-api-loading').remove();
@@ -1742,18 +1745,18 @@ ckan.module("fdf-form-module", function ($, _) {
       const fieldName = inputEl && inputEl.length ? inputEl.attr("name") : "";
       const taxonId = this._getOrganismTaxonId();
         if (!taxonId && (fieldName === FIELD_NAMES.GENE || fieldName === FIELD_NAMES.ALLELE)) {
-        return "Please select an organism model first.";
+        return _("Please select an organism model first.");
       }
-      return "Search is not available for the selected organism.";
+      return _("Search is not available for the selected organism.");
     },
 
     _getNoResultsMessage: function(inputEl) {
       const fieldName = inputEl && inputEl.length ? inputEl.attr("name") : "";
       const taxonId = this._getOrganismTaxonId();
         if (fieldName === FIELD_NAMES.GENETIC_BACKGROUND && taxonId === TAXON_IDS.XENOPUS) {
-        return "No Xenopus mutant strain/line found in Xenbase for this gene. You can enter one manually.";
+        return _("No Xenopus mutant strain/line found in Xenbase for this gene. You can enter one manually.");
       }
-      return "No results";
+      return _("No results");
     },
 
     _getRequestErrorMessage: function(inputEl, error) {
@@ -1768,10 +1771,10 @@ ckan.module("fdf-form-module", function ($, _) {
         lowerError.includes("load failed");
 
         if (fieldName === FIELD_NAMES.GENETIC_BACKGROUND && taxonId === TAXON_IDS.XENOPUS && isBrowserNetworkError) {
-        return "Xenbase lookup failed (server could not reach Xenbase). You can still enter the Xenopus strain/line manually.";
+        return _("Xenbase lookup failed (server could not reach Xenbase). You can still enter the Xenopus strain/line manually.");
       }
 
-      return `Request error: ${rawError}`;
+      return `${_("Request error")}: ${rawError}`;
     },
 
     _getApiSourceTag: function(apiKey, itemData = null) {
@@ -2469,7 +2472,7 @@ ckan.module("fdf-form-module", function ($, _) {
         const uniqueMessages = [...new Set(allMessages)];
         const html = `
           <div class="fdf-validation-alert alert alert-error" style="margin-bottom:12px;">
-            <strong>FDF validation failed.</strong>
+            <strong>${_("FDF validation failed.")}</strong>
             <ul style="margin-top:8px; margin-bottom:0;">
               ${uniqueMessages.map(msg => `<li>${msg}</li>`).join('')}
             </ul>
@@ -2485,7 +2488,7 @@ ckan.module("fdf-form-module", function ($, _) {
 
     renderForm: function () {
       if (!this.schema.sections || !this.schema.sections.length) {
-        this.container.append("<p>No sections found in schema.</p>");
+        this.container.append(`<p>${_("No sections found in schema.")}</p>`);
         return;
       }
 
@@ -2494,7 +2497,7 @@ ckan.module("fdf-form-module", function ($, _) {
 
         const sectionEl = $(`
           <div class="fdf-section" data-section-id="${section.id}" style="margin-bottom:20px;">
-            <h3>${section.icon || ""} ${section.title || "Section"}</h3>
+            <h3>${section.icon || ""} ${section.title || _("Section")}</h3>
             <div class="fdf-fields"></div>
           </div>
         `);
@@ -2520,7 +2523,7 @@ ckan.module("fdf-form-module", function ($, _) {
 
             if (isRepeatable && index >= minInstanceCount) {
               const removeBtn = $(
-                `<button type="button" class="btn btn-sm btn-danger" style="margin-top:10px;">- Remove</button>`
+                `<button type="button" class="btn btn-sm btn-danger" style="margin-top:10px;">- ${_("Remove")}</button>`
               );
               removeBtn.on("click", () => instanceEl.remove());
               instanceEl.append(removeBtn);
@@ -2536,7 +2539,7 @@ ckan.module("fdf-form-module", function ($, _) {
 
           if (isRepeatable) {
             const addBtn = $(
-              `<button type="button" class="btn btn-sm btn-primary" style="margin-top:5px; margin-bottom:10px;">+ Add</button>`
+              `<button type="button" class="btn btn-sm btn-primary" style="margin-top:5px; margin-bottom:10px;">+ ${_("Add")}</button>`
             );
             addBtn.on("click", () => {
               const newInstance = buildInstance(fieldsContainer.children(".fdf-instance").length);
@@ -3228,7 +3231,7 @@ ckan.module("fdf-form-module", function ($, _) {
                     </select>
                     <input type="text" class="form-control fdf-search-input" data-api="${field.search_api || ""}" data-allow-manual="${field.allow_manual ? "true" : ""}" 
                       ${searchInputId ? `data-selected-id="${searchInputId}" data-selected-label="${searchInputValue}"` : ""}
-                      placeholder="${field.placeholder || "Search…"}" value="${searchInputValue}" 
+                      placeholder="${field.placeholder || _("Search…")}" value="${searchInputValue}" 
                       style="margin-top:5px; display:${selectValue === "__OTHER__" ? "block" : "none"};" ${disabledAttr}/>
                     <div class="fdf-api-results" style="border:1px solid #ccc; display:none; max-height:150px; overflow:auto;"></div>
                 </div>

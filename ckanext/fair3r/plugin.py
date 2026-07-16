@@ -1,6 +1,7 @@
 import ckan.plugins as plugins
 from logging import getLogger
 import ckan.plugins.toolkit as toolkit  # module containing toolkit functions, classes and exceptions for use by CKAN extensions.
+from ckan.lib.plugins import DefaultTranslation
 from ckanext.fair3r.lib.actions import (
     external_lookup,
     external_lookup_auth,
@@ -19,6 +20,7 @@ from ckanext.fair3r.blueprints.sitemap import sitemap
 from ckanext.fair3r.blueprints.standard_creation import standard_creation
 from ckanext.doi.interfaces import IDoi  # type: ignore
 from ckanext.fair3r import cli
+from ckanext.fair3r.lib.fdf.schema import load_fdf_schema
 import json
 import os
 import logging
@@ -35,7 +37,8 @@ log = logging.getLogger(__name__)
 log = getLogger(__name__)
 
 
-class Fair3RPlugin(plugins.SingletonPlugin):
+class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
+    plugins.implements(plugins.ITranslation)
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IBlueprint)
@@ -43,6 +46,7 @@ class Fair3RPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(IDoi, inherit=True)
     plugins.implements(plugins.IClick)
+    plugins.implements(plugins.IFacets)
 
     # IConfigurer
 
@@ -70,6 +74,7 @@ class Fair3RPlugin(plugins.SingletonPlugin):
             "fdf_schema_sections": self._get_fdf_schema_sections,
             "extract_fdf_section_data": self.extract_fdf_section_data,
             "fair3r_license_options": self.fair3r_license_options,
+            "fair3r_member_count_label": self.fair3r_member_count_label,
         }
 
     # Mapping of CKAN license IDs to their short acronyms.
@@ -97,6 +102,33 @@ class Fair3RPlugin(plugins.SingletonPlugin):
                 license_desc = f"{license_desc} ({acronym})"
             options.append((license_id, license_desc))
         return options
+
+    def fair3r_member_count_label(self, count):
+        """Member count for organization/group cards (CKAN core fr catalog gap)."""
+        if count:
+            return toolkit.ungettext(
+                "{num} Member",
+                "{num} Members",
+                count,
+            ).format(num=count)
+        return toolkit._("0 Members")
+
+    @staticmethod
+    def _localized_license_facet_title(facets_dict):
+        """License facet label (CKAN core fr catalog leaves 'Licenses' untranslated)."""
+        for key in ("license_id", "license"):
+            if key in facets_dict:
+                facets_dict[key] = toolkit._("Licenses")
+        return facets_dict
+
+    def dataset_facets(self, facets_dict, package_type):
+        return self._localized_license_facet_title(facets_dict)
+
+    def group_facets(self, facets_dict, group_type, package_type):
+        return self._localized_license_facet_title(facets_dict)
+
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        return self._localized_license_facet_title(facets_dict)
 
     def fair3r_context(self):
         """Fetch the fair3r context from the configuration"""
@@ -134,14 +166,8 @@ class Fair3RPlugin(plugins.SingletonPlugin):
             return {}
 
     def _get_fdf_schema(self):
-        """
-        Load FAIR3R JSON schema from extension directory
-        """
-        here = os.path.dirname(__file__)
-        schema_path = os.path.join(here, "schema", "fdf_schema.json")
-
-        with open(schema_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+        """Load the localized FAIR3R JSON schema from the extension directory."""
+        return load_fdf_schema()
 
     def _get_fdf_schema_sections(self):
         """
@@ -1264,7 +1290,7 @@ class Fair3RPlugin(plugins.SingletonPlugin):
                 rights_text = (
                     right_copy.get("rightsIdentifier")
                     or right_copy.get("rightsURI")
-                    or "License information"
+                    or toolkit._("License information")
                 )
             right_copy["rights"] = str(rights_text)
             sanitized_rights_list.append(right_copy)

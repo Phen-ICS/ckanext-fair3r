@@ -1,0 +1,1541 @@
+# Translations template for ckanext-fair3r.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the ckanext-fair3r project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ckanext-fair3r 3.1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-07-15 14:41+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.15.0\n"
+
+#: ckanext/fair3r/plugin.py:109
+msgid "{num} Member"
+msgid_plural "{num} Members"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ckanext/fair3r/plugin.py:114
+msgid "0 Members"
+msgstr ""
+
+#: ckanext/fair3r/plugin.py:121
+msgid "Licenses"
+msgstr ""
+
+#: ckanext/fair3r/plugin.py:1293
+msgid "License information"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:479
+#: ckanext/fair3r/assets/js/fdf-form.js:1114
+msgid "Please select or enter the dependent field first."
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:529 ckanext/fair3r/blueprints/fdf.py:110
+msgid "Error"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:539
+msgid "Invalid response format"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:546
+#: ckanext/fair3r/assets/js/fdf-form.js:1759
+msgid "No results"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:649
+#: ckanext/fair3r/assets/js/fdf-form.js:1777
+msgid "Request error"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:1274
+msgid "Field"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:1314
+msgid "Searching…"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:1748
+msgid "Please select an organism model first."
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:1750
+msgid "Search is not available for the selected organism."
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:1757
+msgid ""
+"No Xenopus mutant strain/line found in Xenbase for this gene. You can enter "
+"one manually."
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:1774
+msgid ""
+"Xenbase lookup failed (server could not reach Xenbase). You can still enter "
+"the Xenopus strain/line manually."
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:2473
+msgid "FDF validation failed."
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:2491
+msgid "No sections found in schema."
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:2498
+msgid "Section"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:2526
+#: ckanext/fair3r/templates/group/snippets/group_item.html:56
+msgid "Remove"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:2542
+msgid "Add"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/account_request.py:35
+msgid "Please fill in all required fields."
+msgstr ""
+
+#: ckanext/fair3r/blueprints/account_request.py:48
+#, python-format
+msgid "Account request from %(name)s"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/account_request.py:49
+#, python-format
+msgid ""
+"A visitor requested an account on %(site)s\n"
+"\n"
+"Name: %(name)s\n"
+"Email: %(email)s\n"
+"\n"
+"Message:\n"
+"%(message)s\n"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/account_request.py:61
+#, python-format
+msgid "A visitor requested an account on <strong>%(site)s</strong>."
+msgstr ""
+
+#: ckanext/fair3r/blueprints/account_request.py:62
+msgid "Name:"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/account_request.py:63
+msgid "Email:"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/account_request.py:64
+msgid "Message:"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/account_request.py:76
+msgid "Your request has been sent. We will contact you soon."
+msgstr ""
+
+#: ckanext/fair3r/blueprints/account_request.py:82
+msgid "There was a problem sending your request. Please try again later."
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:59
+msgid "Dataset not found"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:61
+msgid "Not authorized to access dataset"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:68
+msgid "No uploaded resources available to download"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:76
+msgid "Dataset metadata"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:85
+msgid "ID"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:86
+msgid "Name"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:87
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:6
+msgid "Title"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:88
+msgid "Notes"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:89
+msgid "Author"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:90
+msgid "Author Email"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:91
+msgid "Maintainer"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:92
+msgid "Maintainer Email"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:93
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:32
+msgid "License"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:94
+msgid "Owner Org"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:95
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:96
+#: ckanext/fair3r/templates/snippets/package_item.html:33
+#: ckanext/fair3r/templates/user/snippets/info.html:80
+msgid "Private"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:96
+msgid "Created"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:97
+msgid "Last Modified"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:98
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:111
+#: ckanext/fair3r/templates/user/snippets/info.html:95
+msgid "State"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:99
+#: ckanext/fair3r/blueprints/download_all.py:164
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:538
+msgid "Type"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:105
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:75
+msgid "Organization"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:107
+msgid "Org ID"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:108
+msgid "Org Name"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:109
+msgid "Org Title"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:115
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:26
+msgid "Tags"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:127
+#: ckanext/fair3r/templates/user/read_base.html:24
+#: ckanext/fair3r/templates/user/snippets/info.html:52
+msgid "Groups"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:137
+msgid "Extras"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:149
+msgid "Resources"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:159
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:21
+msgid "Description"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:161
+msgid "Format"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:163
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:15
+msgid "URL"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/download_all.py:248
+msgid "Failed to build ZIP archive"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/fdf.py:96 ckanext/fair3r/lib/fdf/render.py:113
+#: ckanext/fair3r/lib/fdf/validation.py:614
+#: ckanext/fair3r/lib/fdf/validation.py:688
+#: ckanext/fair3r/lib/fdf/validation.py:689
+#: ckanext/fair3r/lib/fdf/validation.py:697
+#: ckanext/fair3r/lib/fdf/validation.py:698
+msgid "FAIR Metadata (FDF)"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/fdf.py:96 ckanext/fair3r/lib/fdf/render.py:113
+msgid "Validation failed"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/fdf.py:105
+msgid "Unauthorized to create a package"
+msgstr ""
+
+#: ckanext/fair3r/lib/actions.py:219 ckanext/fair3r/lib/actions.py:274
+msgid "geneId is required"
+msgstr ""
+
+#: ckanext/fair3r/lib/actions.py:280
+msgid "geneId must contain a numeric RGD identifier"
+msgstr ""
+
+#: ckanext/fair3r/lib/actions.py:362
+msgid "Authentication required"
+msgstr ""
+
+#: ckanext/fair3r/lib/actions.py:376
+#, python-format
+msgid "Unsupported external lookup: provider=%(provider)r, resource=%(resource)r"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:9 ckanext/fair3r/templates/admin/index.html:73
+msgid "Administer CKAN"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:10 ckanext/fair3r/templates/admin/index.html:4
+msgid "Current Sysadmins"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:11 ckanext/fair3r/templates/admin/index.html:61
+msgid "Promote"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:12 ckanext/fair3r/templates/admin/index.html:40
+#: ckanext/fair3r/templates/admin/index.html:60
+msgid "Promote user to Sysadmin"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:13 ckanext/fair3r/templates/admin/index.html:26
+msgid "Revoke Sysadmin permission"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:14
+#: ckanext/fair3r/templates/admin/config.html:26
+msgid "About page text"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:15
+#: ckanext/fair3r/templates/admin/config.html:34
+msgid "Are you sure you want to reset the config?"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:16
+#: ckanext/fair3r/templates/admin/config.html:44
+msgid "CKAN config options"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:17
+#: ckanext/fair3r/templates/admin/config.html:30
+msgid "Custom CSS"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:18
+#: ckanext/fair3r/templates/admin/config.html:17
+msgid "Custom Stylesheet"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:19
+#: ckanext/fair3r/templates/admin/config.html:30
+msgid "Customisable css inserted into the page header"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:20
+#: ckanext/fair3r/templates/admin/config.html:28
+msgid "Intro Text"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:21
+#: ckanext/fair3r/templates/admin/config.html:34
+msgid "Reset"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:22
+#: ckanext/fair3r/templates/admin/config.html:19
+msgid "Site Tag Line"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:23
+#: ckanext/fair3r/templates/admin/config.html:15
+msgid "Site Title"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:24
+#: ckanext/fair3r/templates/admin/config.html:24
+msgid "Site logo"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:25
+#: ckanext/fair3r/templates/admin/config.html:28
+msgid "Text on home page"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:26
+#: ckanext/fair3r/templates/admin/config.html:35
+msgid "Update Config"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:27 ckanext/fair3r/templates/admin/trash.html:13
+msgid "Are you sure you want to purge everything?"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:28
+msgid "Are you sure you want to purge datasets?"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:29
+msgid "Are you sure you want to purge groups?"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:30
+msgid "Are you sure you want to purge organizations?"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:31
+#: ckanext/fair3r/templates/admin/snippets/data_type.html:11
+msgid "Deleted datasets"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:32
+#: ckanext/fair3r/templates/admin/snippets/data_type.html:15
+msgid "Deleted groups"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:33
+#: ckanext/fair3r/templates/admin/snippets/data_type.html:13
+msgid "Deleted organizations"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:34
+msgid "Massive purge complete"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:35
+#: ckanext/fair3r/templates/admin/snippets/data_type.html:51
+msgid "Purge"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:36 ckanext/fair3r/templates/admin/trash.html:14
+msgid "Purge all"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:37
+msgid "There are no datasets to purge"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:38
+msgid "There are no groups to purge"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:39
+msgid "There are no organizations to purge"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:40 ckanext/fair3r/templates/admin/trash.html:28
+msgid "Trash"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:41
+msgid "{number} datasets have been purged"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:42
+msgid "{number} groups have been purged"
+msgstr ""
+
+#: ckanext/fair3r/lib/admin_i18n.py:43
+msgid "{number} organizations have been purged"
+msgstr ""
+
+#: ckanext/fair3r/lib/mailer.py:53
+msgid "organization"
+msgstr ""
+
+#: ckanext/fair3r/lib/mailer.py:53
+msgid "group"
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/doi.py:138
+msgid "DataCite DOI created (metadata fallback applied)"
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/doi.py:141
+msgid "DataCite DOI created"
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/doi.py:149
+msgid ""
+"DataCite metadata validation warning (minLength). Dataset saved; DOI metadata"
+" update skipped for now."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/doi.py:168
+msgid "DataCite DOI metadata updated (fallback applied)"
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/doi.py:171
+msgid "DataCite DOI metadata updated"
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/doi.py:179
+msgid "DataCite metadata update warning (minLength). Dataset was updated locally."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/render.py:122
+#, python-format
+msgid "Error: %(message)s"
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:252
+msgid "At least one entry is required."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:271
+#: ckanext/fair3r/lib/fdf/validation.py:283
+#, python-format
+msgid "%(field)s: required field."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:319
+#, python-format
+msgid "%(field)s: value does not match allowed vocabulary/options."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:344
+#, python-format
+msgid "%(field)s: value '%(value)s' is outside allowed vocabulary."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:361
+#, python-format
+msgid "%(field)s: invalid option(s): %(values)s."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:410
+#: ckanext/fair3r/lib/fdf/validation.py:439
+#, python-format
+msgid "%(field)s: invalid format."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:453
+msgid "Authors & Contributors"
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:472
+#, python-format
+msgid "Duplicate author/maintainer entry at item #%(num)s."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:505
+#, python-format
+msgid "Duplicate contributor entry at item #%(num)s."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:634
+msgid "Controlled vocabulary field"
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:637
+#, python-format
+msgid "%(field)s: missing label for controlled vocabulary entry."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:645
+#, python-format
+msgid ""
+"%(field)s: missing identifier URI (choose a value from vocabulary search "
+"results)."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:660
+#, python-format
+msgid "%(field)s: invalid identifier URI '%(uri)s'."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:688
+#: ckanext/fair3r/lib/fdf/validation.py:689
+msgid "Missing FDF metadata payload."
+msgstr ""
+
+#: ckanext/fair3r/lib/fdf/validation.py:697
+#: ckanext/fair3r/lib/fdf/validation.py:698
+msgid "FDF payload is not valid JSON."
+msgstr ""
+
+#: ckanext/fair3r/templates/error_document_template.html:3
+#, python-format
+msgid "Error %(error_code)s"
+msgstr ""
+
+#: ckanext/fair3r/templates/error_document_template.html:16
+msgid "You might need to login to access this page."
+msgstr ""
+
+#: ckanext/fair3r/templates/error_document_template.html:16
+msgid "Click here to login"
+msgstr ""
+
+#: ckanext/fair3r/templates/footer.html:9
+msgid "About {0}"
+msgstr ""
+
+#: ckanext/fair3r/templates/footer.html:15
+msgid "CKAN API"
+msgstr ""
+
+#: ckanext/fair3r/templates/footer.html:16
+msgid "CKAN Association"
+msgstr ""
+
+#: ckanext/fair3r/templates/footer.html:31
+msgid ""
+"<strong>Powered by</strong> <a class=\"hide-text ics-footer-logo\" "
+"href=\"https://ics-mci.fr/en/\">ICS</a>"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:15
+msgid "Sysadmin settings"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:17
+msgid "Admin"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:23
+msgid "View profile"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:31
+msgid "View dashboard"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:33
+msgid "Dashboard"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:39 ckanext/fair3r/templates/header.html:41
+msgid "Profile settings"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:46 ckanext/fair3r/templates/header.html:48
+msgid "Log out"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:55
+msgid "Account"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:61
+msgid "Log in"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:63
+msgid "Register"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:99
+msgid "Toggle navigation"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:111
+msgid "DATASETS"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:113
+msgid "ORGANIZATIONS"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:115
+msgid "GROUPS"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:116
+msgid "ABOUT"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:123
+msgid "Search Datasets..."
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:124
+#: ckanext/fair3r/templates/home/snippets/search.html:12
+msgid "Search"
+msgstr ""
+
+#: ckanext/fair3r/templates/header.html:124
+msgid "Search datasets..."
+msgstr ""
+
+#: ckanext/fair3r/templates/contact/snippets/form.html:44
+#: ckanext/fair3r/templates/header.html:125
+msgid "Submit"
+msgstr ""
+
+#: ckanext/fair3r/templates/page.html:6
+msgid "Skip to main content"
+msgstr ""
+
+#: ckanext/fair3r/templates/page.html:36
+msgid "Breadcrumb"
+msgstr ""
+
+#: ckanext/fair3r/templates/account/request_account.html:3
+#: ckanext/fair3r/templates/account/request_account.html:8
+msgid "Contact us to create a new account"
+msgstr ""
+
+#: ckanext/fair3r/templates/account/request_account.html:9
+msgid "Please fill in the form below and we will get back to you shortly."
+msgstr ""
+
+#: ckanext/fair3r/templates/account/request_account.html:15
+msgid "Email address"
+msgstr ""
+
+#: ckanext/fair3r/templates/account/request_account.html:18
+msgid "We will use this to contact you back."
+msgstr ""
+
+#: ckanext/fair3r/templates/account/request_account.html:23
+msgid "Your name"
+msgstr ""
+
+#: ckanext/fair3r/templates/account/request_account.html:25
+msgid "Jane Doe"
+msgstr ""
+
+#: ckanext/fair3r/templates/account/request_account.html:30
+msgid "Message"
+msgstr ""
+
+#: ckanext/fair3r/templates/account/request_account.html:32
+msgid "Tell us briefly why you need an account..."
+msgstr ""
+
+#: ckanext/fair3r/templates/account/request_account.html:33
+msgid "Please include your affiliation and intended use if applicable."
+msgstr ""
+
+#: ckanext/fair3r/templates/account/request_account.html:38
+msgid "Send request"
+msgstr ""
+
+#: ckanext/fair3r/templates/account/request_account.html:39
+msgid "Cancel"
+msgstr ""
+
+#: ckanext/fair3r/templates/admin/config.html:26
+#: ckanext/fair3r/templates/user/edit_user_form.html:21
+msgid "About"
+msgstr ""
+
+#: ckanext/fair3r/templates/admin/config.html:51
+#, python-format
+msgid ""
+"<p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Custom "
+"Stylesheet:</strong> Define an alternative main CSS file.</p> <p><strong>Site"
+" Tag Logo:</strong> This is the logo that appears in the header of all the "
+"CKAN instance templates.</p> <p><strong>About:</strong> This text will appear"
+" on this CKAN instances <a href=\"%(about_url)s\">about page</a>.</p> "
+"<p><strong>Intro Text:</strong> This text will appear on this CKAN instances "
+"<a href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
+"<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" target=\"_blank\" "
+"rel=\"noreferrer\">reading the documentation</a>.</p>"
+msgstr ""
+
+#: ckanext/fair3r/templates/admin/index.html:9
+msgid "User"
+msgstr ""
+
+#: ckanext/fair3r/templates/admin/index.html:49
+#: ckanext/fair3r/templates/user/edit_user_form.html:12
+#: ckanext/fair3r/templates/user/edit_user_form.html:14
+#: ckanext/fair3r/templates/user/new_user_form.html:10
+#: ckanext/fair3r/templates/user/snippets/info.html:74
+msgid "Username"
+msgstr ""
+
+#: ckanext/fair3r/templates/admin/index.html:78
+#, python-format
+msgid ""
+"<p>As a sysadmin user you have full control over this CKAN instance. Proceed "
+"with care!</p> <p>For guidance on using sysadmin features, see the CKAN  <a "
+"href=\"%(docs_url)s\" target=\"_blank\" rel=\"noreferrer\">sysadmin "
+"guide</a></p>"
+msgstr ""
+
+#: ckanext/fair3r/templates/admin/trash.html:32
+msgid "Purge deleted datasets, organizations or groups forever and irreversibly."
+msgstr ""
+
+#: ckanext/fair3r/templates/contact/form.html:6
+msgid "Contact"
+msgstr ""
+
+#: ckanext/fair3r/templates/contact/form.html:16
+msgid "Contact us"
+msgstr ""
+
+#: ckanext/fair3r/templates/contact/success.html:7
+msgid "Thank you!"
+msgstr ""
+
+#: ckanext/fair3r/templates/contact/success.html:8
+msgid "Your comment has been sent and we will answer you as soon as possible."
+msgstr ""
+
+#: ckanext/fair3r/templates/contact/success.html:18
+msgid "Contact Us"
+msgstr ""
+
+#: ckanext/fair3r/templates/contact/snippets/form.html:17
+#: ckanext/fair3r/templates/contact/success.html:22
+msgid "Questions? Comments? We are always glad to hear from you!"
+msgstr ""
+
+#: ckanext/fair3r/templates/contact/snippets/form.html:22
+msgid "Contact Name"
+msgstr ""
+
+#: ckanext/fair3r/templates/contact/snippets/form.html:25
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:416
+#: ckanext/fair3r/templates/user/edit_user_form.html:19
+#: ckanext/fair3r/templates/user/new_user_form.html:12
+#: ckanext/fair3r/templates/user/snippets/info.html:80
+msgid "Email"
+msgstr ""
+
+#: ckanext/fair3r/templates/contact/snippets/form.html:29
+msgid "Subject"
+msgstr ""
+
+#: ckanext/fair3r/templates/contact/snippets/form.html:31
+msgid "Optional subject"
+msgstr ""
+
+#: ckanext/fair3r/templates/contact/snippets/form.html:33
+msgid "Your Request"
+msgstr ""
+
+#: ckanext/fair3r/templates/contact/snippets/form.html:35
+msgid "What do you have to tell us?"
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/invite_user.html:6
+#, python-format
+msgid "Invite for %(site_title)s"
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/invite_user.html:65
+#, python-format
+msgid "Welcome to %(site_title)s"
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/invite_user.html:67
+#, python-format
+msgid "You have been invited to join %(site_title)s."
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/invite_user.html:70
+#, python-format
+msgid ""
+"A user account has already been created for you with the username "
+"<strong>%(user_name)s</strong>. You can change it later."
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/invite_user.html:73
+#, python-format
+msgid ""
+"You have been added to the %(group_type)s <strong>%(group_title)s</strong> "
+"with the following role: <strong>%(role_name)s</strong>."
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/invite_user.html:77
+msgid ""
+"To accept this invitation and set your password, please click the button "
+"below:"
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/invite_user.html:80
+msgid "Accept Invitation"
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/invite_user.html:83
+#: ckanext/fair3r/templates/emails/html/reset_password.html:70
+msgid ""
+"If the button above doesn't work, you can also copy and paste the following "
+"link into your browser:"
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/invite_user.html:89
+#: ckanext/fair3r/templates/emails/html/reset_password.html:76
+msgid "Have a nice day."
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/invite_user.html:93
+#: ckanext/fair3r/templates/emails/html/reset_password.html:80
+#, python-format
+msgid "Message sent by %(site_title)s (%(site_url)s)"
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/invite_user.html:94
+msgid "If you didn't expect this invitation, please ignore this email."
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/reset_password.html:6
+#, python-format
+msgid "Reset your password - %(site_title)s"
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/reset_password.html:58
+msgid "Password Reset"
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/reset_password.html:60
+#, python-format
+msgid "Dear %(user_name)s,"
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/reset_password.html:62
+#, python-format
+msgid "You have requested your password on %(site_title)s to be reset."
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/reset_password.html:64
+msgid "Please click the following button to confirm this request:"
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/reset_password.html:67
+msgid "Reset Password"
+msgstr ""
+
+#: ckanext/fair3r/templates/emails/html/reset_password.html:81
+msgid "If you didn't request a password reset, please ignore this email."
+msgstr ""
+
+#: ckanext/fair3r/templates/group/activity_forbidden.html:3
+#: ckanext/fair3r/templates/organization/activity_forbidden.html:3
+msgid "Activity Stream"
+msgstr ""
+
+#: ckanext/fair3r/templates/group/activity_forbidden.html:6
+#: ckanext/fair3r/templates/organization/activity_forbidden.html:6
+msgid "You do not have permission to view this activity stream."
+msgstr ""
+
+#: ckanext/fair3r/templates/group/snippets/group_item.html:32
+#: ckanext/fair3r/templates/organization/snippets/organization_item.html:31
+msgid "{num} Dataset"
+msgid_plural "{num} Datasets"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ckanext/fair3r/templates/group/snippets/group_item.html:34
+#: ckanext/fair3r/templates/organization/snippets/organization_item.html:33
+msgid "0 Datasets"
+msgstr ""
+
+#: ckanext/fair3r/templates/group/snippets/group_item.html:51
+#: ckanext/fair3r/templates/group/snippets/group_item.html:52
+msgid "View {name}"
+msgstr ""
+
+#: ckanext/fair3r/templates/group/snippets/group_item.html:56
+msgid "Remove dataset from this group"
+msgstr ""
+
+#: ckanext/fair3r/templates/home/index.html:4
+msgid "Welcome"
+msgstr ""
+
+#: ckanext/fair3r/templates/home/snippets/about_text.html:1
+msgid ""
+"Fair3R is a platform for sharing functional analysis data from mouse and rat "
+"models, for fundamental, biomedical and pharmaceutical research."
+msgstr ""
+
+#: ckanext/fair3r/templates/home/snippets/about_text.html:3
+msgid ""
+"This data portal is promoted by the GIS FC3R and operated by the Institut "
+"Clinique de la Souris (ICS). Built on the CKAN open-source platform, it "
+"provides tools to publish, search and download research datasets, including a"
+" public API."
+msgstr ""
+
+#: ckanext/fair3r/templates/home/snippets/featured_add_data.html:12
+msgid "ADD DATA"
+msgstr ""
+
+#: ckanext/fair3r/templates/home/snippets/featured_add_data.html:13
+msgid "Make your dataset available on portal"
+msgstr ""
+
+#: ckanext/fair3r/templates/home/snippets/promoted.html:5
+msgid "A project promoted by GIS FC3R"
+msgstr ""
+
+#: ckanext/fair3r/templates/home/snippets/promoted.html:6
+msgid "Welcome on"
+msgstr ""
+
+#: ckanext/fair3r/templates/home/snippets/promoted.html:9
+msgid ""
+"A platform for sharing functional analysis data from mouse and rat models, "
+"for fundamental, biomedical and pharmaceutical research."
+msgstr ""
+
+#: ckanext/fair3r/templates/home/snippets/search.html:2
+msgid "E.g. gene name, project name, mutation"
+msgstr ""
+
+#: ckanext/fair3r/templates/home/snippets/search.html:7
+msgid "SEARCH DATA"
+msgstr ""
+
+#: ckanext/fair3r/templates/home/snippets/search.html:9
+msgid "Search datasets"
+msgstr ""
+
+#: ckanext/fair3r/templates/home/snippets/search.html:19
+msgid "Popular tags"
+msgstr ""
+
+#: ckanext/fair3r/templates/macros/form/markdown.html:31
+#, python-format
+msgid ""
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-bs-"
+"toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-bs-"
+"html=\"true\">Markdown formatting</a> here"
+msgstr ""
+
+#: ckanext/fair3r/templates/organization/snippets/organization_item.html:49
+#: ckanext/fair3r/templates/organization/snippets/organization_item.html:50
+msgid "View {organization_name}"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/creation_choice.html:9
+#: ckanext/fair3r/templates/package/creation_choice.html:13
+msgid "Create Dataset"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/creation_choice.html:23
+msgid "Choose Dataset Creation Method"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/creation_choice.html:24
+msgid ""
+"Select how you would like to create your dataset (dev, integration, "
+"validation, and production environments only)"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/creation_choice.html:32
+msgid "Standard CKAN Form"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/creation_choice.html:34
+msgid "Use CKAN Form"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/creation_choice.html:45
+msgid "Enhanced Fair3R Dataset Form"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/creation_choice.html:46
+msgid "(WORK IN PROGRESS)"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/creation_choice.html:49
+#: ckanext/fair3r/templates/package/creation_choice.html:53
+msgid "Use FDF Form"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/creation_choice.html:52
+msgid "FDF integration is not enabled"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/creation_choice.html:71
+msgid "What are datasets?"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/creation_choice.html:74
+msgid ""
+"A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data."
+msgstr ""
+
+#: ckanext/fair3r/templates/package/edit.html:75
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_panel.html:4
+#: ckanext/fair3r/templates/package/snippets/package_form.html:72
+msgid "FAIR3R Metadata"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/edit.html:78
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_panel.html:7
+#: ckanext/fair3r/templates/package/snippets/package_form.html:75
+msgid "Loading FAIR3R dynamic form fields..."
+msgstr ""
+
+#: ckanext/fair3r/templates/package/edit.html:95
+#: ckanext/fair3r/templates/package/new_fdf.html:87
+msgid "Fair3R Dataset Form"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/edit.html:99
+#: ckanext/fair3r/templates/package/new_fdf.html:91
+msgid ""
+"The Fair3R Dataset Form (FDF) is a dynamic ontology-driven form. Metadata "
+"fields are generated from a JSON schema and may query external databases."
+msgstr ""
+
+#: ckanext/fair3r/templates/package/edit_fdf.html:20
+#: ckanext/fair3r/templates/package/new_fdf.html:27
+msgid "The form contains invalid entries:"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/edit_fdf.html:47
+msgid "Update"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/new_fdf.html:54
+msgid "Next: Add Data"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/read_base.html:7
+msgid "Add resource"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/read_base.html:12
+msgid "Download all"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/additional_info.html:37
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:655
+msgid "FAIR Metadata (raw JSON)"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:409
+msgid "Contributor Type"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:422
+msgid "Affiliation"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:468
+msgid "Identifiers"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:507
+msgid "Roles (CRediT)"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:537
+msgid "Identifier"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:539
+msgid "Relation"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:6
+msgid "eg. A descriptive title"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:15
+msgid "eg. my-dataset"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:21
+msgid "eg. Some useful notes about the data"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:26
+msgid "eg. economy, mental health, government"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:36
+msgid "Please select the license"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:45
+msgid ""
+"License definitions and additional information can be found at <a "
+"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:79
+msgid "No Organization"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:93
+msgid "Visibility"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:96
+msgid "Public"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:114
+msgid "Active"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:115
+#: ckanext/fair3r/templates/snippets/package_item.html:44
+msgid "Deleted"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/activity_type_selector.html:14
+msgid "Activity type"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/activity_type_selector.html:18
+msgid "All activity types"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/follow_button.html:5
+msgid "Unfollow"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/follow_button.html:7
+msgid "Follow"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/language_selector.html:6
+msgid "Language"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/language_selector.html:9
+msgid "English"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/language_selector.html:10
+msgid "French"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/language_selector.html:12
+msgid "Go"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/package_item.html:42
+msgid "Draft"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/package_item.html:54
+msgid "There is no description for this dataset"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/package_item.html:73
+msgid "resources"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/pagination.html:7
+msgid "Newer activities"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/pagination.html:10
+msgid "Older activities"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/stream.html:11
+#: ckanext/fair3r/templates/snippets/stream.html:19
+#: ckanext/fair3r/templates/snippets/stream.html:32
+msgid "unknown"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/stream.html:62
+msgid "No activity found for this type"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/activities/changed_package.html:7
+msgid "{actor} updated the {dataset_type} {dataset}"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/activities/changed_package.html:9
+#: ckanext/fair3r/templates/snippets/activities/deleted_package.html:10
+#: ckanext/fair3r/templates/snippets/activities/new_package.html:9
+msgid "dataset"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/activities/changed_package.html:18
+#: ckanext/fair3r/templates/snippets/activities/new_package.html:18
+msgid "View this version"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/activities/changed_package.html:22
+msgid "Changes"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/activities/changed_resource_view.html:9
+msgid "{actor} updated resource view {view_link}"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/activities/deleted_package.html:8
+msgid "{actor} deleted the {dataset_type} {dataset}"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/activities/deleted_resource_view.html:9
+msgid "{actor} deleted resource view \"{view_title}\" for resource {resource_link}"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/activities/follow_dataset.html:6
+msgid "{actor} started following {dataset}"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/activities/new_package.html:7
+msgid "{actor} created the {dataset_type} {dataset}"
+msgstr ""
+
+#: ckanext/fair3r/templates/snippets/activities/new_resource_view.html:9
+msgid "{actor} created resource view {view_link}"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/api_tokens.html:20
+msgid "Create API Token"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/api_tokens.html:30
+#: ckanext/fair3r/templates/user/read_base.html:26
+msgid "API Tokens"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/api_tokens.html:38
+msgid "You haven't created any API Tokens."
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:10
+msgid "Change details"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:17
+msgid "Full name"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:17
+msgid "eg. Joe Bloggs"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:19
+msgid "eg. joe@example.com"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:21
+msgid "A little information about yourself"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:26
+#: ckanext/fair3r/templates/user/new_user_form.html:20
+msgid "Profile picture"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:26
+#: ckanext/fair3r/templates/user/new_user_form.html:20
+msgid "Profile picture URL"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:32
+msgid "Reactivate User"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:33
+msgid ""
+"This account is deactivated, if you want to reactivate it, please click on "
+"checkbox."
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:43
+#: ckanext/fair3r/templates/user/edit_user_form.html:78
+#: ckanext/fair3r/templates/user/new_user_form.html:13
+msgid "Password"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:44
+#: ckanext/fair3r/templates/user/edit_user_form.html:80
+msgid "Confirm Password"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:50
+msgid "Sysadmin password"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:53
+msgid "Sysadmin Password"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:67
+msgid "Change password"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:70
+msgid "Old Password"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:93
+msgid "Are you sure you want to delete this User?"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:93
+msgid "Delete"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:97
+msgid "Reactivate Profile"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/edit_user_form.html:97
+msgid "Update Profile"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/login.html:3
+#: ckanext/fair3r/templates/user/login.html:6
+#: ckanext/fair3r/templates/user/login.html:12
+msgid "Login"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/login.html:25
+msgid "Need an Account?"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/login.html:27
+msgid "Then sign right up, it only takes a minute."
+msgstr ""
+
+#: ckanext/fair3r/templates/user/login.html:30
+msgid "Create an Account"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/login.html:42
+msgid "Forgotten your password?"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/login.html:44
+msgid "No problem, use our password recovery form to reset it."
+msgstr ""
+
+#: ckanext/fair3r/templates/user/login.html:47
+msgid "Forgot your password?"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/login.html:56
+msgid "Ask a new account"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/login.html:58
+msgid "If you need access, you can request a new account from our team."
+msgstr ""
+
+#: ckanext/fair3r/templates/user/login.html:60
+msgid "Request an account"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/new_user_form.html:10
+msgid "username"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/new_user_form.html:11
+msgid "Full Name"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/new_user_form.html:11
+msgid "Joe Bloggs"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/new_user_form.html:12
+msgid "joe@example.com"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/new_user_form.html:14
+msgid "Confirm"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/new_user_form.html:37
+msgid "Create Account"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/read_base.html:8
+#: ckanext/fair3r/templates/user/read_base.html:11
+msgid "Users"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/read_base.html:17
+msgid "Manage"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/read_base.html:22
+#: ckanext/fair3r/templates/user/snippets/info.html:44
+msgid "Datasets"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/read_base.html:23
+#: ckanext/fair3r/templates/user/snippets/info.html:48
+msgid "Organizations"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/snippets/info.html:29
+msgid "You have not provided a biography."
+msgstr ""
+
+#: ckanext/fair3r/templates/user/snippets/info.html:31
+msgid "This user has no biography."
+msgstr ""
+
+#: ckanext/fair3r/templates/user/snippets/info.html:40
+msgid "Followers"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/snippets/info.html:71
+msgid "Open ID"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/snippets/info.html:80
+msgid "This means only you can see this"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/snippets/info.html:85
+msgid "Member Since"
+msgstr ""
+
+#: ckanext/fair3r/templates/user/snippets/info.html:90
+msgid "Last Active"
+msgstr ""
+

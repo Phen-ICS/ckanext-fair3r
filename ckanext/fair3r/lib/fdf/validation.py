@@ -6,8 +6,19 @@ import json
 import logging
 import re
 
+import ckan.plugins.toolkit as toolkit
+
 
 log = logging.getLogger(__name__)
+
+
+def _(text):
+    """Translate user-facing text, falling back to the English msgid when no
+    request/app context is available (e.g. direct calls from tests or CLI)."""
+    try:
+        return toolkit._(text)
+    except Exception:
+        return text
 
 
 def _get_nested(data, path, default=None):
@@ -238,7 +249,7 @@ def _validate_required_fields(schema, fdf_data):
                     continue
                 section_title = section.get("title", section.get("id", "section"))
                 errors.setdefault(section_title, []).append(
-                    "At least one entry is required."
+                    _("At least one entry is required.")
                 )
                 continue
 
@@ -257,7 +268,7 @@ def _validate_required_fields(schema, fdf_data):
                         field_label = field.get("label", field.get("id", "field"))
                         key = f"{section.get('title', section.get('id', 'section'))} [{idx + 1}]"
                         errors.setdefault(key, []).append(
-                            f"{field_label}: required field."
+                            _("%(field)s: required field.") % {"field": field_label}
                         )
             continue
 
@@ -269,7 +280,7 @@ def _validate_required_fields(schema, fdf_data):
                 field_label = field.get("label", field.get("id", "field"))
                 section_title = section.get("title", section.get("id", "section"))
                 errors.setdefault(section_title, []).append(
-                    f"{field_label}: required field."
+                    _("%(field)s: required field.") % {"field": field_label}
                 )
 
     return errors
@@ -305,7 +316,10 @@ def _validate_vocabularies(schema, fdf_data):
                         present.extend(_extract_values_from_array_entry(item))
                     if present and not any(v in allowed for v in present):
                         errors.setdefault(section_title, []).append(
-                            f"{label}: value does not match allowed vocabulary/options."
+                            _(
+                                "%(field)s: value does not match allowed vocabulary/options."
+                            )
+                            % {"field": label}
                         )
 
             if field_type == "multi_select" and field.get("vocabulary"):
@@ -327,7 +341,10 @@ def _validate_vocabularies(schema, fdf_data):
                             )
                             if role_uri and role_uri not in allowed:
                                 errors.setdefault(section_title, []).append(
-                                    f"{label}: value '{role_uri}' is outside allowed vocabulary."
+                                    _(
+                                        "%(field)s: value '%(value)s' is outside allowed vocabulary."
+                                    )
+                                    % {"field": label, "value": role_uri}
                                 )
 
             if field_type == "checkbox_group" and field.get("options"):
@@ -341,7 +358,11 @@ def _validate_vocabularies(schema, fdf_data):
                     invalid = [v for v in values if v not in allowed]
                     if invalid:
                         errors.setdefault(section_title, []).append(
-                            f"{label}: invalid option(s): {', '.join(str(v) for v in invalid)}."
+                            _("%(field)s: invalid option(s): %(values)s.")
+                            % {
+                                "field": label,
+                                "values": ", ".join(str(v) for v in invalid),
+                            }
                         )
 
     return errors
@@ -386,7 +407,8 @@ def _validate_pattern_fields(schema, fdf_data):
                                 )
                                 key = f"{section_title} [{idx + 1}]"
                                 errors.setdefault(key, []).append(
-                                    f"{field_label}: invalid format."
+                                    _("%(field)s: invalid format.")
+                                    % {"field": field_label}
                                 )
                         except re.error as exc:
                             log.warning(
@@ -414,7 +436,7 @@ def _validate_pattern_fields(schema, fdf_data):
                     field_label = field.get("label", field.get("id", "field"))
                     section_title = section.get("title", section.get("id", "section"))
                     errors.setdefault(section_title, []).append(
-                        f"{field_label}: invalid format."
+                        _("%(field)s: invalid format.") % {"field": field_label}
                     )
             except re.error as exc:
                 log.warning(
@@ -428,7 +450,7 @@ def _validate_pattern_fields(schema, fdf_data):
 
 def _validate_duplicate_people(fdf_data):
     errors = {}
-    section_title = "Authors & Contributors"
+    section_title = _("Authors & Contributors")
 
     # Creators and Contributors are independent: duplicates inside each list are
     # rejected, but a person may legitimately appear in both lists.
@@ -447,7 +469,8 @@ def _validate_duplicate_people(fdf_data):
                 continue
             if key in seen_creators:
                 errors.setdefault(section_title, []).append(
-                    f"Duplicate author/maintainer entry at item #{idx + 1}."
+                    _("Duplicate author/maintainer entry at item #%(num)s.")
+                    % {"num": idx + 1}
                 )
             else:
                 seen_creators.add(key)
@@ -479,7 +502,8 @@ def _validate_duplicate_people(fdf_data):
                 continue
             if key in seen_contributors:
                 errors.setdefault(section_title, []).append(
-                    f"Duplicate contributor entry at item #{idx + 1}."
+                    _("Duplicate contributor entry at item #%(num)s.")
+                    % {"num": idx + 1}
                 )
             else:
                 seen_contributors.add(key)
@@ -587,7 +611,7 @@ def _validate_controlled_subjects(schema, fdf_data):
     without selecting a result, producing malformed valueURI/subjectScheme pairs.
     """
     errors = {}
-    section_title = "FAIR Metadata (FDF)"
+    section_title = _("FAIR Metadata (FDF)")
 
     subjects = fdf_data.get("subjects", [])
     if not isinstance(subjects, list):
@@ -607,16 +631,20 @@ def _validate_controlled_subjects(schema, fdf_data):
         for subject in matching_subjects:
             label = str(subject.get("subject") or "").strip()
             value_uri = str(subject.get("valueURI") or "").strip()
-            field_title = rule.get("field_title", "Controlled vocabulary field")
+            field_title = rule.get("field_title") or _("Controlled vocabulary field")
 
             if not label:
-                msg = f"{field_title}: missing label for controlled vocabulary entry."
+                msg = _("%(field)s: missing label for controlled vocabulary entry.") % {
+                    "field": field_title
+                }
                 if msg not in seen_messages:
                     errors.setdefault(section_title, []).append(msg)
                     seen_messages.add(msg)
 
             if rule.get("require_value_uri") and not value_uri:
-                msg = f"{field_title}: missing identifier URI (choose a value from vocabulary search results)."
+                msg = _(
+                    "%(field)s: missing identifier URI (choose a value from vocabulary search results)."
+                ) % {"field": field_title}
                 if msg not in seen_messages:
                     errors.setdefault(section_title, []).append(msg)
                     seen_messages.add(msg)
@@ -629,7 +657,10 @@ def _validate_controlled_subjects(schema, fdf_data):
                     value_uri.startswith("http://") or value_uri.startswith("https://")
                 )
             ):
-                msg = f"{field_title}: invalid identifier URI '{value_uri}'."
+                msg = _("%(field)s: invalid identifier URI '%(uri)s'.") % {
+                    "field": field_title,
+                    "uri": value_uri,
+                }
                 if msg not in seen_messages:
                     errors.setdefault(section_title, []).append(msg)
                     seen_messages.add(msg)
@@ -654,8 +685,8 @@ def validate_fdf_output_json(raw_json, schema):
     if not raw_json or not str(raw_json).strip():
         return (
             {},
-            {"FAIR Metadata (FDF)": ["Missing FDF metadata payload."]},
-            {"FAIR Metadata (FDF)": "Missing FDF metadata payload."},
+            {_("FAIR Metadata (FDF)"): [_("Missing FDF metadata payload.")]},
+            {_("FAIR Metadata (FDF)"): _("Missing FDF metadata payload.")},
         )
 
     try:
@@ -663,8 +694,8 @@ def validate_fdf_output_json(raw_json, schema):
     except Exception:
         return (
             {},
-            {"FAIR Metadata (FDF)": ["FDF payload is not valid JSON."]},
-            {"FAIR Metadata (FDF)": "FDF payload is not valid JSON."},
+            {_("FAIR Metadata (FDF)"): [_("FDF payload is not valid JSON.")]},
+            {_("FAIR Metadata (FDF)"): _("FDF payload is not valid JSON.")},
         )
 
     required_errors = _validate_required_fields(schema, fdf_data)

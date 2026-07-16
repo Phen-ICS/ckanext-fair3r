@@ -92,7 +92,9 @@ def fdf_dataset_creation():
         except ValidationError as e:
             model.Session.rollback()
             log.error("Validation error: %s", e.error_dict)
-            errors = e.error_dict or {"FAIR Metadata (FDF)": [_("Validation failed")]}
+            errors = e.error_dict or {
+                _("FAIR Metadata (FDF)"): [_("Validation failed")]
+            }
             error_summary = e.error_summary or {
                 k: v[0] if isinstance(v, list) and v else str(v)
                 for k, v in errors.items()
@@ -105,7 +107,7 @@ def fdf_dataset_creation():
             model.Session.rollback()
             log.error("Error creating dataset: %s", e, exc_info=True)
             errors = {"error": [str(e)]}
-            error_summary = {"Error": str(e)}
+            error_summary = {_("Error"): str(e)}
     else:
         # GET - display form
         errors = {}

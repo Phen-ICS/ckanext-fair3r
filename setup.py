@@ -9,7 +9,9 @@ setup(
     message_extractors={
         "ckanext": [
             ("**.py", "python", None),
-            ("**.js", "javascript", None),
+            # parse_template_string is needed to extract _() calls embedded
+            # in JS template literals (`...${_("msg")}...`).
+            ("**.js", "javascript", {"parse_template_string": "true"}),
             ("**/templates/**.html", "ckan", None),
         ],
     },
@@ -23,5 +25,5 @@ setup(
     package_data={
         "ckanext.fair3r.tests": ["test.ini"],
     },
-    version="3.0.2",
+    version="3.1.0",
 )

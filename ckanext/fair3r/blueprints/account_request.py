@@ -45,18 +45,23 @@ def request_account():
             ) or toolkit.config.get("email_to")
 
         try:
-            subject = f"Account request from {name}"
-            body = (
-                f"A visitor requested an account on {toolkit.config.get('ckan.site_title')}\n\n"
-                f"Name: {name}\n"
-                f"Email: {email}\n\n"
-                f"Message:\n{message}\n"
-            )
+            subject = toolkit._("Account request from %(name)s") % {"name": name}
+            body = toolkit._(
+                "A visitor requested an account on %(site)s\n\n"
+                "Name: %(name)s\n"
+                "Email: %(email)s\n\n"
+                "Message:\n%(message)s\n"
+            ) % {
+                "site": toolkit.config.get("ckan.site_title"),
+                "name": name,
+                "email": email,
+                "message": message,
+            }
             body_html = (
-                f"<p>A visitor requested an account on <strong>{toolkit.config.get('ckan.site_title')}</strong>.</p>"
-                f"<p><strong>Name:</strong> {h.escape(name)}<br>"
-                f"<strong>Email:</strong> {h.escape(email)}</p>"
-                f"<p><strong>Message:</strong><br>{h.render_markdown(message)}</p>"
+                f"<p>{toolkit._('A visitor requested an account on <strong>%(site)s</strong>.') % {'site': h.escape(toolkit.config.get('ckan.site_title'))}}</p>"
+                f"<p><strong>{toolkit._('Name:')}</strong> {h.escape(name)}<br>"
+                f"<strong>{toolkit._('Email:')}</strong> {h.escape(email)}</p>"
+                f"<p><strong>{toolkit._('Message:')}</strong><br>{h.render_markdown(message)}</p>"
             )
 
             ckan_mailer.mail_recipient(

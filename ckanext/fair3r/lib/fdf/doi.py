@@ -3,6 +3,7 @@ FDF DataCite/DOI sync utilities.
 """
 
 import logging
+from ckan.common import _
 from ckanext.doi.lib.api import DataciteClient  # type: ignore
 from ckanext.doi.lib.metadata import build_metadata_dict, build_xml_dict  # type: ignore
 from ckanext.doi.model.crud import DOIQuery  # type: ignore
@@ -134,10 +135,10 @@ def sync_datacite_metadata(pkg_dict, context, toolkit, get_action):
             try:
                 if used_fallback:
                     toolkit.h.flash_success(
-                        "DataCite DOI created (metadata fallback applied)"
+                        _("DataCite DOI created (metadata fallback applied)")
                     )
                 else:
-                    toolkit.h.flash_success("DataCite DOI created")
+                    toolkit.h.flash_success(_("DataCite DOI created"))
             except Exception as exc:
                 log.debug("Unable to display DOI creation flash message: %s", exc)
         except Exception as e:
@@ -145,7 +146,9 @@ def sync_datacite_metadata(pkg_dict, context, toolkit, get_action):
                 log.error(f"DataCite DOI creation failed: {e}")
                 try:
                     toolkit.h.flash_error(
-                        "DataCite metadata validation warning (minLength). Dataset saved; DOI metadata update skipped for now."
+                        _(
+                            "DataCite metadata validation warning (minLength). Dataset saved; DOI metadata update skipped for now."
+                        )
                     )
                 except Exception as exc:
                     log.debug("Unable to display DOI validation flash error: %s", exc)
@@ -162,10 +165,10 @@ def sync_datacite_metadata(pkg_dict, context, toolkit, get_action):
                 try:
                     if used_fallback:
                         toolkit.h.flash_success(
-                            "DataCite DOI metadata updated (fallback applied)"
+                            _("DataCite DOI metadata updated (fallback applied)")
                         )
                     else:
-                        toolkit.h.flash_success("DataCite DOI metadata updated")
+                        toolkit.h.flash_success(_("DataCite DOI metadata updated"))
                 except Exception as exc:
                     log.debug("Unable to display DOI update flash message: %s", exc)
         except Exception as e:
@@ -173,7 +176,9 @@ def sync_datacite_metadata(pkg_dict, context, toolkit, get_action):
                 log.error(f"DataCite DOI update failed: {e}")
                 try:
                     toolkit.h.flash_error(
-                        "DataCite metadata update warning (minLength). Dataset was updated locally."
+                        _(
+                            "DataCite metadata update warning (minLength). Dataset was updated locally."
+                        )
                     )
                 except Exception as exc:
                     log.debug("Unable to display DOI update flash error: %s", exc)
