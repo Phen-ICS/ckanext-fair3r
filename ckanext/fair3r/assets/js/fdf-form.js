@@ -445,7 +445,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
           const defaultApiKey = input.data("api");
           const apiKey = self._resolveApiKeyForInput(defaultApiKey, input);
           const val = input.val().trim();
-          const resultsContainer = input.siblings(".fdf-api-results");
+          const resultsContainer = input.closest(".fdf-api-input-wrapper").siblings(".fdf-api-results");
 
           if (!val) {
             // Use schema metadata to clear dependent fields
@@ -696,7 +696,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
           const defaultApiKey = input.data("api");
           const apiKeys = self._resolveApiKeysForInput(defaultApiKey, input);
           const val = input.val().trim();
-          const resultsContainer = input.siblings(".fdf-api-results");
+          const resultsContainer = input.closest(".fdf-api-input-wrapper").siblings(".fdf-api-results");
 
           if (!val) {
             // Use schema metadata to clear dependent fields
@@ -1204,6 +1204,44 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
 
         input.data("skip-search", true);
         item.parent().hide();
+
+        // Show the clear button when a value is selected
+        const wrapper = input.closest(".fdf-api-input-wrapper");
+        if (wrapper.length) {
+          const clearBtn = wrapper.find(".fdf-clear-btn");
+          if (clearBtn.length) {
+            clearBtn.show();
+          }
+        }
+      });
+
+      // Clear button handler for api_search fields
+      this.container.on("click", ".fdf-clear-btn", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const clearBtn = $(this);
+        const wrapper = clearBtn.closest(".fdf-api-input-wrapper");
+        const input = wrapper.find(".fdf-api-input");
+        if (input.length === 0) return;
+
+        // Clear the input value and data attributes
+        input.val("");
+        input.removeData("selected-id");
+        input.removeData("selected-label");
+        input.removeData("item-data");
+        input.removeData("mapped-extra");
+        input.removeData("xrefs");
+        input.removeData("skip-search");
+        input.css("padding-right", "12px");
+
+        // Hide the clear button (don't remove it, so it can reappear)
+        clearBtn.hide();
+
+        // Hide and clear API results (sibling of wrapper, not input)
+        wrapper.siblings(".fdf-api-results").hide().empty();
+
+        // Trigger input event to notify dependent fields
+        input.trigger("input");
       });
 
       // Auto-fill API fields from other fields
@@ -1756,7 +1794,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
         if (fieldName === FIELD_NAMES.GENETIC_BACKGROUND && taxonId === TAXON_IDS.XENOPUS) {
         return _("No Xenopus mutant strain/line found in Xenbase for this gene. You can enter one manually.");
       }
-      return _("No results");
+      return _("No results found. You can enter one manually");
     },
 
     _getRequestErrorMessage: function(inputEl, error) {
@@ -3253,10 +3291,14 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
           } else {
             apiDisplayValue = value;
           }
+          const hasValue = Boolean(apiSelectedId || (value && String(value).trim() !== ""));
           html = `
             <div class="form-group">
               <label>${this._formatFieldLabel(field)}</label>
-              <input type="text" class="form-control fdf-api-input" data-api="${field.api}" id="${fieldId}" name="${fieldName}" value="${apiDisplayValue}" ${apiSelectedId ? `data-selected-id="${apiSelectedId}" data-selected-label="${apiSelectedLabel || value}"` : ""} ${field.autofill_label_to && field.autofill_label_to.length ? `data-autofill-label-to="${field.autofill_label_to.join(',')}"` : ""} placeholder="${field.placeholder || ""}" ${(field.allow_manual && !isReadOnly) ? "" : "readonly"} ${field.required ? "required" : ""} ${disabledAttr}/>
+              <div class="fdf-api-input-wrapper">
+                <input type="text" class="form-control fdf-api-input" data-api="${field.api}" id="${fieldId}" name="${fieldName}" value="${apiDisplayValue}" ${apiSelectedId ? `data-selected-id="${apiSelectedId}" data-selected-label="${apiSelectedLabel || value}"` : ""} ${field.autofill_label_to && field.autofill_label_to.length ? `data-autofill-label-to="${field.autofill_label_to.join(',')}"` : ""} placeholder="${field.placeholder || ""}" ${(field.allow_manual && !isReadOnly) ? "" : "readonly"} ${field.required ? "required" : ""} ${disabledAttr} style="padding-right:${hasValue ? "32px" : "12px"};"/>
+                ${hasValue ? `<button type="button" class="fdf-clear-btn" title="Clear selection">&times;</button>` : ""}
+              </div>
               <div class="fdf-api-results" style="border:1px solid #ccc; display:none; max-height:150px; overflow:auto;"></div>
               ${field.help ? `<small class="form-text text-muted">${field.help}</small>` : ""}
             </div>

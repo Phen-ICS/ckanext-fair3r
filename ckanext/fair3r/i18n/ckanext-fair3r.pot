@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckanext-fair3r 3.1.0\n"
+"Project-Id-Version: ckanext-fair3r 3.1.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-15 14:41+0000\n"
+"POT-Creation-Date: 2026-07-16 14:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,61 +49,64 @@ msgid "Invalid response format"
 msgstr ""
 
 #: ckanext/fair3r/assets/js/fdf-form.js:546
-#: ckanext/fair3r/assets/js/fdf-form.js:1759
 msgid "No results"
 msgstr ""
 
 #: ckanext/fair3r/assets/js/fdf-form.js:649
-#: ckanext/fair3r/assets/js/fdf-form.js:1777
+#: ckanext/fair3r/assets/js/fdf-form.js:1815
 msgid "Request error"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1274
+#: ckanext/fair3r/assets/js/fdf-form.js:1312
 msgid "Field"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1314
+#: ckanext/fair3r/assets/js/fdf-form.js:1352
 msgid "Searching…"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1748
+#: ckanext/fair3r/assets/js/fdf-form.js:1786
 msgid "Please select an organism model first."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1750
+#: ckanext/fair3r/assets/js/fdf-form.js:1788
 msgid "Search is not available for the selected organism."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1757
+#: ckanext/fair3r/assets/js/fdf-form.js:1795
 msgid ""
 "No Xenopus mutant strain/line found in Xenbase for this gene. You can enter "
 "one manually."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1774
+#: ckanext/fair3r/assets/js/fdf-form.js:1797
+msgid "No results found. You can enter one manually"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:1812
 msgid ""
 "Xenbase lookup failed (server could not reach Xenbase). You can still enter "
 "the Xenopus strain/line manually."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2473
+#: ckanext/fair3r/assets/js/fdf-form.js:2511
 msgid "FDF validation failed."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2491
+#: ckanext/fair3r/assets/js/fdf-form.js:2529
 msgid "No sections found in schema."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2498
+#: ckanext/fair3r/assets/js/fdf-form.js:2536
 msgid "Section"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2526
+#: ckanext/fair3r/assets/js/fdf-form.js:2564
 #: ckanext/fair3r/templates/group/snippets/group_item.html:56
 msgid "Remove"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2542
+#: ckanext/fair3r/assets/js/fdf-form.js:2580
 msgid "Add"
 msgstr ""
 
