@@ -23,5 +23,5 @@ setup(
     package_data={
         "ckanext.fair3r.tests": ["test.ini"],
     },
-    version="3.0.1",
+    version="3.0.2",
 )
