@@ -809,6 +809,33 @@ main.hero-no-gradient{ background-image: white !important; }
   box-shadow: 0 0 0 1px rgba(217, 83, 79, 0.2);
 }
 
+/* FDF API search clear button */
+.fdf-api-input-wrapper {
+  position: relative;
+}
+
+.fdf-clear-btn {
+  position: absolute;
+  right: 6px;
+  top: 40%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #999;
+  padding: 2px 6px;
+  line-height: 1;
+  z-index: 2;
+  font-size: 22px;
+}
+
+.fdf-clear-btn:hover {
+  color: #d9534f;
+  transition: transform 0.8s ease;
+  font-size: 26px;
+  top: 40%;
+}
+
 /* 15. Responsive tweaks */
 /* Dataset additional info: override CKAN core 50/50 split */
 .additional-info th { width: 35% !important; }
