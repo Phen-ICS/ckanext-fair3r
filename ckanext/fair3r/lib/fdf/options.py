@@ -3,7 +3,7 @@ FDF form options utilities.
 Provides helper(s) to fetch available groups, organizations, and licenses for FDF forms.
 """
 
-import ckan.model as model
+from ckan import model
 from ckan.logic import NotAuthorized
 from ckan.plugins.toolkit import get_action
 

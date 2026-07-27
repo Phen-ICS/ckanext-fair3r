@@ -1,9 +1,10 @@
 """Tests for the ckanext.fair3r plugin module."""
 
-import os
 import json
+import os
 import types
-import ckanext.fair3r.plugin as plugin
+
+from ckanext.fair3r import plugin
 
 
 class DummyUser:

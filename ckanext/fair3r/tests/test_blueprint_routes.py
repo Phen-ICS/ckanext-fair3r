@@ -1,18 +1,15 @@
-# -*- coding: utf-8 -*-
-
 import json
+import sys
 import uuid
 
-import sys
 import pytest
-import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
 from ckan.plugins import toolkit
+from ckan.tests import factories, helpers
 
 
 @pytest.mark.ckan_config("ckan.plugins", "fair3r")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
-class TestBlueprintRoutes(object):
+class TestBlueprintRoutes:
     def test_dataset_choice_route_requires_auth(self, app):
         url = toolkit.url_for("dataset_choice.dataset_creation")
         response = app.get(url, follow_redirects=False)

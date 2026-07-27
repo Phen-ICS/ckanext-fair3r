@@ -6,8 +6,7 @@ import json
 import logging
 import re
 
-import ckan.plugins.toolkit as toolkit
-
+from ckan.plugins import toolkit
 
 log = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ def _(text):
     request/app context is available (e.g. direct calls from tests or CLI)."""
     try:
         return toolkit._(text)
-    except Exception:
+    except KeyError:
         return text
 
 
@@ -551,16 +550,13 @@ def _extract_controlled_subject_rules(schema):
             if require_value_uri:
                 value_uri_tpl = tpl.get("valueURI")
                 if isinstance(value_uri_tpl, str):
-                    if value_uri_tpl.startswith("http://") or value_uri_tpl.startswith(
-                        "https://"
-                    ):
+                    if value_uri_tpl.startswith(("http://", "https://")):
                         require_http_uri = True
                     elif value_uri_tpl in ("$id", "$value"):
                         api_key = field.get("api") or field.get("search_api")
                         mapper_id = _get_nested(schema, f"apis.{api_key}.mapper.id")
-                        if isinstance(mapper_id, str) and (
-                            mapper_id.startswith("http://")
-                            or mapper_id.startswith("https://")
+                        if isinstance(mapper_id, str) and mapper_id.startswith(
+                            ("http://", "https://")
                         ):
                             require_http_uri = True
 
@@ -597,10 +593,7 @@ def _subject_matches_rule(subject, rule):
     ):
         return False
 
-    if rule_scheme or (isinstance(rule_prefix, str) and rule_prefix):
-        return True
-
-    return False
+    return bool(rule_scheme or (isinstance(rule_prefix, str) and rule_prefix))
 
 
 def _validate_controlled_subjects(schema, fdf_data):
@@ -653,9 +646,7 @@ def _validate_controlled_subjects(schema, fdf_data):
             if (
                 rule.get("require_http_uri")
                 and value_uri
-                and not (
-                    value_uri.startswith("http://") or value_uri.startswith("https://")
-                )
+                and not value_uri.startswith(("http://", "https://"))
             ):
                 msg = _("%(field)s: invalid identifier URI '%(uri)s'.") % {
                     "field": field_title,
@@ -691,7 +682,7 @@ def validate_fdf_output_json(raw_json, schema):
 
     try:
         fdf_data = json.loads(raw_json)
-    except Exception:
+    except (json.JSONDecodeError, ValueError, TypeError):
         return (
             {},
             {_("FAIR Metadata (FDF)"): [_("FDF payload is not valid JSON.")]},

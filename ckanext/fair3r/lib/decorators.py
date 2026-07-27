@@ -1,4 +1,3 @@
-# encoding: utf-8
 """
 Decorators for CKAN routes.
 
@@ -7,7 +6,8 @@ This module provides decorators for common route requirements
 """
 
 from functools import wraps
-import ckan.plugins.toolkit as toolkit
+
+from ckan.plugins import toolkit
 
 
 def login_required(redirect_to="user.login"):

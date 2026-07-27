@@ -8,7 +8,6 @@ from ckanext.fair3r.lib.fdf.validation import (
     validate_fdf_output_json,
 )
 
-
 MINIMAL_SCHEMA = {
     "vocabularies": {
         "organism_presets": {

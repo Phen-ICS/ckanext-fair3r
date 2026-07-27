@@ -3,6 +3,7 @@ FDF extras and contact fields utilities.
 """
 
 import logging
+
 from ckanext.fair3r.lib.fdf.converter import fdf_json_to_ckan_dataset
 from ckanext.fair3r.lib.fdf.datacite_converter import convert_fdf_to_datacite_extras
 
@@ -41,12 +42,10 @@ def sync_fdf_extras(data_dict, fdf_output_json, log_label):
                 len(datacite_extras),
                 log_label,
             )
-    except Exception as err:
-        log.error(
-            "Error generating datacite.* extras in %s flow: %s",
+    except Exception:
+        log.exception(
+            "Error generating datacite.* extras in %s flow",
             log_label,
-            err,
-            exc_info=True,
         )
 
 
@@ -68,10 +67,8 @@ def sync_fdf_contact_fields(data_dict, fdf_output_json, log_label):
         if fdf_fields.get("maintainer_email"):
             data_dict["maintainer_email"] = fdf_fields["maintainer_email"]
             log.info("★ SET maintainer_email=%s", fdf_fields["maintainer_email"])
-    except Exception as err:
-        log.error(
-            "Error extracting author/maintainer from FDF data in %s: %s",
+    except Exception:
+        log.exception(
+            "Error extracting author/maintainer from FDF data in %s",
             log_label,
-            err,
-            exc_info=True,
         )

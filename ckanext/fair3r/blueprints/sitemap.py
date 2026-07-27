@@ -8,8 +8,8 @@ The sitemap includes home page, create dataset page, organizations, and datasets
 import logging
 from xml.etree.ElementTree import Element, SubElement, tostring  # nosec B405
 
+from ckan.plugins import toolkit
 from flask import Blueprint, Response
-import ckan.plugins.toolkit as toolkit
 
 log = logging.getLogger(__name__)
 
@@ -83,8 +83,8 @@ def sitemap_xml():
                     SubElement(url_elem, "changefreq").text = "weekly"
                     SubElement(url_elem, "priority").text = "0.7"
 
-        except Exception as e:
-            log.warning(f"Error fetching organizations for sitemap: {e}")
+        except Exception:  # noqa: BLE001
+            log.warning("Error fetching organizations for sitemap")
 
         # 6. Get and add all datasets
         try:
@@ -100,8 +100,8 @@ def sitemap_xml():
                     SubElement(url_elem, "changefreq").text = "weekly"
                     SubElement(url_elem, "priority").text = "0.6"
 
-        except Exception as e:
-            log.warning(f"Error fetching datasets for sitemap: {e}")
+        except Exception:  # noqa: BLE001
+            log.warning("Error fetching datasets for sitemap")
 
         # Convert XML tree to bytes
         xml_bytes = tostring(urlset, encoding="utf-8")
@@ -113,8 +113,8 @@ def sitemap_xml():
             headers={"Content-Type": "application/xml; charset=utf-8"},
         )
 
-    except Exception as e:
-        log.error(f"Error generating sitemap: {e}")
+    except Exception:  # noqa: BLE001
+        log.error("Error generating sitemap")
         # Return minimal sitemap on error
         site_url = toolkit.config.get("ckan.site_url", "http://localhost:5000").rstrip(
             "/"

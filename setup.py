@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from setuptools import setup
 
 setup(
@@ -25,5 +24,5 @@ setup(
     package_data={
         "ckanext.fair3r.tests": ["test.ini"],
     },
-    version="3.1.1",
+    version="3.1.2",
 )

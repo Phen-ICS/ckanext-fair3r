@@ -62,7 +62,7 @@ version:check:
 lint:ruff:
   stage: validate
   script:
-    - pip install ruff
+    - pip install ruff==0.16.0
     - |
       set +e
       ruff check ckanext > ruff.out 2>&1
@@ -81,7 +81,7 @@ lint:ruff:
 lint:ruff-format:
   stage: validate
   script:
-    - pip install ruff
+    - pip install ruff==0.16.0
     - |
       set +e
       ruff format --check ckanext > ruff-format.out 2>&1

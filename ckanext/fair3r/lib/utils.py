@@ -1,4 +1,3 @@
-# encoding: utf-8
 """
 Utility functions for the Fair3R extension.
 

@@ -2,8 +2,8 @@
 FDF context utilities.
 """
 
-import ckan.model as model
-import ckan.plugins.toolkit as toolkit
+from ckan import model
+from ckan.plugins import toolkit
 
 
 def build_fdf_context(for_edit=False):

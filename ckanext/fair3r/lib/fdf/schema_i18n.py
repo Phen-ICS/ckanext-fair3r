@@ -46,7 +46,7 @@ def _safe_key_part(value, fallback: str) -> str:
     text = str(value).strip()
     if not text:
         return fallback
-    if text.startswith("http://") or text.startswith("https://"):
+    if text.startswith(("http://", "https://")):
         text = text.rstrip("/").rsplit("/", 1)[-1]
     text = re.sub(r"[^A-Za-z0-9_-]+", "_", text)
     return text or fallback

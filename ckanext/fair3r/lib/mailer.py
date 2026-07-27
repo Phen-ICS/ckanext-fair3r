@@ -1,13 +1,12 @@
-# encoding: utf-8
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
-import ckan.model as model
+import ckan.lib.mailer as ckan_mailer
+from ckan import model
 from ckan.common import config
 from ckan.lib.base import render
-import ckan.lib.mailer as ckan_mailer
 
 log = logging.getLogger(__name__)
 
@@ -29,8 +28,8 @@ def get_reset_link_body(user: model.User) -> str:
 
 def get_invite_body(
     user: model.User,
-    group_dict: Optional[dict[str, Any]] = None,
-    role: Optional[str] = None,
+    group_dict: dict[str, Any] | None = None,
+    role: str | None = None,
 ) -> str:
     """
     Get the body of the invitation email in HTML format.
@@ -77,8 +76,8 @@ def send_reset_link(user: model.User) -> None:
 
 def send_invite(
     user: model.User,
-    group_dict: Optional[dict[str, Any]] = None,
-    role: Optional[str] = None,
+    group_dict: dict[str, Any] | None = None,
+    role: str | None = None,
 ) -> None:
     """
     Send an invitation email to the user.

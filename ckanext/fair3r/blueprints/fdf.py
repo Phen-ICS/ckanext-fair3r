@@ -5,24 +5,25 @@ This blueprint handles the FDF dataset creation form, which is part of ckanext-f
 """
 
 import logging
-from flask import Blueprint, redirect, request
-import ckan.plugins.toolkit as toolkit
-import ckan.logic as logic
-import ckan.model as model
+
+from ckan import logic, model
 from ckan.common import _
+from ckan.plugins import toolkit
+from flask import Blueprint, redirect, request
+
 from ckanext.fair3r.lib.decorators import login_required
 from ckanext.fair3r.lib.fdf.context import build_fdf_context
-from ckanext.fair3r.lib.fdf.schema import load_fdf_schema
-from ckanext.fair3r.lib.fdf.form import extract_fdf_output_json
-from ckanext.fair3r.lib.fdf.utils import is_fdf_dataset
-from ckanext.fair3r.lib.fdf.render import (
-    render_fdf_create_template,
-    dispatch_standard_dataset_edit,
-)
-from ckanext.fair3r.lib.fdf.package import prepare_fdf_package_data
-from ckanext.fair3r.lib.fdf.validation import validate_fdf_output_json
-from ckanext.fair3r.lib.fdf.render import render_fdf_dataset_edit
 from ckanext.fair3r.lib.fdf.doi import sync_datacite_metadata
+from ckanext.fair3r.lib.fdf.form import extract_fdf_output_json
+from ckanext.fair3r.lib.fdf.package import prepare_fdf_package_data
+from ckanext.fair3r.lib.fdf.render import (
+    dispatch_standard_dataset_edit,
+    render_fdf_create_template,
+    render_fdf_dataset_edit,
+)
+from ckanext.fair3r.lib.fdf.schema import load_fdf_schema
+from ckanext.fair3r.lib.fdf.utils import is_fdf_dataset
+from ckanext.fair3r.lib.fdf.validation import validate_fdf_output_json
 
 log = logging.getLogger(__name__)
 
@@ -77,12 +78,8 @@ def fdf_dataset_creation():
                 sync_datacite_metadata(
                     created_package, context, toolkit, logic.get_action
                 )
-            except Exception as e:
-                log.error(
-                    "Fallback DOI sync failed after package_create: %s",
-                    e,
-                    exc_info=True,
-                )
+            except Exception:
+                log.exception("Fallback DOI sync failed after package_create")
 
             # Redirect to add resources
             return redirect(
@@ -105,7 +102,7 @@ def fdf_dataset_creation():
             toolkit.abort(403, toolkit._("Unauthorized to create a package"))
         except Exception as e:
             model.Session.rollback()
-            log.error("Error creating dataset: %s", e, exc_info=True)
+            log.exception("Error creating dataset")
             errors = {"error": [str(e)]}
             error_summary = {_("Error"): str(e)}
     else:
@@ -133,7 +130,9 @@ def fdf_dataset_edit_dispatch(id):
 
     try:
         pkg_dict = logic.get_action("package_show")(context, {"id": id})
-    except Exception:
+    except (logic.NotFound, logic.NotAuthorized):
+        return dispatch_standard_dataset_edit(id=id, package_type="dataset")
+    except Exception:  # noqa: BLE001
         return dispatch_standard_dataset_edit(id=id, package_type="dataset")
 
     if is_fdf_dataset(pkg_dict):
