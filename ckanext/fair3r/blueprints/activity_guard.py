@@ -1,7 +1,6 @@
+from ckan import logic
+from ckan.plugins import toolkit
 from flask import Blueprint, request
-
-import ckan.plugins.toolkit as toolkit
-
 
 activity_guard = Blueprint("fair3r_activity_guard", __name__)
 
@@ -37,7 +36,10 @@ def restrict_activity_streams():
         group_dict = toolkit.get_action(f"{group_type}_show")(  # type: ignore
             context, {"id": obj_id_or_name}
         )
-    except Exception:
+    except (toolkit.ObjectNotFound, logic.NotFound):
+        # Let the original view handle 404 / errors
+        return None
+    except Exception:  # noqa: BLE001
         # Let the original view handle 404 / errors
         return None
 

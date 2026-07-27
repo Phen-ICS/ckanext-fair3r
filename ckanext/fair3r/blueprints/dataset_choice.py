@@ -7,8 +7,9 @@ to choose between different dataset creation methods (CKAN standard & FDF).
 
 import logging
 
+from ckan.plugins import toolkit
 from flask import Blueprint, redirect
-import ckan.plugins.toolkit as toolkit
+
 from ckanext.fair3r.lib.decorators import login_required
 from ckanext.fair3r.lib.utils import asbool
 

@@ -10,7 +10,6 @@ def get_commands():
 @click.group()
 def fair3r():
     """Handle Fair3R commands."""
-    pass
 
 
 @fair3r.command(name="update-schema")

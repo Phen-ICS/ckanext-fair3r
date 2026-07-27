@@ -235,7 +235,8 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
                       $(this).val("").removeData("selected-id").removeData("selected-label");
                     }
                     // Remove displayed xrefs
-                    $(this).siblings(".xrefs-display").remove();
+                    const inputEl = $(this);
+                    inputEl.closest(".fdf-api-input-wrapper").nextAll(".xrefs-display").remove();
 
                     // Clear fields dependent on this field (from schema metadata)
                     if (fieldMetadata && Array.isArray(fieldMetadata.clear_dependent_fields)) {
@@ -1236,6 +1237,9 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
 
         // Hide the clear button (don't remove it, so it can reappear)
         clearBtn.hide();
+
+        // Remove cross-reference display if present
+        wrapper.nextAll(".xrefs-display").remove();
 
         // Hide and clear API results (sibling of wrapper, not input)
         wrapper.siblings(".fdf-api-results").hide().empty();
@@ -2792,7 +2796,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
         const $input = $(this);
         if ($input.hasClass("fdf-api-input")) {
           $input.val("").removeAttr("data-selected-id").removeAttr("data-selected-label");
-          $input.siblings(".xrefs-display").remove();
+          $input.closest(".fdf-api-input-wrapper").nextAll(".xrefs-display").remove();
         } else if ($input.is("select")) {
           $input.val("").trigger("change");
         } else {
@@ -3297,7 +3301,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
               <label>${this._formatFieldLabel(field)}</label>
               <div class="fdf-api-input-wrapper">
                 <input type="text" class="form-control fdf-api-input" data-api="${field.api}" id="${fieldId}" name="${fieldName}" value="${apiDisplayValue}" ${apiSelectedId ? `data-selected-id="${apiSelectedId}" data-selected-label="${apiSelectedLabel || value}"` : ""} ${field.autofill_label_to && field.autofill_label_to.length ? `data-autofill-label-to="${field.autofill_label_to.join(',')}"` : ""} placeholder="${field.placeholder || ""}" ${(field.allow_manual && !isReadOnly) ? "" : "readonly"} ${field.required ? "required" : ""} ${disabledAttr} style="padding-right:${hasValue ? "32px" : "12px"};"/>
-                ${hasValue ? `<button type="button" class="fdf-clear-btn" title="Clear selection">&times;</button>` : ""}
+                <button type="button" class="fdf-clear-btn" title="Clear selection" style="display:${hasValue ? "block" : "none"}">&times;</button>
               </div>
               <div class="fdf-api-results" style="border:1px solid #ccc; display:none; max-height:150px; overflow:auto;"></div>
               ${field.help ? `<small class="form-text text-muted">${field.help}</small>` : ""}
@@ -4490,11 +4494,11 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
     
     _displayXrefs: function(input, xrefs, geneLabel) {
       // Remove any existing xrefs display
-      input.siblings(".xrefs-display").remove();
+      input.closest(".fdf-api-input-wrapper").nextAll(".xrefs-display").remove();
       
       if (!xrefs || Object.keys(xrefs).length === 0) return;
       
-      // Create xrefs display
+      // Create xrefs display after the wrapper
       let xrefsHtml = '<div class="xrefs-display" style="margin-top:10px; padding:10px; background:#f9f9f9; border:1px solid #e0e0e0; border-radius:4px;">';
       xrefsHtml += '<div style="font-weight:600; margin-bottom:8px; color:#333;">🔗 Cross identifications for ' + geneLabel + ':</div>';
       xrefsHtml += '<div style="display:flex; flex-wrap:wrap; gap:8px;">';
@@ -4511,8 +4515,8 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       
       xrefsHtml += '</div></div>';
       
-      // Insert after the input field
-      input.after(xrefsHtml);
+      // Insert after the wrapper
+      input.closest(".fdf-api-input-wrapper").after(xrefsHtml);
     },
   };
 });

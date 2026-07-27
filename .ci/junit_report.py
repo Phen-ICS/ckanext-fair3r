@@ -11,8 +11,9 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 from xml.sax.saxutils import escape
 
 
@@ -72,7 +73,7 @@ def _cmd_ruff_check(args: argparse.Namespace) -> int:
 def _cmd_bandit(args: argparse.Namespace) -> int:
     try:
         data: Any = json.loads(Path(args.json).read_text(encoding="utf-8"))
-    except Exception:
+    except (json.JSONDecodeError, OSError):
         data = {}
 
     results = data.get("results", []) if isinstance(data, dict) else []
@@ -162,7 +163,7 @@ def _cmd_bandit(args: argparse.Namespace) -> int:
 def _cmd_pip_audit(args: argparse.Namespace) -> int:
     try:
         data: Any = json.loads(Path(args.json).read_text(encoding="utf-8"))
-    except Exception:
+    except (json.JSONDecodeError, OSError):
         data = []
 
     if isinstance(data, list):

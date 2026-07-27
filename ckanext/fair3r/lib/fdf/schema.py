@@ -5,15 +5,14 @@ FDF schema loading utilities.
 import json
 import logging
 
-from flask import has_request_context, request
 from ckan.lib import i18n
+from flask import has_request_context, request
 
-
-from ckanext.fair3r.lib.utils import get_schema_json_path
 from ckanext.fair3r.lib.fdf.schema_i18n import (
     apply_schema_i18n,
     load_schema_i18n_catalog,
 )
+from ckanext.fair3r.lib.utils import get_schema_json_path
 
 log = logging.getLogger(__name__)
 
@@ -24,8 +23,8 @@ def _load_raw_fdf_schema():
     try:
         with open(get_schema_json_path(), "r", encoding="utf-8") as schema_file:
             schema = json.load(schema_file)
-    except Exception as err:
-        log.error("Failed to load FDF schema: %s", err, exc_info=True)
+    except Exception:
+        log.exception("Failed to load FDF schema")
         return {"sections": [], "apis": {}, "vocabularies": {}}
 
     if not isinstance(schema, dict):

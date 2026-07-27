@@ -1,30 +1,35 @@
-import ckan.plugins as plugins
+import json
+import logging
+import os
+import re
 from logging import getLogger
-import ckan.plugins.toolkit as toolkit  # module containing toolkit functions, classes and exceptions for use by CKAN extensions.
+from typing import ClassVar
+
+import ckan.lib.mailer as ckan_mailer
+from ckan import plugins
+from ckan.common import current_user, request
 from ckan.lib.plugins import DefaultTranslation
+from ckan.plugins import (
+    toolkit,  # module containing toolkit functions, classes and exceptions for use by CKAN extensions.
+)
+
+from ckanext.doi.interfaces import IDoi  # type: ignore
+from ckanext.fair3r import cli
+from ckanext.fair3r.blueprints.account_request import account_request
+from ckanext.fair3r.blueprints.activity_guard import activity_guard
+from ckanext.fair3r.blueprints.dataset_choice import dataset_choice
+from ckanext.fair3r.blueprints.download_all import download_all
+from ckanext.fair3r.blueprints.fdf import fdf
+from ckanext.fair3r.blueprints.sitemap import sitemap
+from ckanext.fair3r.blueprints.standard_creation import standard_creation
+from ckanext.fair3r.lib import mailer as fair3r_mailer
 from ckanext.fair3r.lib.actions import (
     external_lookup,
     external_lookup_auth,
     xenbase_strains,
     xenbase_strains_auth,
 )
-import ckan.lib.mailer as ckan_mailer
-from ckan.common import current_user, request
-from ckanext.fair3r.lib import mailer as fair3r_mailer
-from ckanext.fair3r.blueprints.download_all import download_all
-from ckanext.fair3r.blueprints.activity_guard import activity_guard
-from ckanext.fair3r.blueprints.account_request import account_request
-from ckanext.fair3r.blueprints.dataset_choice import dataset_choice
-from ckanext.fair3r.blueprints.fdf import fdf
-from ckanext.fair3r.blueprints.sitemap import sitemap
-from ckanext.fair3r.blueprints.standard_creation import standard_creation
-from ckanext.doi.interfaces import IDoi  # type: ignore
-from ckanext.fair3r import cli
 from ckanext.fair3r.lib.fdf.schema import load_fdf_schema
-import json
-import os
-import logging
-import re
 
 log = logging.getLogger(__name__)
 
@@ -78,7 +83,7 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
         }
 
     # Mapping of CKAN license IDs to their short acronyms.
-    _LICENSE_ACRONYMS = {
+    _LICENSE_ACRONYMS: ClassVar[dict[str, str]] = {
         "cc-zero": "CC0",
         "cc-by": "CC BY",
         "cc-by-sa": "CC BY-SA",
@@ -151,7 +156,7 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
     def fair3r_is_resource_read(self):
         """Check if the current endpoint is a resource read page."""
         endpoint = request.endpoint or ""
-        return endpoint.endswith("resource.read") or endpoint.endswith("_resource.read")
+        return endpoint.endswith(("resource.read", "_resource.read"))
 
     def parse_fdf_json(self, fdf_json_string):
         """
@@ -844,7 +849,7 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
 
         # Prefer FAIR3R datacite creators when available because they can carry
         # richer identifiers/affiliations (ORCID, ROR) than base author extraction.
-        if "creators" in datacite_extras and datacite_extras["creators"]:
+        if datacite_extras.get("creators"):
             normalized_creators = self._dedupe_people(
                 [
                     n
@@ -857,15 +862,15 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
                 metadata_dict["creators"] = normalized_creators
                 errors.pop("creators", None)
 
-        if "titles" in datacite_extras and datacite_extras["titles"]:
+        if datacite_extras.get("titles"):
             metadata_dict["titles"] = datacite_extras["titles"]
             errors.pop("titles", None)
 
-        if "subjects" in datacite_extras and datacite_extras["subjects"]:
+        if datacite_extras.get("subjects"):
             metadata_dict["subjects"] = datacite_extras["subjects"]
             errors.pop("subjects", None)
 
-        if "descriptions" in datacite_extras and datacite_extras["descriptions"]:
+        if datacite_extras.get("descriptions"):
             merged_descriptions = []
             seen_description_keys = set()
 
@@ -957,7 +962,7 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
                 errors.pop("descriptions", None)
 
         existing_contributors = metadata_dict.get("contributors") or []
-        if "contributors" in datacite_extras and datacite_extras["contributors"]:
+        if datacite_extras.get("contributors"):
             normalized_existing_contributors = [
                 n
                 for c in existing_contributors
@@ -1154,38 +1159,27 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
             metadata_dict["publicationYear"] = datacite_extras["publicationYear"]
             errors.pop("publicationYear", None)
 
-        if "types" in datacite_extras and datacite_extras["types"]:
-            # types is a dict with resourceType and resourceTypeGeneral
-            if "resourceType" in datacite_extras["types"]:
-                metadata_dict["resourceType"] = datacite_extras["types"]["resourceType"]
-                errors.pop("resourceType", None)
+        if datacite_extras.get("types") and "resourceType" in datacite_extras["types"]:
+            metadata_dict["resourceType"] = datacite_extras["types"]["resourceType"]
+            errors.pop("resourceType", None)
 
-        if (
-            "publisherIdentifier" in datacite_extras
-            and datacite_extras["publisherIdentifier"]
-        ):
+        if datacite_extras.get("publisherIdentifier"):
             metadata_dict["publisherIdentifier"] = datacite_extras[
                 "publisherIdentifier"
             ]
             errors.pop("publisherIdentifier", None)
 
-        if (
-            "publisherIdentifierScheme" in datacite_extras
-            and datacite_extras["publisherIdentifierScheme"]
-        ):
+        if datacite_extras.get("publisherIdentifierScheme"):
             metadata_dict["publisherIdentifierScheme"] = datacite_extras[
                 "publisherIdentifierScheme"
             ]
             errors.pop("publisherIdentifierScheme", None)
 
-        if "schemeURI" in datacite_extras and datacite_extras["schemeURI"]:
+        if datacite_extras.get("schemeURI"):
             metadata_dict["schemeURI"] = datacite_extras["schemeURI"]
             errors.pop("schemeURI", None)
 
-        if (
-            "relatedIdentifiers" in datacite_extras
-            and datacite_extras["relatedIdentifiers"]
-        ):
+        if datacite_extras.get("relatedIdentifiers"):
             metadata_dict["relatedIdentifiers"] = datacite_extras["relatedIdentifiers"]
             errors.pop("relatedIdentifiers", None)
             log.info(

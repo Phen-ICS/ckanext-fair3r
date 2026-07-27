@@ -2,9 +2,9 @@
 FDF package data preparation utilities.
 """
 
+from ckanext.fair3r.lib.fdf.extras import sync_fdf_contact_fields, sync_fdf_extras
 from ckanext.fair3r.lib.fdf.form import clean_form_data
 from ckanext.fair3r.lib.fdf.tags import build_tags_payload_from_request
-from ckanext.fair3r.lib.fdf.extras import sync_fdf_extras, sync_fdf_contact_fields
 
 
 def prepare_fdf_package_data(

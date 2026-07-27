@@ -7,7 +7,7 @@ Minimal converter focused only on CKAN core contact fields.
 
 import json
 import logging
-from typing import Dict, Any
+from typing import Any
 
 log = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ class FDFConverter:
     """Extract core contact fields (author/maintainer) from FDF data."""
 
     @staticmethod
-    def _person_name(person: Dict[str, Any]) -> str:
+    def _person_name(person: dict[str, Any]) -> str:
         if not isinstance(person, dict):
             return ""
         return " ".join(
@@ -30,15 +30,15 @@ class FDFConverter:
         ).strip()
 
     @staticmethod
-    def _person_email(person: Dict[str, Any]) -> str:
+    def _person_email(person: dict[str, Any]) -> str:
         if not isinstance(person, dict):
             return ""
         return (person.get("email") or "").strip()
 
     @staticmethod
     def convert_to_ckan_dataset(
-        fdf_data: Dict[str, Any], user_id: str = None
-    ) -> Dict[str, Any]:
+        fdf_data: dict[str, Any], user_id: str | None = None
+    ) -> dict[str, Any]:
         """
         Extract author and maintainer contact info from FDF form data.
 
@@ -136,7 +136,9 @@ class FDFConverter:
         return name or "dataset"
 
 
-def fdf_json_to_ckan_dataset(fdf_json_str: str, user_id: str = None) -> Dict[str, Any]:
+def fdf_json_to_ckan_dataset(
+    fdf_json_str: str, user_id: str | None = None
+) -> dict[str, Any]:
     """
     Extract author/maintainer from FDF JSON string.
 

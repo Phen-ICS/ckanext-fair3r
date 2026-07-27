@@ -2,7 +2,7 @@
 FDF form data utilities.
 """
 
-import ckan.logic as logic
+from ckan import logic
 from ckan.lib.navl import dictization_functions as dict_fns
 
 

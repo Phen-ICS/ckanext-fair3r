@@ -5,7 +5,9 @@ Tests conversion of FDF JSON to DataCite-compatible metadata.
 """
 
 import json
+
 import pytest
+
 import ckanext.fair3r.lib.fdf.datacite_converter as datacite_converter_module
 from ckanext.fair3r.lib.fdf.datacite_converter import (
     DataCiteConverter,

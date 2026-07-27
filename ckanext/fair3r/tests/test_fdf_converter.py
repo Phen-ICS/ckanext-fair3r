@@ -3,7 +3,9 @@ Test suite for FDF contact field extraction (author/maintainer).
 """
 
 import json
+
 import pytest
+
 from ckanext.fair3r.lib.fdf.converter import FDFConverter, fdf_json_to_ckan_dataset
 
 

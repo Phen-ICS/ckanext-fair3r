@@ -11,7 +11,7 @@ This converter extracts and formats it for ckanext-doi consumption.
 import json
 import logging
 import re
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Any, ClassVar
 from urllib.parse import urlparse
 
 log = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ _URI_SCHEME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*$")
 class DataCiteConverter:
     """Convert FDF JSON to DataCite metadata format."""
 
-    STRUCTURED_FIELD_ALIASES = {
+    STRUCTURED_FIELD_ALIASES: ClassVar[dict[str, set[str]]] = {
         "geneSymbol": {"geneSymbol", "genSymbol", "GeneSymbol"},
         "geneName": {"geneName", "GeneName"},
         "geneAccessionId": {"geneAccessionId", "GeneAccessionID"},
@@ -40,7 +40,7 @@ class DataCiteConverter:
         "speciesBackground": {"speciesBackground", "geneticBackground"},
     }
 
-    INTERVENTION_LABELS = {
+    INTERVENTION_LABELS: ClassVar[dict[str, str]] = {
         "GENE": "Genetic Modification",
         "CHEM": "Chemical / Pharmacological Treatment",
         "DIET": "Diet / Feeding Regimen",
@@ -48,7 +48,7 @@ class DataCiteConverter:
         "ANAT": "Tissue / Organ of Interest",
     }
 
-    VALID_RELATION_TYPES = {
+    VALID_RELATION_TYPES: ClassVar[set[str]] = {
         "IsCitedBy",
         "Cites",
         "IsSupplementTo",
@@ -86,7 +86,7 @@ class DataCiteConverter:
     }
 
     @staticmethod
-    def fdf_to_datacite(fdf_json_str: str) -> Dict[str, Any]:
+    def fdf_to_datacite(fdf_json_str: str) -> dict[str, Any]:
         """
         Convert FDF JSON to DataCite metadata dictionary.
 
@@ -172,7 +172,7 @@ class DataCiteConverter:
         return datacite_metadata
 
     @staticmethod
-    def _extract_creators(fdf_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_creators(fdf_data: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Extract creators from FDF data.
 
@@ -256,7 +256,7 @@ class DataCiteConverter:
         return creators_list
 
     @staticmethod
-    def _extract_contributors(fdf_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_contributors(fdf_data: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Extract contributors from FDF data.
 
@@ -265,7 +265,7 @@ class DataCiteConverter:
         and optional CRediT roles. DataCite requires `name` and
         `contributorType` to be present.
         """
-        contributors_list: List[Dict[str, Any]] = []
+        contributors_list: list[dict[str, Any]] = []
 
         for contrib in fdf_data.get("contributors", []):
             if not isinstance(contrib, dict):
@@ -313,7 +313,7 @@ class DataCiteConverter:
         return contributors_list
 
     @staticmethod
-    def _extract_titles(fdf_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_titles(fdf_data: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Extract titles (alternative titles) from FDF data.
 
@@ -340,7 +340,7 @@ class DataCiteConverter:
         return titles_list
 
     @staticmethod
-    def _extract_types(fdf_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_types(fdf_data: dict[str, Any]) -> dict[str, Any]:
         """
         Extract resource type from FDF data.
 
@@ -366,7 +366,7 @@ class DataCiteConverter:
         return {"resourceType": "Dataset", "resourceTypeGeneral": "Dataset"}
 
     @staticmethod
-    def _extract_subjects(fdf_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_subjects(fdf_data: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Extract subjects from FDF data.
 
@@ -447,11 +447,11 @@ class DataCiteConverter:
 
     @staticmethod
     def _append_structured_subjects(
-        fdf_data: Dict[str, Any], subjects_list: List[Dict[str, Any]]
+        fdf_data: dict[str, Any], subjects_list: list[dict[str, Any]]
     ) -> None:
         """Append normalized subjects from structured FDF keys as fallback data."""
 
-        def _as_list(value: Any) -> List[str]:
+        def _as_list(value: Any) -> list[str]:
             if value is None:
                 return []
             if isinstance(value, list):
@@ -460,11 +460,11 @@ class DataCiteConverter:
             return [text] if text else []
 
         def _append_subject(
-            label: str, scheme: str, value_uri: Optional[str] = None
+            label: str, scheme: str, value_uri: str | None = None
         ) -> None:
             if not label:
                 return
-            entry: Dict[str, Any] = {
+            entry: dict[str, Any] = {
                 "subject": DataCiteConverter._normalize_subject_text(label, scheme),
                 "subjectScheme": scheme,
             }
@@ -481,13 +481,13 @@ class DataCiteConverter:
                     return True
             return False
 
-        def _as_list_from_aliases(*keys: str) -> List[str]:
-            values: List[str] = []
+        def _as_list_from_aliases(*keys: str) -> list[str]:
+            values: list[str] = []
             for key in keys:
                 values.extend(_as_list(fdf_data.get(key)))
 
             # dedupe while preserving order
-            deduped: List[str] = []
+            deduped: list[str] = []
             seen: set = set()
             for value in values:
                 lowered = value.lower()
@@ -498,9 +498,9 @@ class DataCiteConverter:
             return deduped
 
         def _as_list_from_subjects(
-            schemes: List[str], prefix: Optional[str] = None
-        ) -> List[str]:
-            values: List[str] = []
+            schemes: list[str], prefix: str | None = None
+        ) -> list[str]:
+            values: list[str] = []
             for subject in fdf_data.get("subjects", []):
                 if not isinstance(subject, dict):
                     continue
@@ -520,7 +520,7 @@ class DataCiteConverter:
                     values.append(label)
 
             # dedupe while preserving order
-            deduped: List[str] = []
+            deduped: list[str] = []
             seen: set = set()
             for value in values:
                 lowered = value.lower()
@@ -630,9 +630,9 @@ class DataCiteConverter:
         return text
 
     @staticmethod
-    def _extract_related_identifiers(fdf_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_related_identifiers(fdf_data: dict[str, Any]) -> list[dict[str, Any]]:
         """Extract related identifiers in DataCite-compatible format."""
-        results: List[Dict[str, Any]] = []
+        results: list[dict[str, Any]] = []
 
         source_items = fdf_data.get("relatedIdentifiers")
         if not isinstance(source_items, list):
@@ -683,7 +683,7 @@ class DataCiteConverter:
     @staticmethod
     def _infer_identifier_scheme(
         identifier: str,
-    ) -> Tuple[Optional[str], Optional[str]]:
+    ) -> tuple[str | None, str | None]:
         """Infer scheme and scheme URI for common identifiers."""
         identifier = str(identifier or "").strip()
         if not identifier:
@@ -712,7 +712,7 @@ class DataCiteConverter:
         return bool(_URI_SCHEME_RE.match(parsed.scheme))
 
     @staticmethod
-    def _extract_descriptions(fdf_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_descriptions(fdf_data: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Extract descriptions from FDF data.
 
@@ -751,7 +751,7 @@ class DataCiteConverter:
         return descriptions_list
 
     @staticmethod
-    def _build_fdf_summary_description(fdf_data: Dict[str, Any]) -> Optional[str]:
+    def _build_fdf_summary_description(fdf_data: dict[str, Any]) -> str | None:
         """Build a concise, human-readable summary from FDF form content."""
         lines = ["FAIR3R form summary"]
 
@@ -854,7 +854,7 @@ class DataCiteConverter:
         return "\n".join(lines)
 
     @staticmethod
-    def _extract_treatment_summaries(fdf_data: Dict[str, Any]) -> List[str]:
+    def _extract_treatment_summaries(fdf_data: dict[str, Any]) -> list[str]:
         """Build treatment summaries from chemical subjects and treatment detail arrays."""
         treatment_names = DataCiteConverter._collect_subject_values_by_scheme(
             fdf_data,
@@ -874,7 +874,7 @@ class DataCiteConverter:
         if max_len == 0:
             return []
 
-        summaries: List[str] = []
+        summaries: list[str] = []
         for idx in range(max_len):
             name = (
                 str(treatment_names[idx]).strip() if idx < len(treatment_names) else ""
@@ -882,7 +882,7 @@ class DataCiteConverter:
             protocol = str(protocols[idx]).strip() if idx < len(protocols) else ""
             design = str(designs[idx]).strip() if idx < len(designs) else ""
 
-            parts: List[str] = []
+            parts: list[str] = []
             if name:
                 parts.append(name)
             if protocol:
@@ -896,7 +896,7 @@ class DataCiteConverter:
         return summaries
 
     @staticmethod
-    def _extract_resource_type_label(fdf_data: Dict[str, Any]) -> Optional[str]:
+    def _extract_resource_type_label(fdf_data: dict[str, Any]) -> str | None:
         """Return the first available resource type label from FDF types."""
         types = fdf_data.get("types", [])
         if not isinstance(types, list) or not types:
@@ -914,9 +914,9 @@ class DataCiteConverter:
         return value_str or None
 
     @staticmethod
-    def _extract_creator_names(fdf_data: Dict[str, Any]) -> List[str]:
+    def _extract_creator_names(fdf_data: dict[str, Any]) -> list[str]:
         """Extract human-readable creator names from FDF data."""
-        names: List[str] = []
+        names: list[str] = []
         seen: set = set()
         for creator in fdf_data.get("creators", []):
             if not isinstance(creator, dict):
@@ -934,13 +934,13 @@ class DataCiteConverter:
         return names
 
     @staticmethod
-    def _extract_contributor_summaries(fdf_data: Dict[str, Any]) -> List[str]:
+    def _extract_contributor_summaries(fdf_data: dict[str, Any]) -> list[str]:
         """Extract contributor names with optional CRediT roles from FDF data.
 
         Contributors are now independent of Creators, so no matching/merging
         is performed here.
         """
-        summary_map: Dict[tuple, Dict[str, Any]] = {}
+        summary_map: dict[tuple, dict[str, Any]] = {}
         for contributor in fdf_data.get("contributors", []):
             if not isinstance(contributor, dict):
                 continue
@@ -960,7 +960,7 @@ class DataCiteConverter:
                 if role and role.lower() not in {r.lower() for r in entry["roles"]}:
                     entry["roles"].append(role)
 
-        summaries: List[str] = []
+        summaries: list[str] = []
         for entry in summary_map.values():
             summary = (
                 f"{entry['name']} ({', '.join(entry['roles'])})"
@@ -972,7 +972,7 @@ class DataCiteConverter:
         return summaries
 
     @staticmethod
-    def _contributor_display_name(contributor: Dict[str, Any]) -> str:
+    def _contributor_display_name(contributor: dict[str, Any]) -> str:
         family = str(contributor.get("familyName") or "").strip()
         given = str(contributor.get("givenName") or "").strip()
         if family and given:
@@ -1009,7 +1009,7 @@ class DataCiteConverter:
         return ""
 
     @staticmethod
-    def _person_identity_key(person: Dict[str, Any]) -> tuple:
+    def _person_identity_key(person: dict[str, Any]) -> tuple:
         normalized_name_type = DataCiteConverter._normalized_name_type(
             person.get("nameType")
         )
@@ -1054,12 +1054,12 @@ class DataCiteConverter:
 
     @staticmethod
     def _collect_subject_values_by_scheme(
-        fdf_data: Dict[str, Any],
+        fdf_data: dict[str, Any],
         target_schemes: set,
-        exclude_prefixes: Optional[List[str]] = None,
-    ) -> List[str]:
+        exclude_prefixes: list[str] | None = None,
+    ) -> list[str]:
         """Collect unique subject labels for the given subject schemes."""
-        values: List[str] = []
+        values: list[str] = []
         seen: set = set()
         for subject in fdf_data.get("subjects", []):
             if not isinstance(subject, dict):
@@ -1080,10 +1080,10 @@ class DataCiteConverter:
 
     @staticmethod
     def _collect_subject_values_by_prefix(
-        fdf_data: Dict[str, Any], prefix: str
-    ) -> List[str]:
+        fdf_data: dict[str, Any], prefix: str
+    ) -> list[str]:
         """Collect unique subject labels matching a prefix like 'Gene:' or 'Strain:'."""
-        values: List[str] = []
+        values: list[str] = []
         seen: set = set()
         prefix_lower = prefix.lower()
         for subject in fdf_data.get("subjects", []):
@@ -1102,7 +1102,7 @@ class DataCiteConverter:
         return values
 
     @staticmethod
-    def _extract_display_label(subject: Dict[str, Any]) -> str:
+    def _extract_display_label(subject: dict[str, Any]) -> str:
         """Return the most human-readable label available for a subject entry."""
         raw_label = str(subject.get("subject") or "").strip()
         if raw_label:
@@ -1146,7 +1146,7 @@ class DataCiteConverter:
         return text
 
 
-def convert_fdf_to_datacite_extras(fdf_json_str: str) -> List[Dict[str, str]]:
+def convert_fdf_to_datacite_extras(fdf_json_str: str) -> list[dict[str, str]]:
     """
     Convert FDF JSON to CKAN extras format with DataCite fields.
 
@@ -1225,14 +1225,14 @@ def convert_fdf_to_datacite_extras(fdf_json_str: str) -> List[Dict[str, str]]:
         # Append as CKAN extra with datacite.<key> and JSON string value
         try:
             extras.append({"key": f"datacite.{key}", "value": json.dumps(value)})
-        except Exception:
+        except (TypeError, ValueError, json.JSONDecodeError):
             # Fallback: stringify value
             extras.append({"key": f"datacite.{key}", "value": str(value)})
 
     return extras
 
 
-def _filter_list_for_datacite(items: List[Any]) -> List[Any]:
+def _filter_list_for_datacite(items: list[Any]) -> list[Any]:
     """
     Filter a list to remove empty items (empty strings, None, empty dicts, etc.)
     that would fail DataCite XML validation.
@@ -1278,15 +1278,15 @@ def _filter_list_for_datacite(items: List[Any]) -> List[Any]:
     return filtered
 
 
-def _s(value) -> Optional[str]:
+def _s(value) -> str | None:
     """Strip a string value or return None if empty/non-string."""
     return value.strip() or None if isinstance(value, str) else value
 
 
 def _normalize_for_ckanext_doi_contributor(
-    entry: Dict[str, Any],
-    default_contributor_type: Optional[str] = None,
-) -> Optional[Dict[str, Any]]:
+    entry: dict[str, Any],
+    default_contributor_type: str | None = None,
+) -> dict[str, Any] | None:
     """Convert a DataCite-style contributor object to ckanext-doi contributor kwargs."""
     if not isinstance(entry, dict):
         return None
@@ -1305,7 +1305,7 @@ def _normalize_for_ckanext_doi_contributor(
     if not full_name:
         return None
 
-    normalized: Dict[str, Any] = {"full_name": full_name, "is_org": is_org}
+    normalized: dict[str, Any] = {"full_name": full_name, "is_org": is_org}
     if family_name:
         normalized["family_name"] = family_name
     if given_name:
@@ -1385,7 +1385,7 @@ def _normalize_for_ckanext_doi_contributor(
             scheme = _s(idf.get("scheme") or idf.get("nameIdentifierScheme"))
             scheme_uri = _s(idf.get("scheme_uri") or idf.get("schemeURI"))
             if id_val and scheme:
-                entry_dict: Dict[str, str] = {"identifier": id_val, "scheme": scheme}
+                entry_dict: dict[str, str] = {"identifier": id_val, "scheme": scheme}
                 if scheme_uri:
                     entry_dict["scheme_uri"] = scheme_uri
                 id_values.append(entry_dict)
@@ -1396,14 +1396,14 @@ def _normalize_for_ckanext_doi_contributor(
 
 
 def _dedupe_normalized_people(
-    people: List[Dict[str, Any]],
+    people: list[dict[str, Any]],
     include_contributor_type: bool = False,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Remove duplicate normalized people entries while preserving order."""
-    deduped: List[Dict[str, Any]] = []
-    index_by_key: Dict[Tuple[str, bool, Optional[str]], int] = {}
+    deduped: list[dict[str, Any]] = []
+    index_by_key: dict[tuple[str, bool, str | None], int] = {}
 
-    def _identifier_tuple(id_obj: Dict[str, Any]) -> Tuple[str, str, str]:
+    def _identifier_tuple(id_obj: dict[str, Any]) -> tuple[str, str, str]:
         return (
             (id_obj.get("identifier") or "").strip().lower(),
             (id_obj.get("scheme") or "").strip().lower(),
@@ -1443,7 +1443,7 @@ def _dedupe_normalized_people(
                 existing["affiliations"] = merged_affs
 
             # merge affiliation_objects
-            def _aff_key(a: Dict[str, Any]) -> Tuple[str, str, str]:
+            def _aff_key(a: dict[str, Any]) -> tuple[str, str, str]:
                 return (
                     (a.get("name") or "").strip().lower(),
                     (a.get("affiliationIdentifier") or "").strip().lower(),

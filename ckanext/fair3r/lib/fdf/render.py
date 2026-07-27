@@ -2,24 +2,25 @@
 FDF template rendering utilities.
 """
 
-from flask import current_app, redirect
-import ckan.plugins.toolkit as toolkit
 import logging
-from flask import request
+
+from ckan import logic
 from ckan.common import _
-import ckan.logic as logic
-from ckanext.fair3r.lib.fdf.options import get_fdf_form_options
+from ckan.plugins import toolkit
+from flask import current_app, redirect, request
+
 from ckanext.fair3r.lib.fdf.context import build_fdf_context as _build_fdf_context
-from ckanext.fair3r.lib.fdf.schema import load_fdf_schema as _load_fdf_schema
+from ckanext.fair3r.lib.fdf.doi import sync_datacite_metadata as _sync_datacite_metadata
 from ckanext.fair3r.lib.fdf.form import (
     extract_fdf_output_json as _extract_fdf_output_json,
 )
-from ckanext.fair3r.lib.fdf.validation import validate_fdf_output_json
+from ckanext.fair3r.lib.fdf.options import get_fdf_form_options
 from ckanext.fair3r.lib.fdf.package import (
     prepare_fdf_package_data as _prepare_fdf_package_data,
 )
+from ckanext.fair3r.lib.fdf.schema import load_fdf_schema as _load_fdf_schema
 from ckanext.fair3r.lib.fdf.tags import hydrate_tag_string as _hydrate_tag_string
-from ckanext.fair3r.lib.fdf.doi import sync_datacite_metadata as _sync_datacite_metadata
+from ckanext.fair3r.lib.fdf.validation import validate_fdf_output_json
 
 log = logging.getLogger(__name__)
 
@@ -92,10 +93,8 @@ def render_fdf_dataset_edit(id, initial_pkg_dict=None):
 
             try:
                 _sync_datacite_metadata(pkg_dict, context, toolkit, logic.get_action)
-            except Exception as e:
-                log.error(
-                    "Fallback DOI sync failed after package_patch: %s", e, exc_info=True
-                )
+            except Exception:
+                log.exception("Fallback DOI sync failed after package_patch")
 
             log.info("★ Dataset updated successfully: %s", pkg_dict.get("id"))
 
@@ -118,7 +117,7 @@ def render_fdf_dataset_edit(id, initial_pkg_dict=None):
             }
             _hydrate_tag_string(pkg_dict, request.form.get("tag_string"))
         except Exception as e:
-            log.error("Unexpected error updating dataset: %s", e, exc_info=True)
+            log.exception("Unexpected error updating dataset")
             toolkit.h.flash_error(_("Error: %(message)s") % {"message": str(e)[:100]})
             return redirect(toolkit.url_for("dataset.read", id=id))
 

@@ -8,12 +8,12 @@ at /api/3/action/<name> — no blueprint or Nginx changes required.
 import json
 import logging
 import re
-from http.client import HTTPSConnection
 from html import unescape
+from http.client import HTTPSConnection
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlsplit
 
-import ckan.plugins.toolkit as toolkit
+from ckan.plugins import toolkit
 
 log = logging.getLogger(__name__)
 

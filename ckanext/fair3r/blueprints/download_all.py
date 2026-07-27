@@ -6,15 +6,11 @@ import tempfile
 import zipfile
 from typing import Any, cast
 
-from flask import Blueprint, send_file, after_this_request
-
-import ckan.lib.base as base
-import ckan.lib.uploader as uploader
-import ckan.logic as logic
-import ckan.model as model
+from ckan import logic, model
 from ckan.common import _, current_user
+from ckan.lib import base, uploader
 from ckan.types import Context
-
+from flask import Blueprint, after_this_request, send_file
 
 download_all = Blueprint(
     "download_all",
@@ -67,9 +63,8 @@ def download(id: str):
     if not uploaded_resources:
         return base.abort(404, _("No uploaded resources available to download"))
 
-    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".zip")
-    temp_file_path = temp_file.name
-    temp_file.close()
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as temp_file:
+        temp_file_path = temp_file.name
 
     def _format_dataset_metadata_text(pkg: dict[str, Any]) -> str:
         lines: list[str] = []
@@ -186,29 +181,9 @@ def download(id: str):
                 try:
                     upload = uploader.get_resource_uploader(res)
                     file_path = upload.get_path(res_id)
-                except Exception as e:
-                    log.warning("Skipping resource %s in archive build: %s", res_id, e)
+                except Exception:  # noqa: BLE001
+                    log.warning("Skipping resource %s in archive build", res_id)
                     file_path = None
-
-                    # Try to build a friendly filename
-                    url = res.get("url", "") or ""
-                    # In CKAN uploaded resources, the URL often ends with /download/<filename>
-                    candidate_filename = ""
-                    if "/download/" in url:
-                        candidate_filename = url.split("/download/")[-1]
-                    arcname = _safe_arcname(
-                        candidate_filename,
-                        f"{res.get('name') or 'resource'}-{res_id}{os.path.splitext(file_path)[1]}",
-                    )
-
-                    zf.write(file_path, arcname=arcname)
-                except Exception as exc:
-                    # Skip problematic resource entries, but keep traceability.
-                    log.warning(
-                        "Skipping resource in download-all archive build for dataset %s: %s",
-                        package.get("id") or package.get("name"),
-                        exc,
-                    )
 
                 # Try to build a friendly filename
                 url = res.get("url", "") or ""
@@ -221,7 +196,14 @@ def download(id: str):
                     f"{res.get('name') or 'resource'}-{res_id}{os.path.splitext(file_path)[1]}",
                 )
 
-                zf.write(file_path, arcname=arcname)
+                try:
+                    zf.write(file_path, arcname=arcname)
+                except Exception:  # noqa: BLE001
+                    # Skip problematic resource entries, but keep traceability.
+                    log.warning(
+                        "Skipping resource in download-all archive build for dataset %s",
+                        package.get("id") or package.get("name"),
+                    )
 
         response = send_file(
             temp_file_path,
@@ -240,7 +222,7 @@ def download(id: str):
             return response_obj
 
         return response
-    except Exception:
+    except Exception:  # noqa: BLE001
         try:
             os.remove(temp_file_path)
         except OSError:

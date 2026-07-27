@@ -1,9 +1,9 @@
 import logging
 
-from flask import Blueprint, request
-import ckan.plugins.toolkit as toolkit
-from ckan.lib import helpers as h
 import ckan.lib.mailer as ckan_mailer
+from ckan.lib import helpers as h
+from ckan.plugins import toolkit
+from flask import Blueprint, request
 
 log = logging.getLogger(__name__)
 
@@ -76,8 +76,8 @@ def request_account():
                 toolkit._("Your request has been sent. We will contact you soon.")
             )
             return toolkit.redirect_to("home.index")
-        except Exception as e:
-            log.error(f"Error sending account request email: {e}")
+        except Exception:  # noqa: BLE001
+            log.error("Error sending account request email")
             h.flash_error(
                 toolkit._(
                     "There was a problem sending your request. Please try again later."
@@ -115,8 +115,8 @@ def handle_forbidden(error):
 
         if is_dataset_new_path or "unauthorized to create a package" in lower_msg:
             return toolkit.redirect_to("account_request.request_account")
-    except Exception as exc:
+    except Exception:  # noqa: BLE001
         # If anything goes wrong, fall back to default handling
-        log.warning("Account request redirect fallback failed: %s", exc)
+        log.warning("Account request redirect fallback failed")
 
     return error
