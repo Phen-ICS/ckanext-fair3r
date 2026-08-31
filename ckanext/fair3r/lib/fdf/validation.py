@@ -109,6 +109,37 @@ def _resolve_field_id_value(schema, field_id, fdf_data):
     return _get_nested(fdf_data, field_id)
 
 
+def _find_selected_organism_preset(schema, fdf_data):
+    """Return the organism_presets item matching the submitted organism subject, if any."""
+    subjects = _get_nested(fdf_data, "subjects", [])
+    if not isinstance(subjects, list):
+        return None
+
+    organism_uri = ""
+    for item in subjects:
+        if not isinstance(item, dict):
+            continue
+        if item.get("subjectScheme") == "NCBITaxon":
+            organism_uri = item.get("valueURI") or item.get("id") or ""
+            if organism_uri:
+                break
+
+    if not organism_uri:
+        return None
+
+    presets = (
+        ((schema or {}).get("vocabularies") or {}).get("organism_presets") or {}
+    ).get("items") or []
+    return next(
+        (
+            item
+            for item in presets
+            if isinstance(item, dict) and item.get("id") == organism_uri
+        ),
+        None,
+    )
+
+
 def _is_section_active(schema, section, fdf_data):
     condition = section.get("condition") or {}
     if not condition:
@@ -130,33 +161,7 @@ def _is_section_active(schema, section, fdf_data):
         if not trigger:
             return True
 
-        subjects = _get_nested(fdf_data, "subjects", [])
-        if not isinstance(subjects, list):
-            return False
-
-        organism_uri = ""
-        for item in subjects:
-            if not isinstance(item, dict):
-                continue
-            if item.get("subjectScheme") == "NCBITaxon":
-                organism_uri = item.get("valueURI") or item.get("id") or ""
-                if organism_uri:
-                    break
-
-        if not organism_uri:
-            return False
-
-        presets = (
-            ((schema or {}).get("vocabularies") or {}).get("organism_presets") or {}
-        ).get("items") or []
-        preset = next(
-            (
-                item
-                for item in presets
-                if isinstance(item, dict) and item.get("id") == organism_uri
-            ),
-            None,
-        )
+        preset = _find_selected_organism_preset(schema, fdf_data)
         if not preset:
             return False
 
@@ -510,8 +515,15 @@ def _validate_duplicate_people(fdf_data):
     return errors
 
 
-def _extract_controlled_subject_rules(schema):
-    """Build validation rules for subjects[] entries from schema definitions."""
+def _extract_controlled_subject_rules(schema, taxon_id=None):
+    """Build validation rules for subjects[] entries from schema definitions.
+
+    `taxon_id` (e.g. "10090") resolves `field.api_by_taxon` to the api that
+    was actually available for the submitted organism, since different
+    organisms can route to apis whose mapper.id is a full URL (Ensembl,
+    zebrafish/fly/worm via Alliance) or a bare accession (mouse/rat MGI/RGD
+    ids) — the same distinction the client-side validation makes.
+    """
     rules = []
 
     for section in schema.get("sections", []):
@@ -536,16 +548,26 @@ def _extract_controlled_subject_rules(schema):
                 else:
                     subject_prefix = subject_tpl
 
+            api_by_taxon = field.get("api_by_taxon") or {}
+            default_api_key = field.get("api") or field.get("search_api")
+            api_key = (
+                api_by_taxon.get(taxon_id) if taxon_id else None
+            ) or default_api_key
+
             scheme_tpl = tpl.get("subjectScheme")
             scheme_value = None
             if isinstance(scheme_tpl, str):
                 if scheme_tpl == "$scheme":
-                    api_key = field.get("api") or field.get("search_api")
                     scheme_value = _get_nested(schema, f"apis.{api_key}.mapper.scheme")
                 elif not scheme_tpl.startswith("$"):
                     scheme_value = scheme_tpl
 
-            require_value_uri = "valueURI" in tpl
+            # Fields that allow manual entry are an explicit escape hatch for
+            # when the matching external API has no result (or is down):
+            # don't enforce any particular valueURI shape on them.
+            allow_manual = bool(field.get("allow_manual"))
+
+            require_value_uri = "valueURI" in tpl and not allow_manual
             require_http_uri = False
             if require_value_uri:
                 value_uri_tpl = tpl.get("valueURI")
@@ -553,7 +575,6 @@ def _extract_controlled_subject_rules(schema):
                     if value_uri_tpl.startswith(("http://", "https://")):
                         require_http_uri = True
                     elif value_uri_tpl in ("$id", "$value"):
-                        api_key = field.get("api") or field.get("search_api")
                         mapper_id = _get_nested(schema, f"apis.{api_key}.mapper.id")
                         if isinstance(mapper_id, str) and mapper_id.startswith(
                             ("http://", "https://")
@@ -610,7 +631,10 @@ def _validate_controlled_subjects(schema, fdf_data):
     if not isinstance(subjects, list):
         return errors
 
-    rules = _extract_controlled_subject_rules(schema)
+    preset = _find_selected_organism_preset(schema, fdf_data)
+    taxon_id = preset.get("taxon_id") if preset else None
+
+    rules = _extract_controlled_subject_rules(schema, taxon_id)
     if not rules:
         return errors
 

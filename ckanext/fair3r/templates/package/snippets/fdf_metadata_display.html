@@ -11,6 +11,60 @@ CSS styling: /public/base/css/fair3r.css (section 14. FDF Metadata Display)
 {% set render_only_section = single_section if single_section is defined and single_section else none %}
 {% set hide_section_heading = hide_heading if hide_heading is defined else false %}
 
+{# One subject-scheme row: the primary value(s) for `label`, each followed
+   inline by a small badge/link per cross-reference identifier attached to
+   it (item.crossRefOf == scheme) — e.g. Gene: Apoe [MGI] [NCBI Gene]. #}
+{# Gene/allele nomenclature writes the allele designation as an HTML
+   superscript (e.g. "Apoe<sup>Tg(rtTA)1Gaga</sup>"). These fields also
+   accept manual free-text entry, so raw HTML from a subject is never
+   trusted or marked safe here: fdf_split_symbol_sup only recognizes this
+   one specific shape and returns its two halves as plain text, which this
+   macro renders through Jinja's normal auto-escaping, wrapped in a <sup>
+   tag that is literal template markup, not data. Anything that doesn't
+   match the pattern (including any other markup) comes back as plain text
+   and is shown as-is, autoescaped like any other subject text. #}
+{% macro render_symbol(text) %}
+  {% set symbol = h.fdf_split_symbol_sup(text) %}
+  {{ symbol.base }}{% if symbol.sup %}<sup>{{ symbol.sup }}</sup>{% endif %}
+{% endmacro %}
+
+{% macro render_subject_row(label, grouped_items, xref_items) %}
+  <tr>
+    <th scope="row" style="width: 220px;">{{ label }}</th>
+    <td>
+      {% for item in grouped_items %}
+        {% set uri = item.valueURI if item.valueURI else '' %}
+        {% set is_external_uri = uri.startswith('http://') or uri.startswith('https://') %}
+        {% set display_subject = (item.subject or '')
+          |replace('Gene: ', '')
+          |replace('Allele: ', '')
+          |replace('Gene locus: ', '')
+          |replace('Mutation type: ', '')
+          |replace('Transgene origin: ', '')
+          |replace('Strain: ', '')
+          |replace('Treatment protocol: ', '')
+          |replace('Treatment design: ', '') %}
+        {% if is_external_uri %}
+          <a href="{{ uri }}" target="_blank" rel="noopener noreferrer" title="{{ uri }}">{{ render_symbol(display_subject) }}</a>
+        {% else %}
+          {{ render_symbol(display_subject) }}
+        {% endif %}
+        {% if xref_items %}
+          <span class="fdf-xref-links">
+            {% for xref in xref_items %}
+              {% set xuri = xref.valueURI if xref.valueURI else '' %}
+              {% if xuri.startswith('http://') or xuri.startswith('https://') %}
+                <a href="{{ xuri }}" target="_blank" rel="noopener noreferrer" class="fdf-xref-badge" title="{{ xuri }}">{{ xref.subjectScheme }}</a>
+              {% endif %}
+            {% endfor %}
+          </span>
+        {% endif %}
+        {% if not loop.last %}<br/>{% endif %}
+      {% endfor %}
+    </td>
+  </tr>
+{% endmacro %}
+
 {% if fdf_data %}
 <div class="fdf-metadata">
   {% set schema_sections = [render_only_section] if render_only_section else h.fdf_schema_sections() %}
@@ -107,11 +161,21 @@ CSS styling: /public/base/css/fair3r.css (section 14. FDF Metadata Display)
             {% endif %}
 
             {% for subject_group in grouped.items %}
-              {% set ns = namespace(by_scheme={}) %}
+              {# Cross-reference subjects (crossRefOf set) are kept out of
+                 by_scheme and indexed separately by the primary scheme they
+                 attach to, so they render as inline badges on that primary
+                 row instead of as their own row. #}
+              {% set ns = namespace(by_scheme={}, xrefs_by_target={}) %}
               {% for item in subject_group %}
-                {% set scheme = item.subjectScheme or 'Value' %}
-                {% set existing = ns.by_scheme.get(scheme, []) %}
-                {% set _ = ns.by_scheme.update({scheme: existing + [item]}) %}
+                {% if item.crossRefOf %}
+                  {% set target = item.crossRefOf %}
+                  {% set existing = ns.xrefs_by_target.get(target, []) %}
+                  {% set _ = ns.xrefs_by_target.update({target: existing + [item]}) %}
+                {% else %}
+                  {% set scheme = item.subjectScheme or 'Value' %}
+                  {% set existing = ns.by_scheme.get(scheme, []) %}
+                  {% set _ = ns.by_scheme.update({scheme: existing + [item]}) %}
+                {% endif %}
               {% endfor %}
 
               <div class="fdf-composite-card" style="--fdf-accent-color: {{ section_accent_color }}; margin-bottom: 1.5em;">
@@ -121,58 +185,20 @@ CSS styling: /public/base/css/fair3r.css (section 14. FDF Metadata Display)
                       {% for scheme, label in section_labels.items() %}
                         {% set grouped_items = ns.by_scheme.get(scheme, []) %}
                         {% if grouped_items %}
-                          <tr>
-                            <th scope="row" style="width: 220px;">{{ label }}</th>
-                            <td>
-                              {% for item in grouped_items %}
-                                {% set uri = item.valueURI if item.valueURI else '' %}
-                                {% set is_external_uri = uri.startswith('http://') or uri.startswith('https://') %}
-                                {% set display_subject = (item.subject or '')
-                                  |replace('Gene: ', '')
-                                  |replace('Allele: ', '')
-                                  |replace('Gene locus: ', '')
-                                  |replace('Mutation type: ', '')
-                                  |replace('Transgene origin: ', '')
-                                  |replace('Strain: ', '')
-                                  |replace('Treatment protocol: ', '')
-                                  |replace('Treatment design: ', '') %}
-                                {% if is_external_uri %}
-                                  <a href="{{ uri }}" target="_blank" rel="noopener noreferrer" title="{{ uri }}">{{ display_subject }}</a>
-                                {% else %}
-                                  {{ display_subject }}
-                                {% endif %}
-                                {% if not loop.last %}<br/>{% endif %}
-                              {% endfor %}
-                            </td>
-                          </tr>
+                          {{ render_subject_row(label, grouped_items, ns.xrefs_by_target.get(scheme, [])) }}
+                        {% endif %}
+                      {% endfor %}
+                      {# Any scheme not named in display_mapping.labels still gets shown,
+                         under its own raw scheme name — e.g. a subject scheme this
+                         section's filter doesn't enumerate ahead of time. #}
+                      {% for scheme, grouped_items in ns.by_scheme.items() %}
+                        {% if scheme not in section_labels %}
+                          {{ render_subject_row(scheme, grouped_items, ns.xrefs_by_target.get(scheme, [])) }}
                         {% endif %}
                       {% endfor %}
                     {% else %}
                       {% for scheme, grouped_items in ns.by_scheme.items() %}
-                        <tr>
-                          <th scope="row" style="width: 220px;">{{ scheme }}</th>
-                          <td>
-                            {% for item in grouped_items %}
-                              {% set uri = item.valueURI if item.valueURI else '' %}
-                              {% set is_external_uri = uri.startswith('http://') or uri.startswith('https://') %}
-                              {% set display_subject = (item.subject or '')
-                                |replace('Gene: ', '')
-                                |replace('Allele: ', '')
-                                |replace('Gene locus: ', '')
-                                |replace('Mutation type: ', '')
-                                |replace('Transgene origin: ', '')
-                                |replace('Strain: ', '')
-                                |replace('Treatment protocol: ', '')
-                                |replace('Treatment design: ', '') %}
-                              {% if is_external_uri %}
-                                <a href="{{ uri }}" target="_blank" rel="noopener noreferrer" title="{{ uri }}">{{ display_subject }}</a>
-                              {% else %}
-                                {{ display_subject }}
-                              {% endif %}
-                              {% if not loop.last %}<br/>{% endif %}
-                            {% endfor %}
-                          </td>
-                        </tr>
+                        {{ render_subject_row(scheme, grouped_items, ns.xrefs_by_target.get(scheme, [])) }}
                       {% endfor %}
                     {% endif %}
                   </tbody>
@@ -187,69 +213,37 @@ CSS styling: /public/base/css/fair3r.css (section 14. FDF Metadata Display)
                   {% for key, value in section_data.items() %}
                     {% set first_item = value[0] if value is iterable and value is not string and value|length > 0 else none %}
                     {% if key == 'subjects' and first_item is mapping and first_item.subject is defined %}
-                      {% set ns = namespace(grouped={}) %}
+                      {% set ns = namespace(grouped={}, xrefs_by_target={}) %}
                       {% for item in value %}
-                        {% set scheme = (item.subjectScheme or 'Value') %}
-                        {% set existing = ns.grouped.get(scheme, []) %}
-                        {% set _ = ns.grouped.update({scheme: existing + [item]}) %}
+                        {% if item.crossRefOf %}
+                          {% set target = item.crossRefOf %}
+                          {% set existing = ns.xrefs_by_target.get(target, []) %}
+                          {% set _ = ns.xrefs_by_target.update({target: existing + [item]}) %}
+                        {% else %}
+                          {% set scheme = (item.subjectScheme or 'Value') %}
+                          {% set existing = ns.grouped.get(scheme, []) %}
+                          {% set _ = ns.grouped.update({scheme: existing + [item]}) %}
+                        {% endif %}
                       {% endfor %}
 
                       {% if section_labels %}
                         {% for scheme, label in section_labels.items() %}
                           {% set grouped_items = ns.grouped.get(scheme, []) %}
                           {% if grouped_items %}
-                            <tr>
-                              <th scope="row" style="width: 220px;">{{ label }}</th>
-                              <td>
-                                {% for item in grouped_items %}
-                                  {% set uri = item.valueURI if item.valueURI else '' %}
-                                  {% set is_external_uri = uri.startswith('http://') or uri.startswith('https://') %}
-                                  {% set display_subject = (item.subject or '')
-                                    |replace('Gene: ', '')
-                                    |replace('Allele: ', '')
-                                    |replace('Gene locus: ', '')
-                                    |replace('Mutation type: ', '')
-                                    |replace('Transgene origin: ', '')
-                                    |replace('Strain: ', '')
-                                    |replace('Treatment protocol: ', '')
-                                    |replace('Treatment design: ', '') %}
-                                  {% if is_external_uri %}
-                                    <a href="{{ uri }}" target="_blank" rel="noopener noreferrer" title="{{ uri }}">{{ display_subject }}</a>
-                                  {% else %}
-                                    {{ display_subject }}
-                                  {% endif %}
-                                  {% if not loop.last %}<br/>{% endif %}
-                                {% endfor %}
-                              </td>
-                            </tr>
+                            {{ render_subject_row(label, grouped_items, ns.xrefs_by_target.get(scheme, [])) }}
+                          {% endif %}
+                        {% endfor %}
+                        {# Any scheme not named in display_mapping.labels still gets shown,
+                           under its own raw scheme name — e.g. a subject scheme this
+                           section's filter doesn't enumerate ahead of time. #}
+                        {% for scheme, grouped_items in ns.grouped.items() %}
+                          {% if scheme not in section_labels %}
+                            {{ render_subject_row(scheme, grouped_items, ns.xrefs_by_target.get(scheme, [])) }}
                           {% endif %}
                         {% endfor %}
                       {% else %}
                         {% for scheme, grouped_items in ns.grouped.items() %}
-                          <tr>
-                            <th scope="row" style="width: 220px;">{{ scheme }}</th>
-                            <td>
-                              {% for item in grouped_items %}
-                                {% set uri = item.valueURI if item.valueURI else '' %}
-                                {% set is_external_uri = uri.startswith('http://') or uri.startswith('https://') %}
-                                {% set display_subject = (item.subject or '')
-                                  |replace('Gene: ', '')
-                                  |replace('Allele: ', '')
-                                  |replace('Gene locus: ', '')
-                                  |replace('Mutation type: ', '')
-                                  |replace('Transgene origin: ', '')
-                                  |replace('Strain: ', '')
-                                  |replace('Treatment protocol: ', '')
-                                  |replace('Treatment design: ', '') %}
-                                {% if is_external_uri %}
-                                  <a href="{{ uri }}" target="_blank" rel="noopener noreferrer" title="{{ uri }}">{{ display_subject }}</a>
-                                {% else %}
-                                  {{ display_subject }}
-                                {% endif %}
-                                {% if not loop.last %}<br/>{% endif %}
-                              {% endfor %}
-                            </td>
-                          </tr>
+                          {{ render_subject_row(scheme, grouped_items, ns.xrefs_by_target.get(scheme, [])) }}
                         {% endfor %}
                       {% endif %}
                     {% else %}
@@ -580,16 +574,16 @@ CSS styling: /public/base/css/fair3r.css (section 14. FDF Metadata Display)
             <li>
               {% if is_external_uri %}
                 <a href="{{ uri }}" target="_blank" rel="noopener noreferrer" title="{{ uri }}">
-                  {{ display_subject }}
+                  {{ render_symbol(display_subject) }}
                   <i class="fa fa-external-link"></i>
                 </a>
               {% else %}
-                {{ display_subject }}
+                {{ render_symbol(display_subject) }}
               {% endif %}
             </li>
           {% endfor %}
         </ul>
-      
+
       {# List with links showing scheme (diseases with DOID/EFO) #}
       {% elif display_type == 'list_links_with_scheme' %}
         <ul style="margin-bottom: 1em;">
@@ -600,11 +594,11 @@ CSS styling: /public/base/css/fair3r.css (section 14. FDF Metadata Display)
               <strong>{{ item.subjectScheme }}:</strong>
               {% if is_external_uri %}
                 <a href="{{ uri }}" target="_blank" rel="noopener noreferrer" title="{{ uri }}">
-                  {{ item.subject }}
+                  {{ render_symbol(item.subject) }}
                   <i class="fa fa-external-link"></i>
                 </a>
               {% else %}
-                {{ item.subject }}
+                {{ render_symbol(item.subject) }}
               {% endif %}
             </li>
           {% endfor %}
