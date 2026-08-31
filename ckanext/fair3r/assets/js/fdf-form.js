@@ -26,20 +26,25 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
     path = path.trim();
     // Normalize array access: convert ".[0]" to "[0]" for consistent handling
     path = path.replace(/\.\[(\d+)\]/g, '[$1]');
-    const filterRegex = /^([a-zA-Z_][a-zA-Z0-9_]*)\.\[\?([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*([^\]]+)\](?:\.([a-zA-Z_][a-zA-Z0-9_]*))?$/;
+    const filterRegex = /^([a-zA-Z_][a-zA-Z0-9_.]*)\.\[\?([a-zA-Z_][a-zA-Z0-9_.]*)\s*=\s*([^\]]+)\](?:\.([a-zA-Z_][a-zA-Z0-9_]*))?$/;
     const filterMatch = path.match(filterRegex);
-    
+
     if (filterMatch) {
       const [, arrayKey, filterKey, filterValue, resultKey] = filterMatch;
-      const array = obj[arrayKey];
-      
+      const array = arrayKey.includes(".")
+        ? getNestedValue(obj, arrayKey, undefined)
+        : obj[arrayKey];
+
       if (!Array.isArray(array)) {
         return defaultValue;
       }
-      
-      // Find item matching the filter
+
+      // Find item matching the filter (filterKey may itself be a nested
+      // path, e.g. "noteType.name", to filter on a nested object's field)
       const item = array.find(el => {
-        const filterField = el[filterKey];
+        const filterField = filterKey.includes(".")
+          ? getNestedValue(el, filterKey, undefined)
+          : el[filterKey];
         if (Array.isArray(filterField)) {
           return filterField.includes(filterValue);
         }
@@ -83,40 +88,11 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
     return value || defaultValue;
   };
 
-  // ===== Constantes Centralisées (C-001: Évite duplication et bugs futurs) =====
+  // Field ids referenced by name in several places below; centralized here
+  // to avoid repeating (and risking a typo in) the literal string.
   const FIELD_NAMES = {
     ALLELE: "allele_search",
-    GENE: "gene_search",
-    ORGANISM: "organism_choice",
-    GENETIC_BACKGROUND: "genetic_background",
-    CHROMOSOME_LOCATION: "gene_chromosome_location",
-    XENOPUS_LINE_TYPE: "xenopus_line_type",
-    MUTATION_TYPE_DISPLAY: "mutationType_display",
-    STRAIN_SEARCH: "strain_search"
-  };
-
-  const TAXON_IDS = {
-    MOUSE: "10090",
-    RAT: "10116",
-    ZEBRAFISH: "7955",
-    FLY: "7227",
-    XENOPUS: "8364",
-    RHESUS: "9544",
-    CYNOMOLGUS: "9541",
-    MARMOSET: "9483",
-    BABOON: "9555",
-    VERVET: "60711"
-  };
-
-  const SOURCE_TAGS = {
-    "mousemine_allele": "MGI",
-    "mousemine_allele_bygene": "MGI",
-    "rgd_rat_allele": "RGD",
-    "alliance_allele_bygene": "Alliance",
-    "alliance_allele_search": "Alliance",
-    "alliance_variant_search": "Alliance",
-    "ensembl_allele": "Ensembl",
-    "eva_allele": "EVA"
+    GENE: "gene_search"
   };
 
   return {
@@ -622,8 +598,8 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
                 id = item.iri || item.id || "";
               }
 
-              if (api.url && String(api.url).includes("mygene.info")) {
-                id = self._resolveMygenePrimaryId(item) || id;
+              if (api.mapper.id_candidates) {
+                id = self._resolveIdCandidates(item, api.mapper.id_candidates) || id;
               }
               
               if (label && id) {
@@ -743,86 +719,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
               }
             }
 
-            // Special mode: fetch all alleles for the selected gene, then filter client-side
-            if (api.query_mode === "gene_alleles") {
-              const geneValue = self._getContextValue(
-                api.gene_lookup_context || "gene_for_mousemine_lookup",
-                input
-              );
-              if (!geneValue) {
-                return { api, items: [], dependencyMissing: true };
-              }
-
-              let fetchUrl;
-              let extractAlleles;
-
-              if (api.gene_path_param) {
-                // Alliance-style: gene ID in URL path
-                fetchUrl = api.url.replace(
-                  `{${api.gene_path_param}}`,
-                  encodeURIComponent(geneValue)
-                );
-                const extraParams = new URLSearchParams();
-                if (api.extra_params) {
-                  Object.entries(api.extra_params).forEach(([k, v]) => extraParams.append(k, v));
-                }
-                if (extraParams.toString()) {
-                  fetchUrl += "?" + extraParams.toString();
-                }
-                extractAlleles = (data) => {
-                  const arr = api.result_path ? (data.results || []) : data;
-                  return Array.isArray(arr) ? arr : [];
-                };
-              } else {
-                // MouseMine-style: gene ID as value1 query param
-                const params = new URLSearchParams();
-                if (api.extra_params) {
-                  Object.entries(api.extra_params).forEach(([k, v]) => params.append(k, v));
-                }
-                params.set("value1", geneValue);
-                fetchUrl = api.url + "?" + params.toString();
-                extractAlleles = (data) => {
-                  const geneObj = (data.results || [])[0];
-                  return Array.isArray(geneObj?.alleles) ? geneObj.alleles : [];
-                };
-              }
-
-              const res = await fetch(fetchUrl, {
-                headers: api.headers || {},
-                mode: "cors",
-                credentials: "omit"
-              });
-              if (!res.ok) {
-                throw new Error(`${res.status} ${res.statusText}`);
-              }
-              const data = await res.json();
-              let alleles = extractAlleles(data);
-
-              // Client-side filter by user input
-              if (val && val.trim()) {
-                const needle = val.trim().toLowerCase();
-                const filterFields = api.gene_alleles_filter_fields ||
-                  ["symbol", "symbolText", "name", "primaryIdentifier", "id"];
-                const filtered = alleles.filter((a) => {
-                  return filterFields.some((field) => {
-                    const fv = a[field];
-                    return typeof fv === "string" && fv.toLowerCase().includes(needle);
-                  });
-                });
-                alleles = filtered.length > 0 ? filtered : alleles;
-              }
-
-              // Apply result limit
-              const limit = api.result_limit || 10;
-              alleles = alleles.slice(0, limit);
-
-              // Filter Alliance results by expected species (strict: no fallback to unfiltered)
-              if (currentApiKey && (currentApiKey === "alliance_allele_bygene" || currentApiKey === "alliance_allele_search")) {
-                alleles = self._filterAllianceByExpectedSpecies(alleles, input);
-              }
-
-              return { api, items: alleles };
-            }
+            // Generic search mode: build query params from API config
 
             // Generic server-side lookup mode: backend proxy/action is selected by schema.
             // Kept backward-compatible with the historical `gene_mutants` mode.
@@ -887,16 +784,8 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
             }
 
             const queryCandidates = [val];
-            if (currentApiKey === "mousemine_allele") {
-              const selectedGeneSymbol = self._getSelectedGeneSymbolForAlleles(input);
-              const lowerVal = val.toLowerCase();
-              const lowerGene = selectedGeneSymbol.toLowerCase();
-              if (selectedGeneSymbol && !lowerVal.includes(lowerGene) && !val.includes("<")) {
-                queryCandidates.unshift(`${selectedGeneSymbol}<${val}`);
-              }
-            }
 
-            if (currentApiKey === "alliance_variant_search") {
+            if (api.query_prefix_with_gene) {
               const selectedGeneSymbol = self._getSelectedGeneSymbolForAlleles(input);
               const geneInput = input.closest(".fdf-instance").find("[name='gene_search']").first();
               const selectedGeneId = (geneInput.data("selected-id") || "").toString().trim();
@@ -1020,11 +909,6 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
                 }
               }
 
-// Filter Alliance results by expected species (strict: no fallback to unfiltered)
-      if (currentApiKey === "alliance_allele_search") {
-        const filtered = self._filterAllianceByExpectedSpecies(items, input);
-        items = filtered;
-              }
 
               if (items.length > 0) {
                 return { api, items };
@@ -1147,6 +1031,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
         input.data("selected-label", label);
         input.data("item-data", itemData);
         input.data("mapped-extra", mappedExtra);
+        input.data("selected-api-key", apiKey || "");
 
         // Use schema metadata to update dependent fields
         const instanceEl = input.closest(".fdf-instance");
@@ -1168,7 +1053,37 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
         
         self._updateDependentFields(fieldName, instanceEl, mergedExtra);
 
-        if (apiKey === "mygene") {
+        // Best-effort enrichment: some apis only expose a structured
+        // mutation/consequence type for a minority of results. When the
+        // schema declares mapper.detail_fetch, fetch the full record for
+        // richer fields (e.g. a curated mutation description) and re-run
+        // the dependent-field update once it resolves. Never blocks the
+        // main selection flow and fails silently if the request errors.
+        const detailFetch = apiKey && self.schema.apis[apiKey]?.mapper?.detail_fetch;
+        if (detailFetch && detailFetch.url && itemData) {
+          self._fetchMapperDetailEnrichment(detailFetch, itemData)
+            .then((enrichment) => {
+              if (!enrichment || Object.keys(enrichment).length === 0) return;
+              // Only apply if this field's selection hasn't changed since,
+              // and only fill in keys the initial (synchronous) mapping
+              // didn't already provide — never overwrite a known value.
+              if ((input.data("selected-id") || "") !== id) return;
+              const enrichedExtra = Object.assign({}, mergedExtra);
+              let changed = false;
+              Object.entries(enrichment).forEach(([key, value]) => {
+                if (!mergedExtra[key] && value) {
+                  enrichedExtra[key] = value;
+                  changed = true;
+                }
+              });
+              if (!changed) return;
+              input.data("mapped-extra", enrichedExtra);
+              self._updateDependentFields(fieldName, instanceEl, enrichedExtra);
+            })
+            .catch(() => {});
+        }
+
+        if (apiKey && self.schema.apis[apiKey]?.provides_chromosome_location) {
           const location = self._extractChromosomeLocation(itemData);
           const locationInput = instanceEl.find("[name='gene_chromosome_location']").first();
           if (locationInput.length > 0) {
@@ -1180,9 +1095,9 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
         let xrefs = null;
         if (apiKey && itemData && self.schema.apis[apiKey]?.mapper?.xrefs) {
           xrefs = self._parseXrefs(itemData, self.schema.apis[apiKey].mapper.xrefs);
-        } else if (apiKey && itemData && (apiKey === "alliance_allele_bygene" || apiKey === "alliance_allele_search")) {
-          // Alliance allele responses expose accession IDs by provider prefix (MGI/RGD/ZFIN/FB)
-          xrefs = self._buildAllianceAlleleXrefs(itemData);
+        } else if (apiKey && itemData && self.schema.apis[apiKey]?.mapper) {
+          // Build xrefs from mapper.id and mapper.extra (backward compatibility)
+          xrefs = self._buildXrefsFromMapper(itemData, self.schema.apis[apiKey].mapper);
         }
 
         if (xrefs && Object.keys(xrefs).length > 0) {
@@ -1448,160 +1363,30 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
         }
       }
 
-      if (key === "gene_for_mousemine_lookup") {
-        const geneInput = instanceEl.find("[name='gene_search']").first();
-        if (geneInput.length) {
-          const geneItemData = geneInput.data("item-data") || {};
-          const mgiId = geneItemData.MGI ? String(geneItemData.MGI).trim() : "";
-          if (mgiId) {
-            return mgiId.startsWith("MGI:") ? mgiId : `MGI:${mgiId}`;
-          }
-          const symbol = geneItemData.symbol ? String(geneItemData.symbol).trim() : "";
-          if (symbol) {
-            return symbol;
-          }
-          return this._getSelectedGeneSymbolForAlleles(geneInput) || null;
-        }
-      }
-
-      if (key === "gene_for_alliance_lookup") {
-        const geneInput = instanceEl.find("[name='gene_search']").first();
-        if (geneInput.length) {
-          const geneItemData = geneInput.data("item-data") || {};
-          const taxonId = this._getOrganismTaxonId();
-          if (taxonId === "10116") {
-            const rgdId = geneItemData.RGD ? String(geneItemData.RGD).trim() : "";
-            if (rgdId) return rgdId.startsWith("RGD:") ? rgdId : `RGD:${rgdId}`;
-          }
-          if (taxonId === "7955") {
-            const zfinId = geneItemData.ZFIN ? String(geneItemData.ZFIN).trim() : "";
-            if (zfinId) return zfinId.startsWith("ZFIN:") ? zfinId : `ZFIN:${zfinId}`;
-          }
-          if (taxonId === "7227") {
-            const fbId = (geneItemData.FLYBASE || geneItemData.flybase || "").toString().trim();
-            if (fbId) return fbId.startsWith("FB:") ? fbId : `FB:${fbId}`;
-          }
-          if (taxonId === "8364") {
-            const xbId = (geneItemData.XENBASE || geneItemData.Xenbase || geneItemData.xenbase || "").toString().trim();
-            if (xbId) return xbId.startsWith("Xenbase:") ? xbId : `Xenbase:${xbId}`;
-          }
-
-          const selectedId = (geneInput.data("selected-id") || "").toString().trim();
-          const selectedLabel = (geneInput.data("selected-label") || "").toString().trim();
-          const rawValue = (geneInput.val() || "").toString().trim();
-          const texts = [selectedId, selectedLabel, rawValue].filter(Boolean);
-
-          const prefixByTaxon = {
-            "10090": "MGI",
-            "10116": "RGD",
-            "7955": "ZFIN",
-            "7227": "FB",
-            "8364": "XENBASE"
-          };
-          const expectedPrefix = prefixByTaxon[taxonId];
-          if (expectedPrefix) {
-            for (const text of texts) {
-              const detected = this._extractAccessionByPrefix(text, expectedPrefix);
-              if (detected) {
-                return detected;
-              }
-            }
+      // Generic cross-reference lookup: "<field_name>.xref:<xref_key>" reads
+      // the xref that _parseXrefs/_buildXrefsFromMapper already attached to
+      // another field's selection (e.g. "gene_search.xref:xenbase"). This
+      // lets any schema-declared api pull an external identifier produced by
+      // a previous search step, without this code knowing which provider or
+      // field it is.
+      const xrefMatch = key.match(/^([a-zA-Z_][\w]*)\.xref:([a-zA-Z0-9_]+)$/);
+      if (xrefMatch) {
+        const [, sourceFieldName, xrefKey] = xrefMatch;
+        const sourceInput = instanceEl.find(`[name="${sourceFieldName}"]`).first();
+        if (sourceInput.length > 0) {
+          const xrefs = sourceInput.data("xrefs") || {};
+          const xref = xrefs[xrefKey];
+          const xrefId = (xref && (xref.id || xref) || "").toString().trim();
+          if (xrefId) {
+            return xrefId;
           }
         }
-        return null;
-      }
-
-      if (key === "gene_for_rgd_lookup") {
-        const geneInput = instanceEl.find("[name='gene_search']").first();
-        if (!geneInput.length) {
-          return null;
-        }
-
-        const geneItemData = geneInput.data("item-data") || {};
-        const rgdRaw = (geneItemData.RGD || geneItemData.rgd || "").toString().trim();
-        if (rgdRaw) {
-          const numeric = (rgdRaw.match(/(\d+)$/) || [])[1];
-          return numeric || rgdRaw;
-        }
-
-        const xrefs = geneInput.data("xrefs") || {};
-        const rgdFromXref = (xrefs?.rgd?.id || xrefs?.rgd || "").toString().trim();
-        if (rgdFromXref) {
-          const numeric = (rgdFromXref.match(/(\d+)$/) || [])[1];
-          if (numeric) {
-            return numeric;
-          }
-        }
-
-        const selectedId = (geneInput.data("selected-id") || "").toString().trim();
-        const selectedLabel = (geneInput.data("selected-label") || "").toString().trim();
-        const rawValue = (geneInput.val() || "").toString().trim();
-        const texts = [selectedId, selectedLabel, rawValue].filter(Boolean);
-
-        for (const text of texts) {
-          const detected = this._extractAccessionByPrefix(text, "RGD");
-          if (detected) {
-            const numeric = (detected.match(/(\d+)$/) || [])[1];
-            if (numeric) {
-              return numeric;
-            }
-          }
-        }
-
-        return null;
-      }
-
-      if (key === "gene_for_xenbase_lookup") {
-        const geneInput = instanceEl.find("[name='gene_search']").first();
-        if (!geneInput.length) {
-          return null;
-        }
-
-        const geneItemData = geneInput.data("item-data") || {};
-        const xenbaseFromItem = (
-          geneItemData.XENBASE ||
-          geneItemData.Xenbase ||
-          geneItemData.xenbase ||
-          ""
-        ).toString().trim();
-        if (xenbaseFromItem) {
-          return xenbaseFromItem;
-        }
-
-        const xrefs = geneInput.data("xrefs") || {};
-        const xenbaseFromXref = (
-          xrefs?.xenbase?.id ||
-          xrefs?.xenbase ||
-          ""
-        ).toString().trim();
-        if (xenbaseFromXref) {
-          return xenbaseFromXref;
-        }
-
-        const texts = [
-          (geneInput.data("selected-id") || "").toString(),
-          (geneInput.data("selected-label") || "").toString(),
-          (geneInput.val() || "").toString()
-        ];
-
-        for (const text of texts) {
-          const match = text.match(/\bXB-GENE-\d+\b/i);
-          if (match) {
-            return match[0];
-          }
-        }
-
         return null;
       }
 
       if (key === "organism_species_name") {
-        const taxonToSpecies = {
-          "10116": "Rattus norvegicus",
-          "7955": "Danio rerio",
-          "7227": "Drosophila melanogaster"
-        };
-        const taxonId = this._getOrganismTaxonId();
-        return taxonToSpecies[taxonId] || null;
+        const preset = this._getSelectedOrganismPreset();
+        return (preset && preset.label) || null;
       }
 
       return null;
@@ -1675,8 +1460,9 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       }
 
       const taxonId = this._getOrganismTaxonId();
-      if (taxonId && apiByTaxon[taxonId]) {
-        return apiByTaxon[taxonId];
+      const resolved = apiByTaxon[taxonId] || apiByTaxon[String(taxonId)];
+      if (resolved) {
+        return resolved;
       }
 
       return apiByTaxon.default || null;
@@ -1712,70 +1498,21 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       const taxonId = this._getOrganismTaxonId();
       const apiKeys = [primaryApiKey];
 
-        if (fieldName === FIELD_NAMES.ALLELE && taxonId === TAXON_IDS.MOUSE) {
-        const instanceEl = this._getInstanceElFromInput(inputEl);
-        const geneIsSelected = this._isGeneSelectedForInstance(instanceEl);
-
-        const mousemineKey = geneIsSelected ? "mousemine_allele_bygene" : "mousemine_allele";
-        const allianceKey = geneIsSelected ? "alliance_allele_bygene" : "alliance_allele_search";
-        apiKeys.length = 0;
-        apiKeys.push(mousemineKey);
-        if (!apiKeys.includes(allianceKey)) {
-          apiKeys.push(allianceKey);
-        }
-      }
-
-      // Alliance Genome species: Zebrafish (7955), Fly (7227)
-        const allianceTaxa = new Set([TAXON_IDS.ZEBRAFISH, TAXON_IDS.FLY]);
-        if (fieldName === FIELD_NAMES.ALLELE && allianceTaxa.has(taxonId)) {
-        const instanceEl = this._getInstanceElFromInput(inputEl);
-        const geneIsSelected = this._isGeneSelectedForInstance(instanceEl);
-
-        // Upgrade to alliance_allele_bygene when gene is selected
-        const allianceKey = geneIsSelected ? "alliance_allele_bygene" : "alliance_allele_search";
-        apiKeys.length = 0;
-        apiKeys.push(allianceKey);
-        if (geneIsSelected && !apiKeys.includes("alliance_allele_search")) {
-          apiKeys.push("alliance_allele_search");
-        }
-      }
-
-      // Rat (10116): prefer RGD server-side lookup for richer mutation type metadata,
-      // with Alliance as fallback and for free-text search behavior.
-        if (fieldName === FIELD_NAMES.ALLELE && taxonId === TAXON_IDS.RAT) {
-        const instanceEl = this._getInstanceElFromInput(inputEl);
-        const geneIsSelected = this._isGeneSelectedForInstance(instanceEl);
-
-        apiKeys.length = 0;
-        if (geneIsSelected) {
-          apiKeys.push("rgd_rat_allele");
-          apiKeys.push("alliance_allele_bygene");
-          apiKeys.push("alliance_allele_search");
-        } else {
-          apiKeys.push("alliance_allele_search");
-        }
-      }
-
-      // Xenopus (8364): Alliance variant search, with Ensembl region fallback when locus is available
-        if (fieldName === FIELD_NAMES.ALLELE && taxonId === TAXON_IDS.XENOPUS) {
-        apiKeys.length = 0;
-        apiKeys.push("alliance_variant_search");
-
-        const instanceEl = this._getInstanceElFromInput(inputEl);
-          const locusInput = instanceEl ? instanceEl.find("[name='" + FIELD_NAMES.CHROMOSOME_LOCATION + "']").first() : null;
-        const locusValue = locusInput && locusInput.length ? String(locusInput.val() || "").trim() : "";
-        if (locusValue && this.schema && this.schema.apis && this.schema.apis.ensembl_allele) {
-          apiKeys.push("ensembl_allele");
-        }
+      // Add fallback APIs from schema
+      const field = this._getFieldSchemaByName(fieldName);
+      const apiFallback = field && field.api_fallback;
+      if (apiFallback && Array.isArray(apiFallback[taxonId])) {
+        apiFallback[taxonId].forEach(key => {
+          if (!apiKeys.includes(key)) {
+            apiKeys.push(key);
+          }
+        });
       }
 
       const sourcePriority = {
-        mousemine_allele_bygene: 0,
-        mousemine_allele: 1,
-        rgd_rat_allele: 2,
-        alliance_allele_bygene: 3,
-        alliance_allele_search: 4,
-        ensembl_allele: 5
+        alliance_allele_search_mouse: 0,
+        alliance_allele_search_rat: 1,
+        ensembl_allele: 2
       };
 
       return apiKeys
@@ -1792,18 +1529,26 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       return _("Search is not available for the selected organism.");
     },
 
-    _getNoResultsMessage: function(inputEl) {
+    // Resolves the api the given field/input is currently using, so
+    // messages below can name the actual external source instead of
+    // hardcoding a provider name.
+    _getActiveApiLabel: function(inputEl) {
       const fieldName = inputEl && inputEl.length ? inputEl.attr("name") : "";
-      const taxonId = this._getOrganismTaxonId();
-        if (fieldName === FIELD_NAMES.GENETIC_BACKGROUND && taxonId === TAXON_IDS.XENOPUS) {
-        return _("No Xenopus mutant strain/line found in Xenbase for this gene. You can enter one manually.");
+      const field = this._getFieldSchemaByName(fieldName);
+      if (!field) return "";
+      const apiKey = this._resolveApiKeyForInput(field.api, inputEl);
+      return (apiKey && this.schema?.apis?.[apiKey]?.label) || "";
+    },
+
+    _getNoResultsMessage: function(inputEl) {
+      const apiLabel = this._getActiveApiLabel(inputEl);
+      if (apiLabel) {
+        return `${_("No results found in")} ${apiLabel} ${_("for this search. You can enter one manually.")}`;
       }
       return _("No results found. You can enter one manually");
     },
 
     _getRequestErrorMessage: function(inputEl, error) {
-      const fieldName = inputEl && inputEl.length ? inputEl.attr("name") : "";
-      const taxonId = this._getOrganismTaxonId();
       const rawError = (error && error.message ? error.message : error || "").toString();
       const lowerError = rawError.toLowerCase();
 
@@ -1812,58 +1557,64 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
         lowerError.includes("failed to fetch") ||
         lowerError.includes("load failed");
 
-        if (fieldName === FIELD_NAMES.GENETIC_BACKGROUND && taxonId === TAXON_IDS.XENOPUS && isBrowserNetworkError) {
-        return _("Xenbase lookup failed (server could not reach Xenbase). You can still enter the Xenopus strain/line manually.");
+      if (isBrowserNetworkError) {
+        const apiLabel = this._getActiveApiLabel(inputEl);
+        if (apiLabel) {
+          return `${apiLabel} ${_("lookup failed (the server could not reach the external service). You can still enter the value manually.")}`;
+        }
       }
 
       return `${_("Request error")}: ${rawError}`;
     },
 
+    // Short display badge for a search result ("MGI", "Alliance", "Ensembl"...).
+    // Entirely schema-driven: `apis[apiKey].source_tag` is the static badge,
+    // and `apis[apiKey].dynamic_source_tag` opts into refining it per-result
+    // via `_getAllianceSourceTag` (xref_catalog) and the selected organism's
+    // `allele_source_label`. No API key or database name is known here.
     _getApiSourceTag: function(apiKey, itemData = null) {
-        // First check SOURCE_TAGS registry
-        if (SOURCE_TAGS[apiKey]) {
-          return SOURCE_TAGS[apiKey];
-        }
+      const apiDef = (this.schema && this.schema.apis && this.schema.apis[apiKey]) || null;
+      if (!apiDef) return "";
 
-      if (apiKey === "alliance_allele_bygene") {
+      if (apiDef.dynamic_source_tag) {
         const dynamic = this._getAllianceSourceTag(itemData);
         if (dynamic) return dynamic;
-        const taxonId = this._getOrganismTaxonId();
-          if (taxonId === TAXON_IDS.MOUSE) return "MGI";
-          if (taxonId === TAXON_IDS.RAT) return "RGD";
-          if (taxonId === TAXON_IDS.ZEBRAFISH) return "ZFIN";
-          if (taxonId === TAXON_IDS.FLY) return "FlyBase";
-          if (taxonId === TAXON_IDS.XENOPUS) return "Xenbase";
-        return "Alliance";
+        const preset = this._getSelectedOrganismPreset();
+        if (preset && preset.allele_source_label) return preset.allele_source_label;
       }
-      if (apiKey === "alliance_allele_search") {
-        return this._getAllianceSourceTag(itemData) || "Alliance";
-      }
-      return "";
+
+      return apiDef.source_tag || "";
     },
 
+    // Identifies which external database an Alliance Genome search result
+    // came from, purely from the schema's `xref_catalog` (accession prefix
+    // and, as a secondary signal, the species/provider text Alliance
+    // returns alongside the item). No database name is known to this code.
     _getAllianceSourceTag: function(itemData) {
       if (!itemData) {
         return "";
       }
 
+      const catalog = (this.schema && this.schema.xref_catalog) || {};
       const id = (itemData.id || itemData.primaryKey || "").toString();
-      if (/^MGI:/i.test(id)) return "MGI";
-      if (/^RGD:/i.test(id)) return "RGD";
-      if (/^ZFIN:/i.test(id)) return "ZFIN";
-      if (/^FB:/i.test(id)) return "FlyBase";
-      if (/^XENBASE:/i.test(id)) return "Xenbase";
+      const idPrefix = (id.split(":")[0] || "").toUpperCase();
+      if (catalog[idPrefix]) {
+        return catalog[idPrefix].label || idPrefix;
+      }
 
       const provider = (
         itemData?.species?.dataProviderShortName ||
         itemData?.species?.commonNames ||
         ""
       ).toString().toUpperCase();
-      if (provider.includes("MGI") || provider.includes("MOUSE")) return "MGI";
-      if (provider.includes("RGD") || provider.includes("RAT")) return "RGD";
-      if (provider.includes("ZFIN") || provider.includes("ZEBRAFISH")) return "ZFIN";
-      if (provider.includes("FB") || provider.includes("FLY")) return "FlyBase";
-      if (provider.includes("XENBASE") || provider.includes("XENOPUS")) return "Xenbase";
+      if (provider) {
+        for (const [prefix, entry] of Object.entries(catalog)) {
+          const aliases = [prefix, ...(entry.provider_aliases || [])];
+          if (aliases.some((alias) => provider.includes(alias))) {
+            return entry.label || prefix;
+          }
+        }
+      }
       return "";
     },
 
@@ -2006,8 +1757,8 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
         id = item.iri || item.id || "";
       }
 
-      if (api.url && String(api.url).includes("mygene.info")) {
-        id = this._resolveMygenePrimaryId(item) || id;
+      if (api.mapper.id_candidates) {
+        id = this._resolveIdCandidates(item, api.mapper.id_candidates) || id;
       }
 
       if (!label || !id) {
@@ -2185,7 +1936,11 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       return items;
     },
 
-    _getControlledSubjectRuleForField: function(field) {
+    // `resolvedApiKey` should be the api the selection actually came from
+    // (field.api_by_taxon can route different organisms to different apis
+    // with different mapper.id/mapper.scheme shapes); it defaults to the
+    // field's static `api`/`search_api` for fields that don't vary by taxon.
+    _getControlledSubjectRuleForField: function(field, resolvedApiKey) {
       if (!field || !field.output || field.output.path !== "subjects") {
         return null;
       }
@@ -2195,12 +1950,14 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
         return null;
       }
 
+      const apiKey = resolvedApiKey || field.api || field.search_api;
+      const mapper = this.schema?.apis?.[apiKey]?.mapper;
+
       let scheme = "";
       const schemeTpl = tpl.subjectScheme;
       if (typeof schemeTpl === "string") {
         if (schemeTpl === "$scheme") {
-          const apiKey = field.api || field.search_api;
-          scheme = this.schema?.apis?.[apiKey]?.mapper?.scheme || "";
+          scheme = mapper?.scheme || "";
         } else if (!schemeTpl.startsWith("$")) {
           scheme = schemeTpl;
         }
@@ -2213,8 +1970,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
         if (tpl.valueURI.startsWith("http://") || tpl.valueURI.startsWith("https://")) {
           requireHttpUri = true;
         } else if (tpl.valueURI === "$id" || tpl.valueURI === "$value") {
-          const apiKey = field.api || field.search_api;
-          const mapperId = this.schema?.apis?.[apiKey]?.mapper?.id;
+          const mapperId = mapper?.id;
           if (typeof mapperId === "string" && (mapperId.startsWith("http://") || mapperId.startsWith("https://"))) {
             requireHttpUri = true;
           }
@@ -2230,8 +1986,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
 
     _validateControlledApiSelection: function(instanceEl, section, field) {
       const errors = [];
-      const rule = this._getControlledSubjectRuleForField(field);
-      if (!rule || field.type !== "api_search") {
+      if (field.type !== "api_search") {
         return errors;
       }
 
@@ -2242,6 +1997,16 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
 
       const enteredValue = (fieldInput.val() || "").toString().trim();
       if (!enteredValue) {
+        return errors;
+      }
+
+      // Prefer the api actually used for this selection (stored at click
+      // time); fall back to resolving it from the current organism when
+      // that data isn't available (e.g. a manually-typed value).
+      const storedApiKey = (fieldInput.data("selected-api-key") || "").toString().trim();
+      const resolvedApiKey = storedApiKey || this._resolveApiKeyForInput(field.api || field.search_api, fieldInput);
+      const rule = this._getControlledSubjectRuleForField(field, resolvedApiKey);
+      if (!rule) {
         return errors;
       }
 
@@ -2704,55 +2469,50 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       const field = this._getFieldMetadata(fieldId);
       if (!field) return;
 
-      // Update display field for this field (e.g. mutationType_display for allele_search)
-      if (field.update_display_field) {
-        const mutationCandidates = [
-          mappedExtra.mutation_type,
-          mappedExtra.consequenceType,
-          mappedExtra.alterationType,
-          mappedExtra.type,
-          mappedExtra.soTerm,
-          mappedExtra.category
-        ];
-        let displayValue = "";
-        for (const candidate of mutationCandidates) {
-          displayValue = this._normalizeMutationType(candidate);
-          if (displayValue) {
-            break;
-          }
-        }
-        
-        const displayField = instanceEl.find("[name='" + field.update_display_field + "']").first();
-        if (displayField.length) {
-          displayField.val(displayValue);
-        }
-      }
+      this._applyBoundDependentFields(fieldId, instanceEl, mappedExtra);
+    },
 
-      // Update fields that depend on this field (e.g. xenopus_line_type for genetic_background)
-      if (Array.isArray(field.clear_dependent_fields)) {
-        field.clear_dependent_fields.forEach(depFieldId => {
-          const depField = this._getFieldMetadata(depFieldId);
-          if (!depField) return;
+    // Generic propagation for fields declared via `dependent_on_field` +
+    // `bind_to` (e.g. mutationType_display depends on allele_search and
+    // binds to "consequenceType || geneMutationType"; xenopus_line_type
+    // depends on genetic_background and binds to "lineType"). Any field in
+    // the schema can opt into this by declaring those two properties — no
+    // field id or provider-specific branch needed here. `bind_to` may list
+    // several candidate keys separated by "||", tried in order, matching
+    // the fallback convention used throughout the schema's own templates.
+    _applyBoundDependentFields: function(sourceFieldId, instanceEl, mappedExtra) {
+      if (!this.schema || !Array.isArray(this.schema.sections) || !mappedExtra) return;
 
-          const depInputEl = instanceEl.find("[name='" + depFieldId + "']").first();
+      this.schema.sections.forEach((section) => {
+        (section.fields || []).forEach((depField) => {
+          if (depField.dependent_on_field !== sourceFieldId || !depField.bind_to) return;
+
+          const depInputEl = instanceEl.find("[name='" + depField.id + "']").first();
           if (!depInputEl.length) return;
 
-          // For xenopus_line_type, populate with line_type from mappedExtra
-          if (depFieldId === FIELD_NAMES.XENOPUS_LINE_TYPE && (mappedExtra.line_type || mappedExtra.lineType)) {
-            const lineType = (mappedExtra.line_type || mappedExtra.lineType).toString();
-            
-            if (depInputEl.is("select")) {
-              const hasOption = depInputEl.find("option").filter(function() {
-                return $(this).val() === lineType;
-              }).length > 0;
-
-              if (hasOption) {
-                depInputEl.val(lineType).trigger("change");
-              }
+          const candidateKeys = String(depField.bind_to).split("||").map((k) => k.trim()).filter(Boolean);
+          let boundValue = "";
+          for (const key of candidateKeys) {
+            const val = mappedExtra[key];
+            if (val !== undefined && val !== null && String(val).trim() !== "") {
+              boundValue = String(val).trim();
+              break;
             }
           }
+          if (!boundValue) return;
+
+          if (depInputEl.is("select")) {
+            const hasOption = depInputEl.find("option").filter(function() {
+              return $(this).val() === boundValue;
+            }).length > 0;
+            if (hasOption) {
+              depInputEl.val(boundValue).trigger("change");
+            }
+          } else {
+            depInputEl.val(boundValue);
+          }
         });
-      }
+      });
     },
 
     _resolveTemplateExpression: function(template, item) {
@@ -4033,6 +3793,49 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       }
     },
 
+    // Generic, always-on: whenever a subject-producing field's selection
+    // carried cross-references (any api_search field whose mapper declares
+    // `xrefs`/`xref_from_extra`, via _parseXrefs/_buildXrefsFromMapper —
+    // gene, allele, or any future field), persist each one as its own
+    // subject entry — same label, its own subjectScheme/valueURI — so
+    // DataCite gets a separate <subject> per external identifier instead
+    // of only the field's single primary valueURI. `crossRefOf` records
+    // which subjectScheme this identifier is attached to, so a section's
+    // display_mapping.filter (which only lists the *primary* schemes it
+    // cares about) still picks these up — see extract_fdf_section_data in
+    // plugin.py. The "default" xref key is skipped: it just restates the
+    // primary valueURI (see _buildXrefsFromMapper), not a real cross-ref.
+    _emitXrefSubjects: function(targetArray, renderedValue, fieldInput, labelOverride, field) {
+      if (!Array.isArray(targetArray) || !renderedValue || typeof renderedValue !== "object" || Array.isArray(renderedValue)) {
+        return;
+      }
+      const xrefs = fieldInput.data("xrefs") || {};
+      const subjectText = (labelOverride || renderedValue.subject || "").toString();
+      const primaryScheme = renderedValue.subjectScheme;
+      // A database name alone (e.g. "MGI") can be ambiguous once several
+      // fields attach cross-references from the same provider to different
+      // kinds of records (a gene vs. an allele are both looked up in MGI).
+      // field.xref_concept names what *this* field's subject represents
+      // ("Gene", "Allele"...) so the two stay distinguishable in the final
+      // subjectScheme, without baking that concept into the provider name
+      // itself (xref_catalog/mapper.xrefs labels stay reusable as-is).
+      const concept = field && field.xref_concept;
+      Object.entries(xrefs).forEach(([xrefKey, xref]) => {
+        if (xrefKey === "default" || !xref || !xref.uri || !xref.label) return;
+        // Skip the suffix if the provider's own label already ends with it
+        // (e.g. "NCBI Gene" + "Gene" would otherwise read "NCBI Gene Gene").
+        const alreadyHasConcept = concept &&
+          xref.label.toLowerCase().endsWith(concept.toLowerCase());
+        const scheme = (concept && !alreadyHasConcept) ? `${xref.label} ${concept}` : xref.label;
+        targetArray.push(Object.assign({}, renderedValue, {
+          subject: subjectText,
+          subjectScheme: scheme,
+          valueURI: xref.uri,
+          crossRefOf: primaryScheme
+        }));
+      });
+    },
+
     collectFieldValue: function(field, instanceEl, formData, instanceIndex) {
       /**
        * Collect the value of a field and add it to formData according to the field's output schema
@@ -4072,33 +3875,6 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
           const mappedExtra = fieldInput.data("mapped-extra");
           if (mappedExtra && typeof mappedExtra === "object") {
             extraContext = mappedExtra;
-          }
-
-          if (field.id === "genetic_background") {
-            const lineTypeInput = instanceEl.find("[name='" + FIELD_NAMES.XENOPUS_LINE_TYPE + "']").first();
-            if (lineTypeInput.length > 0) {
-              let lineTypeValue = (lineTypeInput.val() || "").toString().trim();
-              if (lineTypeInput.is("select") && lineTypeValue === "__OTHER__") {
-                const manualLineTypeInput = lineTypeInput.siblings(".fdf-search-input").first();
-                lineTypeValue = (manualLineTypeInput.val() || "").toString().trim();
-              }
-              if (lineTypeValue) {
-                extraContext.line_type = lineTypeValue;
-                extraContext.lineType = lineTypeValue;
-              }
-            }
-          }
-
-          if (field.id === FIELD_NAMES.ALLELE) {
-            const mutationDisplayInput = instanceEl.find("[name='" + FIELD_NAMES.MUTATION_TYPE_DISPLAY + "']").first();
-            const mutationDisplayValue = (mutationDisplayInput.val() || "").toString().trim();
-            if (
-              !extraContext.mutation_type &&
-              mutationDisplayValue &&
-              !mutationDisplayValue.startsWith("$")
-            ) {
-              extraContext.mutation_type = mutationDisplayValue;
-            }
           }
 
           if (selectedId) {
@@ -4173,6 +3949,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
                 Object.assign(renderedValue, this.applyTemplate(output.obj, value, field, creatorName, labelOverride, creatorNameType, extraContext));
               }
               target[lastKey].push(renderedValue);
+              this._emitXrefSubjects(target[lastKey], renderedValue, fieldInput, labelOverride, field);
             }
             break;
           case "append_if":
@@ -4185,6 +3962,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
                 Object.assign(renderedValue, this.applyTemplate(output.obj, value, field, creatorName, labelOverride, creatorNameType, extraContext));
               }
               target[lastKey].push(renderedValue);
+              this._emitXrefSubjects(target[lastKey], renderedValue, fieldInput, labelOverride, field);
             }
             break;
           case "collect_object":
@@ -4228,7 +4006,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
             .replace(/\$value/g, value)
             .replace(/\$id/g, value)
             .replace(/\$label/g, labelValue)
-            .replace(/\$scheme/g, field.api ? this.schema.apis[field.api].mapper.scheme : "")
+            .replace(/\$scheme/g, field.api && this.schema.apis[field.api]?.mapper?.scheme ? this.schema.apis[field.api].mapper.scheme : "")
             .replace(/\$mutation_type/g, (extraContext && extraContext.mutation_type) ? String(extraContext.mutation_type) : "")
             .replace(/\$creator_name/g, creatorName)
             .replace(/\$nameType/g, creatorNameType)
@@ -4260,82 +4038,50 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       return replacePlaceholders(template);
     },
 
-    _resolveMygenePrimaryId: function(itemData) {
-      if (!itemData) return "";
+    // Declarative multi-branch id resolver: schemas can set mapper.id_candidates
+    // to a list of URL templates to try in order, for APIs whose response can
+    // carry the canonical identifier in different fields depending on what
+    // upstream data is available for a given record (e.g. an Entrez id for
+    // some organisms, an Ensembl id for others). The first candidate whose
+    // placeholders all resolve to a value (and pass an optional "numeric"
+    // check) wins. No API or database is known to this code.
+    _resolveIdCandidates: function(itemData, candidates) {
+      if (!itemData || !Array.isArray(candidates)) return "";
 
-      const entrez = itemData.entrezgene;
-      if (entrez !== undefined && entrez !== null && String(entrez).trim() !== "") {
-        return `https://identifiers.org/ncbigene:${String(entrez).trim()}`;
-      }
+      for (const candidate of candidates) {
+        const tpl = typeof candidate === "string" ? candidate : candidate.tpl;
+        if (!tpl) continue;
 
-      const ensembl = getNestedValue(itemData, "ensembl.gene", "");
-      if (ensembl) {
-        return `https://www.ensembl.org/id/${String(ensembl).trim()}`;
-      }
+        let allResolved = true;
+        const resolved = tpl.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
+          const val = getNestedValue(itemData, path.trim(), "");
+          if (val === "" || val === null || val === undefined) {
+            allResolved = false;
+            return "";
+          }
+          if (candidate.numeric && !/^\d+$/.test(String(val).trim())) {
+            allResolved = false;
+          }
+          return String(val).trim();
+        });
 
-      const rawId = itemData._id;
-      if (rawId !== undefined && rawId !== null && /^\d+$/.test(String(rawId).trim())) {
-        return `https://identifiers.org/ncbigene:${String(rawId).trim()}`;
-      }
-      if (rawId) {
-        return `https://www.ensembl.org/id/${String(rawId).trim()}`;
+        if (allResolved) return resolved;
       }
 
       return "";
     },
 
-    _resolveIdentifierUri: function(id, dbKey) {
+    // Generic last-resort resolver: used only when neither the schema's
+    // mapper.xrefs entry nor xref_catalog supplied an explicit `uri`.
+    // identifiers.org natively resolves "PREFIX:accession" compact
+    // identifiers (MGI:, RGD:, ZFIN:, FlyBase, WormBase, Ensembl, NCBI
+    // gene, ...), so no per-database knowledge needs to live here.
+    _resolveIdentifierUri: function(id) {
       if (!id) return "";
 
       const rawId = String(id).trim();
       if (rawId.startsWith("http://") || rawId.startsWith("https://")) {
         return rawId;
-      }
-
-      const key = (dbKey || "").toLowerCase();
-      const prefixed = rawId.match(/^([A-Za-z]+):(.+)$/);
-      const suffix = prefixed ? prefixed[2] : rawId;
-      const normalizedId = prefixed ? rawId : rawId;
-
-      const uriByKey = {
-        ncbi_gene: `https://www.ncbi.nlm.nih.gov/gene/${suffix}`,
-        ensembl: `https://www.ensembl.org/id/${normalizedId}`,
-        mgi: `https://www.informatics.jax.org/marker/${prefixed ? normalizedId : "MGI:" + normalizedId}`,
-        rgd: `https://rgd.mcw.edu/rgdweb/report/gene/main.html?id=${suffix}`,
-        zfin: `https://zfin.org/${normalizedId}`,
-        flybase: `https://flybase.org/reports/${normalizedId}`,
-        wormbase: `https://wormbase.org/db/get?name=${normalizedId}`,
-        xenbase: `https://www.xenbase.org/xenbase/gene/showgene.do?method=display&geneId=${normalizedId}`,
-        alliance: `https://www.alliancegenome.org/gene/${encodeURIComponent(normalizedId)}`,
-      };
-
-      if (uriByKey[key]) {
-        return uriByKey[key];
-      }
-
-      if (/^\d+$/.test(rawId)) {
-        return `https://www.ncbi.nlm.nih.gov/gene/${rawId}`;
-      }
-
-      if (/^ENS[A-Z]{2,4}G\d+$/i.test(rawId)) {
-        return `https://www.ensembl.org/id/${rawId}`;
-      }
-
-      if (prefixed) {
-        const prefix = prefixed[1].toUpperCase();
-        const uriByPrefix = {
-          MGI: `https://www.informatics.jax.org/marker/${normalizedId}`,
-          RGD: `https://rgd.mcw.edu/rgdweb/report/gene/main.html?id=${suffix}`,
-          ZFIN: `https://zfin.org/${normalizedId}`,
-          FB: `https://flybase.org/reports/${normalizedId}`,
-          FLYBASE: `https://flybase.org/reports/${normalizedId}`,
-          WB: `https://wormbase.org/db/get?name=${normalizedId}`,
-          WORMBASE: `https://wormbase.org/db/get?name=${normalizedId}`,
-          XENBASE: `https://www.xenbase.org/xenbase/gene/showgene.do?method=display&geneId=${normalizedId}`,
-        };
-        if (uriByPrefix[prefix]) {
-          return uriByPrefix[prefix];
-        }
       }
 
       return `https://identifiers.org/${rawId}`;
@@ -4404,90 +4150,107 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       return xrefs;
     },
 
-    _filterAllianceByExpectedSpecies: function(items, inputEl) {
-      if (!Array.isArray(items) || !inputEl || !inputEl.length) {
-        return items;
-      }
 
-      const taxonId = this._getOrganismTaxonId();
-
-      // Map taxon to Alliance data provider short name and expected accession prefix
-      const taxonToAllianceFilter = {
-        "10090": { prefix: "MGI", providerName: "MGI" },
-        "10116": { prefix: "RGD", providerName: "RGD" },
-        "7955": { prefix: "ZFIN", providerName: "ZFIN" },
-        "7227": { prefix: "FB", providerName: "FlyBase" },
-        "8364": { prefix: "XENBASE", providerName: "Xenbase", speciesHint: "XENOPUS" }
+    // Best-effort, schema-driven enrichment fetch: some apis only expose a
+    // useful field (e.g. a curated mutation description) on a per-record
+    // detail endpoint, not in their search-result list. When
+    // mapper.detail_fetch is declared, this resolves its `url` template
+    // against the selected search-result item, fetches it, and resolves
+    // `detail_fetch.extra` templates against the *fetched* record (so they
+    // can use nested/array-filter paths like
+    // "relatedNotes.[?noteType.name=mutation_description].freeText").
+    // Returns {} on any failure — this is always optional enrichment, never
+    // a requirement for completing a selection.
+    _fetchMapperDetailEnrichment: async function(detailFetch, itemData) {
+      const resolveAgainst = (source, template) => {
+        if (!template || typeof template !== "string") return "";
+        return template.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
+          const val = getNestedValue(source, path.trim(), "");
+          return val !== null && val !== undefined ? String(val) : "";
+        });
       };
 
-      const expectedFilter = taxonToAllianceFilter[taxonId];
-      if (!expectedFilter) {
-        return items;
+      const url = resolveAgainst(itemData, detailFetch.url);
+      if (!url) return {};
+
+      let detailData;
+      try {
+        const res = await fetch(url, {
+          headers: detailFetch.headers || { Accept: "application/json" },
+          credentials: detailFetch.credentials || "same-origin"
+        });
+        if (!res.ok) return {};
+        detailData = await res.json();
+      } catch (e) {
+        return {};
       }
 
-      // Filter: keep only items whose ID starts with expected prefix OR whose data provider matches
-      const filtered = items.filter((item) => {
-        const id = (item.id || item.primaryKey || "").toString().toUpperCase();
-        if (id.startsWith(expectedFilter.prefix + ":")) {
-          return true;
+      const extraTemplates = detailFetch.extra || {};
+      const enrichment = {};
+      Object.entries(extraTemplates).forEach(([key, tpl]) => {
+        const resolved = resolveAgainst(detailData, tpl).trim();
+        if (resolved) {
+          enrichment[key] = resolved;
         }
-
-        const speciesField = item?.species;
-        const providerShort = (
-          (speciesField && typeof speciesField === "object" ? speciesField.dataProviderShortName : "") ||
-          ""
-        ).toString().toUpperCase();
-        if (providerShort === expectedFilter.providerName || providerShort === expectedFilter.prefix) {
-          return true;
-        }
-
-        const speciesText = (typeof speciesField === "string" ? speciesField : "").toString().toUpperCase();
-        if (expectedFilter.speciesHint && speciesText.includes(expectedFilter.speciesHint)) {
-          return true;
-        }
-
-        return false;
       });
-
-      // Return filtered results (empty if no match, no fallback)
-      return filtered;
+      return enrichment;
     },
 
-    _buildAllianceAlleleXrefs: function(itemData) {
+    // Fallback cross-reference builder for mappers that don't declare an
+    // explicit `mapper.xrefs` block (see _parseXrefs above for that fully
+    // declarative path). Every piece of provider-specific knowledge here
+    // comes from the schema:
+    //  - mapper.id, when a full URL template, becomes the item's own
+    //    "default" cross-reference.
+    //  - mapper.xref_from_extra names the `mapper.extra` field that holds a
+    //    "PREFIX:accession" style identifier; the PREFIX is looked up in
+    //    the schema's top-level `xref_catalog` to get the target
+    //    database's label and URI template ({{id}} / {{id_suffix}}).
+    // This function has no built-in notion of any specific API or
+    // database — schemas without these fields simply get no derived xrefs.
+    _buildXrefsFromMapper: function(itemData, mapperConfig) {
       const xrefs = {};
-      if (!itemData) {
-        return xrefs;
+      if (!itemData || !mapperConfig) return xrefs;
+
+      const resolveTemplate = (template) => {
+        if (!template) return "";
+        return template.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
+          return getNestedValue(itemData, path.trim(), "") || "";
+        });
+      };
+
+      const mapperId = mapperConfig.id || "";
+      if (mapperId.startsWith("http://") || mapperId.startsWith("https://")) {
+        const resolvedUri = resolveTemplate(mapperId);
+        const rawId = (itemData.id || itemData.primaryKey || "").toString().trim();
+        if (resolvedUri) {
+          xrefs["default"] = {
+            id: rawId || resolvedUri,
+            uri: resolvedUri,
+            label: mapperConfig.scheme || "Identifier"
+          };
+        }
       }
 
-      const accession = (itemData.id || itemData.primaryKey || "").toString().trim();
-      if (!accession) {
-        return xrefs;
+      const extraKey = mapperConfig.xref_from_extra;
+      const extraTemplate = extraKey && mapperConfig.extra && mapperConfig.extra[extraKey];
+      if (extraTemplate) {
+        const accession = resolveTemplate(extraTemplate).trim();
+        if (accession) {
+          const colonIndex = accession.indexOf(":");
+          const prefix = (colonIndex > -1 ? accession.slice(0, colonIndex) : accession).toUpperCase();
+          const suffix = colonIndex > -1 ? accession.slice(colonIndex + 1) : accession;
+          const catalog = (this.schema && this.schema.xref_catalog) || {};
+          const provider = catalog[prefix];
+          if (provider && provider.uri) {
+            xrefs[provider.db || prefix.toLowerCase()] = {
+              id: accession,
+              uri: provider.uri.replace(/\{\{id_suffix\}\}/g, suffix).replace(/\{\{id\}\}/g, accession),
+              label: provider.label || prefix
+            };
+          }
+        }
       }
-
-      const rawPrefix = accession.split(":")[0] || "";
-      const prefix = rawPrefix.toUpperCase();
-      const labelByPrefix = {
-        MGI: "MGI",
-        RGD: "RGD",
-        ZFIN: "ZFIN",
-        FB: "FlyBase",
-        XENBASE: "Xenbase"
-      };
-
-      const providerLabel = labelByPrefix[prefix] || "Source DB";
-      const providerKey = providerLabel.toLowerCase().replace(/[^a-z0-9]+/g, "_");
-
-      xrefs[providerKey] = {
-        id: accession,
-        uri: this._resolveIdentifierUri(accession, providerKey),
-        label: providerLabel
-      };
-
-      xrefs.alliance = {
-        id: accession,
-        uri: `https://www.alliancegenome.org/allele/${encodeURIComponent(accession)}`,
-        label: "Alliance"
-      };
 
       return xrefs;
     },

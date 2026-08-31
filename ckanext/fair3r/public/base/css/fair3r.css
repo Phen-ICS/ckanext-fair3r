@@ -799,6 +799,34 @@ main.hero-no-gradient{ background-image: white !important; }
   padding: 8px 10px;
 }
 
+/* Cross-reference badges shown inline next to a primary value (e.g. Gene,
+   Allele) on the dataset display page — one small link per external
+   database the item's identifier is also known under. */
+.fdf-metadata .fdf-xref-links {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.fdf-metadata .fdf-xref-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #e9f2ff;
+  color: #1f5aa6;
+  font-weight: 600;
+  font-size: 11px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.fdf-metadata .fdf-xref-badge:hover {
+  background: #d7e9ff;
+  text-decoration: underline;
+}
+
 .fdf-required-star {
   color: #d9534f;
   font-weight: 700;

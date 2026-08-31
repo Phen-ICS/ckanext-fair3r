@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-fair3r 3.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-16 14:33+0000\n"
+"POT-Creation-Date: 2026-08-31 12:44+0000\n"
 "PO-Revision-Date: 2026-07-13 14:45+0000\n"
 "Last-Translator: FAIR3R <debannen@igbmc.fr>\n"
 "Language: fr\n"
@@ -14,103 +14,103 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.15.0\n"
 
-#: ckanext/fair3r/plugin.py:109
+#: ckanext/fair3r/plugin.py:141
 msgid "{num} Member"
 msgid_plural "{num} Members"
 msgstr[0] "{num} membre"
 msgstr[1] "{num} membres"
 
-#: ckanext/fair3r/plugin.py:114
+#: ckanext/fair3r/plugin.py:146
 msgid "0 Members"
 msgstr "0 Membres"
 
-#: ckanext/fair3r/plugin.py:121
+#: ckanext/fair3r/plugin.py:153
 msgid "Licenses"
 msgstr "Licences"
 
-#: ckanext/fair3r/plugin.py:1293
+#: ckanext/fair3r/plugin.py:1291
 msgid "License information"
 msgstr "Informations sur la licence"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:479
-#: ckanext/fair3r/assets/js/fdf-form.js:1114
+#: ckanext/fair3r/assets/js/fdf-form.js:460
+#: ckanext/fair3r/assets/js/fdf-form.js:1003
 msgid "Please select or enter the dependent field first."
 msgstr "Veuillez d'abord sélectionner ou saisir le champ dépendant."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:529
-#: ckanext/fair3r/blueprints/fdf.py:110
+#: ckanext/fair3r/assets/js/fdf-form.js:510
+#: ckanext/fair3r/blueprints/fdf.py:107
 msgid "Error"
 msgstr "Erreur"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:539
+#: ckanext/fair3r/assets/js/fdf-form.js:520
 msgid "Invalid response format"
 msgstr "Format de réponse invalide"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:546
+#: ckanext/fair3r/assets/js/fdf-form.js:527
 msgid "No results"
 msgstr "Aucun résultat"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:649
-#: ckanext/fair3r/assets/js/fdf-form.js:1815
+#: ckanext/fair3r/assets/js/fdf-form.js:630
+#: ckanext/fair3r/assets/js/fdf-form.js:1571
 msgid "Request error"
 msgstr "Erreur de requête"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1312
+#: ckanext/fair3r/assets/js/fdf-form.js:1235
 msgid "Field"
 msgstr "Champ"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1352
+#: ckanext/fair3r/assets/js/fdf-form.js:1275
 msgid "Searching…"
 msgstr "Recherche en cours…"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1786
+#: ckanext/fair3r/assets/js/fdf-form.js:1531
 msgid "Please select an organism model first."
 msgstr "Veuillez d'abord sélectionner un modèle d'organisme."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1788
+#: ckanext/fair3r/assets/js/fdf-form.js:1533
 msgid "Search is not available for the selected organism."
 msgstr "La recherche n'est pas disponible pour l'organisme sélectionné."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1795
-msgid ""
-"No Xenopus mutant strain/line found in Xenbase for this gene. You can "
-"enter one manually."
-msgstr ""
-"Aucune souche/lignée mutante Xenopus trouvée dans Xenbase pour ce gène. "
-"Vous pouvez en saisir une manuellement."
+#: ckanext/fair3r/assets/js/fdf-form.js:1550
+msgid "No results found in"
+msgstr "Aucun résultat trouvé dans"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1797
-#, fuzzy
-#| msgid "No Xenopus mutant strain/line found in Xenbase for this gene. You can enter one manually."
+#: ckanext/fair3r/assets/js/fdf-form.js:1550
+msgid "for this search. You can enter one manually."
+msgstr "pour cette recherche. Vous pouvez en saisir un manuellement."
+
+# | msgid "No Xenopus mutant strain/line found in Xenbase for this gene. You
+# can enter one manually."
+#: ckanext/fair3r/assets/js/fdf-form.js:1552
 msgid "No results found. You can enter one manually"
 msgstr "Aucun résultat trouvé. Vous pouvez en saisir un manuellement."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1812
+#: ckanext/fair3r/assets/js/fdf-form.js:1567
 msgid ""
-"Xenbase lookup failed (server could not reach Xenbase). You can still "
-"enter the Xenopus strain/line manually."
+"lookup failed (the server could not reach the external service). You can "
+"still enter the value manually."
 msgstr ""
-"La recherche Xenbase a échoué (le serveur n'a pas pu joindre Xenbase). "
-"Vous pouvez toujours saisir la souche/lignée Xenopus manuellement."
+"a échoué (le serveur n'a pas pu joindre le service externe). Vous pouvez "
+"toujours saisir la valeur manuellement."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2511
+#: ckanext/fair3r/assets/js/fdf-form.js:2284
 msgid "FDF validation failed."
 msgstr "La validation FDF a échoué."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2529
+#: ckanext/fair3r/assets/js/fdf-form.js:2302
 msgid "No sections found in schema."
 msgstr "Aucune section trouvée dans le schéma."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2536
+#: ckanext/fair3r/assets/js/fdf-form.js:2309
 msgid "Section"
 msgstr "Section"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2564
+#: ckanext/fair3r/assets/js/fdf-form.js:2337
 #: ckanext/fair3r/templates/group/snippets/group_item.html:56
 msgid "Remove"
 msgstr "Supprimer"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2580
+#: ckanext/fair3r/assets/js/fdf-form.js:2353
 msgid "Add"
 msgstr "Ajouter"
 
@@ -169,159 +169,159 @@ msgstr ""
 "Un problème est survenu lors de l'envoi de votre demande. Veuillez "
 "réessayer plus tard."
 
-#: ckanext/fair3r/blueprints/download_all.py:59
+#: ckanext/fair3r/blueprints/download_all.py:55
 msgid "Dataset not found"
 msgstr "Jeu de données introuvable"
 
-#: ckanext/fair3r/blueprints/download_all.py:61
+#: ckanext/fair3r/blueprints/download_all.py:57
 msgid "Not authorized to access dataset"
 msgstr "Non autorisé à accéder au jeu de données"
 
-#: ckanext/fair3r/blueprints/download_all.py:68
+#: ckanext/fair3r/blueprints/download_all.py:64
 msgid "No uploaded resources available to download"
 msgstr "Aucune ressource téléversée disponible au téléchargement"
 
-#: ckanext/fair3r/blueprints/download_all.py:76
+#: ckanext/fair3r/blueprints/download_all.py:71
 msgid "Dataset metadata"
 msgstr "Métadonnées du jeu de données"
 
-#: ckanext/fair3r/blueprints/download_all.py:85
+#: ckanext/fair3r/blueprints/download_all.py:80
 msgid "ID"
 msgstr "Identifiant"
 
-#: ckanext/fair3r/blueprints/download_all.py:86
+#: ckanext/fair3r/blueprints/download_all.py:81
 msgid "Name"
 msgstr "Nom"
 
-#: ckanext/fair3r/blueprints/download_all.py:87
+#: ckanext/fair3r/blueprints/download_all.py:82
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:6
 msgid "Title"
 msgstr "Titre"
 
-#: ckanext/fair3r/blueprints/download_all.py:88
+#: ckanext/fair3r/blueprints/download_all.py:83
 msgid "Notes"
 msgstr "Notes"
 
-#: ckanext/fair3r/blueprints/download_all.py:89
+#: ckanext/fair3r/blueprints/download_all.py:84
 msgid "Author"
 msgstr "Auteur"
 
-#: ckanext/fair3r/blueprints/download_all.py:90
+#: ckanext/fair3r/blueprints/download_all.py:85
 msgid "Author Email"
 msgstr "Courriel de l'auteur"
 
-#: ckanext/fair3r/blueprints/download_all.py:91
+#: ckanext/fair3r/blueprints/download_all.py:86
 msgid "Maintainer"
 msgstr "Responsable"
 
-#: ckanext/fair3r/blueprints/download_all.py:92
+#: ckanext/fair3r/blueprints/download_all.py:87
 msgid "Maintainer Email"
 msgstr "Courriel du responsable"
 
-#: ckanext/fair3r/blueprints/download_all.py:93
+#: ckanext/fair3r/blueprints/download_all.py:88
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:32
 msgid "License"
 msgstr "Licence"
 
-#: ckanext/fair3r/blueprints/download_all.py:94
+#: ckanext/fair3r/blueprints/download_all.py:89
 msgid "Owner Org"
 msgstr "Organisation propriétaire"
 
-#: ckanext/fair3r/blueprints/download_all.py:95
+#: ckanext/fair3r/blueprints/download_all.py:90
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:96
 #: ckanext/fair3r/templates/snippets/package_item.html:33
 #: ckanext/fair3r/templates/user/snippets/info.html:80
 msgid "Private"
 msgstr "Privé"
 
-#: ckanext/fair3r/blueprints/download_all.py:96
+#: ckanext/fair3r/blueprints/download_all.py:91
 msgid "Created"
 msgstr "Créé"
 
-#: ckanext/fair3r/blueprints/download_all.py:97
+#: ckanext/fair3r/blueprints/download_all.py:92
 msgid "Last Modified"
 msgstr "Dernière modification"
 
-#: ckanext/fair3r/blueprints/download_all.py:98
+#: ckanext/fair3r/blueprints/download_all.py:93
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:111
 #: ckanext/fair3r/templates/user/snippets/info.html:95
 msgid "State"
 msgstr "État"
 
-#: ckanext/fair3r/blueprints/download_all.py:99
-#: ckanext/fair3r/blueprints/download_all.py:164
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:538
+#: ckanext/fair3r/blueprints/download_all.py:94
+#: ckanext/fair3r/blueprints/download_all.py:159
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:532
 msgid "Type"
 msgstr "Type"
 
-#: ckanext/fair3r/blueprints/download_all.py:105
+#: ckanext/fair3r/blueprints/download_all.py:100
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:75
 msgid "Organization"
 msgstr "Organisation"
 
-#: ckanext/fair3r/blueprints/download_all.py:107
+#: ckanext/fair3r/blueprints/download_all.py:102
 msgid "Org ID"
 msgstr "Identifiant de l'organisation"
 
-#: ckanext/fair3r/blueprints/download_all.py:108
+#: ckanext/fair3r/blueprints/download_all.py:103
 msgid "Org Name"
 msgstr "Nom de l'organisation"
 
-#: ckanext/fair3r/blueprints/download_all.py:109
+#: ckanext/fair3r/blueprints/download_all.py:104
 msgid "Org Title"
 msgstr "Titre de l'organisation"
 
-#: ckanext/fair3r/blueprints/download_all.py:115
+#: ckanext/fair3r/blueprints/download_all.py:110
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:26
 msgid "Tags"
 msgstr "Mots-clés"
 
-#: ckanext/fair3r/blueprints/download_all.py:127
+#: ckanext/fair3r/blueprints/download_all.py:122
 #: ckanext/fair3r/templates/user/read_base.html:24
 #: ckanext/fair3r/templates/user/snippets/info.html:52
 msgid "Groups"
 msgstr "Groupes"
 
-#: ckanext/fair3r/blueprints/download_all.py:137
+#: ckanext/fair3r/blueprints/download_all.py:132
 msgid "Extras"
 msgstr "Champs supplémentaires"
 
-#: ckanext/fair3r/blueprints/download_all.py:149
+#: ckanext/fair3r/blueprints/download_all.py:144
 msgid "Resources"
 msgstr "Ressources"
 
-#: ckanext/fair3r/blueprints/download_all.py:159
+#: ckanext/fair3r/blueprints/download_all.py:154
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:21
 msgid "Description"
 msgstr "Description"
 
-#: ckanext/fair3r/blueprints/download_all.py:161
+#: ckanext/fair3r/blueprints/download_all.py:156
 msgid "Format"
 msgstr "Format"
 
-#: ckanext/fair3r/blueprints/download_all.py:163
+#: ckanext/fair3r/blueprints/download_all.py:158
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:15
 msgid "URL"
 msgstr "URL"
 
-#: ckanext/fair3r/blueprints/download_all.py:248
+#: ckanext/fair3r/blueprints/download_all.py:230
 msgid "Failed to build ZIP archive"
 msgstr "Échec de la création de l'archive ZIP"
 
-#: ckanext/fair3r/blueprints/fdf.py:96 ckanext/fair3r/lib/fdf/render.py:113
-#: ckanext/fair3r/lib/fdf/validation.py:614
-#: ckanext/fair3r/lib/fdf/validation.py:688
-#: ckanext/fair3r/lib/fdf/validation.py:689
-#: ckanext/fair3r/lib/fdf/validation.py:697
-#: ckanext/fair3r/lib/fdf/validation.py:698
+#: ckanext/fair3r/blueprints/fdf.py:93 ckanext/fair3r/lib/fdf/render.py:112
+#: ckanext/fair3r/lib/fdf/validation.py:628
+#: ckanext/fair3r/lib/fdf/validation.py:703
+#: ckanext/fair3r/lib/fdf/validation.py:704
+#: ckanext/fair3r/lib/fdf/validation.py:712
+#: ckanext/fair3r/lib/fdf/validation.py:713
 msgid "FAIR Metadata (FDF)"
 msgstr "Métadonnées FAIR (FDF)"
 
-#: ckanext/fair3r/blueprints/fdf.py:96 ckanext/fair3r/lib/fdf/render.py:113
+#: ckanext/fair3r/blueprints/fdf.py:93 ckanext/fair3r/lib/fdf/render.py:112
 msgid "Validation failed"
 msgstr "Échec de la validation"
 
-#: ckanext/fair3r/blueprints/fdf.py:105
+#: ckanext/fair3r/blueprints/fdf.py:102
 msgid "Unauthorized to create a package"
 msgstr "Non autorisé à créer un jeu de données"
 
@@ -530,23 +530,23 @@ msgstr "{number} groupes ont été purgés"
 msgid "{number} organizations have been purged"
 msgstr "{number} organisations ont été purgées"
 
-#: ckanext/fair3r/lib/mailer.py:53
+#: ckanext/fair3r/lib/mailer.py:52
 msgid "organization"
 msgstr "organisation"
 
-#: ckanext/fair3r/lib/mailer.py:53
+#: ckanext/fair3r/lib/mailer.py:52
 msgid "group"
 msgstr "groupe"
 
-#: ckanext/fair3r/lib/fdf/doi.py:138
+#: ckanext/fair3r/lib/fdf/doi.py:140
 msgid "DataCite DOI created (metadata fallback applied)"
 msgstr "DOI DataCite créé (repli sur les métadonnées appliqué)"
 
-#: ckanext/fair3r/lib/fdf/doi.py:141
+#: ckanext/fair3r/lib/fdf/doi.py:143
 msgid "DataCite DOI created"
 msgstr "DOI DataCite créé"
 
-#: ckanext/fair3r/lib/fdf/doi.py:149
+#: ckanext/fair3r/lib/fdf/doi.py:151
 msgid ""
 "DataCite metadata validation warning (minLength). Dataset saved; DOI "
 "metadata update skipped for now."
@@ -555,80 +555,80 @@ msgstr ""
 "données enregistré ; mise à jour des métadonnées DOI ignorée pour "
 "l'instant."
 
-#: ckanext/fair3r/lib/fdf/doi.py:168
+#: ckanext/fair3r/lib/fdf/doi.py:170
 msgid "DataCite DOI metadata updated (fallback applied)"
 msgstr "Métadonnées DOI DataCite mises à jour (repli appliqué)"
 
-#: ckanext/fair3r/lib/fdf/doi.py:171
+#: ckanext/fair3r/lib/fdf/doi.py:173
 msgid "DataCite DOI metadata updated"
 msgstr "Métadonnées DOI DataCite mises à jour"
 
-#: ckanext/fair3r/lib/fdf/doi.py:179
+#: ckanext/fair3r/lib/fdf/doi.py:181
 msgid "DataCite metadata update warning (minLength). Dataset was updated locally."
 msgstr ""
 "Avertissement de mise à jour des métadonnées DataCite (minLength). Le jeu"
 " de données a été mis à jour localement."
 
-#: ckanext/fair3r/lib/fdf/render.py:122
+#: ckanext/fair3r/lib/fdf/render.py:121
 #, python-format
 msgid "Error: %(message)s"
 msgstr "Erreur : %(message)s"
 
-#: ckanext/fair3r/lib/fdf/validation.py:252
+#: ckanext/fair3r/lib/fdf/validation.py:256
 msgid "At least one entry is required."
 msgstr "Au moins une entrée est requise."
 
-#: ckanext/fair3r/lib/fdf/validation.py:271
-#: ckanext/fair3r/lib/fdf/validation.py:283
+#: ckanext/fair3r/lib/fdf/validation.py:275
+#: ckanext/fair3r/lib/fdf/validation.py:287
 #, python-format
 msgid "%(field)s: required field."
 msgstr "%(field)s : champ obligatoire."
 
-#: ckanext/fair3r/lib/fdf/validation.py:319
+#: ckanext/fair3r/lib/fdf/validation.py:323
 #, python-format
 msgid "%(field)s: value does not match allowed vocabulary/options."
 msgstr "%(field)s : la valeur ne correspond pas au vocabulaire/options autorisés."
 
-#: ckanext/fair3r/lib/fdf/validation.py:344
+#: ckanext/fair3r/lib/fdf/validation.py:348
 #, python-format
 msgid "%(field)s: value '%(value)s' is outside allowed vocabulary."
 msgstr "%(field)s : la valeur « %(value)s » est hors du vocabulaire autorisé."
 
-#: ckanext/fair3r/lib/fdf/validation.py:361
+#: ckanext/fair3r/lib/fdf/validation.py:365
 #, python-format
 msgid "%(field)s: invalid option(s): %(values)s."
 msgstr "%(field)s : option(s) invalide(s) : %(values)s."
 
-#: ckanext/fair3r/lib/fdf/validation.py:410
-#: ckanext/fair3r/lib/fdf/validation.py:439
+#: ckanext/fair3r/lib/fdf/validation.py:414
+#: ckanext/fair3r/lib/fdf/validation.py:443
 #, python-format
 msgid "%(field)s: invalid format."
 msgstr "%(field)s : format invalide."
 
-#: ckanext/fair3r/lib/fdf/validation.py:453
+#: ckanext/fair3r/lib/fdf/validation.py:457
 msgid "Authors & Contributors"
 msgstr "Auteurs et contributeurs"
 
-#: ckanext/fair3r/lib/fdf/validation.py:472
+#: ckanext/fair3r/lib/fdf/validation.py:476
 #, python-format
 msgid "Duplicate author/maintainer entry at item #%(num)s."
 msgstr "Entrée auteur/responsable en double à l'élément n° %(num)s."
 
-#: ckanext/fair3r/lib/fdf/validation.py:505
+#: ckanext/fair3r/lib/fdf/validation.py:509
 #, python-format
 msgid "Duplicate contributor entry at item #%(num)s."
 msgstr "Entrée contributeur en double à l'élément n° %(num)s."
 
-#: ckanext/fair3r/lib/fdf/validation.py:634
+#: ckanext/fair3r/lib/fdf/validation.py:651
 msgid "Controlled vocabulary field"
 msgstr "Champ à vocabulaire contrôlé"
 
-#: ckanext/fair3r/lib/fdf/validation.py:637
+#: ckanext/fair3r/lib/fdf/validation.py:654
 #, python-format
 msgid "%(field)s: missing label for controlled vocabulary entry."
 msgstr "%(field)s : libellé manquant pour l'entrée du vocabulaire contrôlé."
 
-#: ckanext/fair3r/lib/fdf/validation.py:645
+#: ckanext/fair3r/lib/fdf/validation.py:662
 #, python-format
 msgid ""
 "%(field)s: missing identifier URI (choose a value from vocabulary search "
@@ -637,18 +637,18 @@ msgstr ""
 "%(field)s : URI d'identifiant manquante (choisissez une valeur parmi les "
 "résultats de recherche du vocabulaire)."
 
-#: ckanext/fair3r/lib/fdf/validation.py:660
+#: ckanext/fair3r/lib/fdf/validation.py:675
 #, python-format
 msgid "%(field)s: invalid identifier URI '%(uri)s'."
 msgstr "%(field)s : URI d'identifiant invalide « %(uri)s »."
 
-#: ckanext/fair3r/lib/fdf/validation.py:688
-#: ckanext/fair3r/lib/fdf/validation.py:689
+#: ckanext/fair3r/lib/fdf/validation.py:703
+#: ckanext/fair3r/lib/fdf/validation.py:704
 msgid "Missing FDF metadata payload."
 msgstr "Charge utile de métadonnées FDF manquante."
 
-#: ckanext/fair3r/lib/fdf/validation.py:697
-#: ckanext/fair3r/lib/fdf/validation.py:698
+#: ckanext/fair3r/lib/fdf/validation.py:712
+#: ckanext/fair3r/lib/fdf/validation.py:713
 msgid "FDF payload is not valid JSON."
 msgstr "La charge utile FDF n'est pas un JSON valide."
 
@@ -925,7 +925,7 @@ msgid "Contact Name"
 msgstr "Nom du contact"
 
 #: ckanext/fair3r/templates/contact/snippets/form.html:25
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:416
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:410
 #: ckanext/fair3r/templates/user/edit_user_form.html:19
 #: ckanext/fair3r/templates/user/new_user_form.html:12
 #: ckanext/fair3r/templates/user/snippets/info.html:80
@@ -1277,31 +1277,31 @@ msgid "Download all"
 msgstr "Tout télécharger"
 
 #: ckanext/fair3r/templates/package/snippets/additional_info.html:37
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:655
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:649
 msgid "FAIR Metadata (raw JSON)"
 msgstr "Métadonnées FAIR (JSON brut)"
 
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:409
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:403
 msgid "Contributor Type"
 msgstr "Type de contributeur"
 
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:422
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:416
 msgid "Affiliation"
 msgstr "Affiliation"
 
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:468
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:462
 msgid "Identifiers"
 msgstr "Identifiants"
 
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:507
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:501
 msgid "Roles (CRediT)"
 msgstr "Rôles (CRediT)"
 
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:537
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:531
 msgid "Identifier"
 msgstr "Identifiant"
 
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:539
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:533
 msgid "Relation"
 msgstr "Créateur"
 
@@ -1759,4 +1759,13 @@ msgstr "Dernière activité"
 
 #~ msgid "Recaptcha check failed, please try again."
 #~ msgstr "La vérification reCAPTCHA a échoué, veuillez réessayer."
+
+#~ msgid ""
+#~ "No Xenopus mutant strain/line found in"
+#~ " Xenbase for this gene. You can "
+#~ "enter one manually."
+#~ msgstr ""
+#~ "Aucune souche/lignée mutante Xenopus trouvée"
+#~ " dans Xenbase pour ce gène. Vous "
+#~ "pouvez en saisir une manuellement."
 

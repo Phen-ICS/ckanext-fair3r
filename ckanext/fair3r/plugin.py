@@ -78,9 +78,36 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
             "parse_fdf_json": self.parse_fdf_json,
             "fdf_schema_sections": self._get_fdf_schema_sections,
             "extract_fdf_section_data": self.extract_fdf_section_data,
+            "fdf_split_symbol_sup": self.fdf_split_symbol_sup,
             "fair3r_license_options": self.fair3r_license_options,
             "fair3r_member_count_label": self.fair3r_member_count_label,
         }
+
+    # Gene/allele nomenclature from external databases (MGI, Alliance
+    # Genome...) writes the allele designation as an HTML superscript,
+    # e.g. "Apoe<sup>Tg(rtTA)1Gaga</sup>". These same FDF fields also accept
+    # manual free-text entry, so raw HTML from here is never trusted or
+    # marked safe. Instead of allow-listing tags, we only recognize this one
+    # specific, known shape and split it into two plain-text pieces; the
+    # template wraps them with its own literal <sup> tag and renders both
+    # through Jinja's normal auto-escaping, same as any other subject text.
+    # Anything that doesn't match this exact pattern (including any other
+    # markup) is returned as plain text and shown as-is, autoescaped.
+    _SYMBOL_SUP_RE = re.compile(r"^(.*?)<sup>(.*?)</sup>$", re.IGNORECASE | re.DOTALL)
+
+    @classmethod
+    def fdf_split_symbol_sup(cls, text):
+        """Split a gene/allele symbol into its base and superscript parts
+        for template-side rendering. Returns {"base": ..., "sup": ...};
+        "sup" is empty when `text` doesn't match the "X<sup>Y</sup>" shape,
+        in which case "base" is just the original text, untouched."""
+        if text is None:
+            return {"base": "", "sup": ""}
+        raw = str(text)
+        match = cls._SYMBOL_SUP_RE.match(raw)
+        if match:
+            return {"base": match.group(1), "sup": match.group(2)}
+        return {"base": raw, "sup": ""}
 
     # Mapping of CKAN license IDs to their short acronyms.
     _LICENSE_ACRONYMS: ClassVar[dict[str, str]] = {
@@ -270,6 +297,32 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
 
             return value
 
+        def _subject_matches_filter(subj, filter_criteria):
+            for key, expected in filter_criteria.items():
+                subj_val = subj.get(key)
+                # A subject emitted as a cross-reference of another one
+                # (see _emitXrefSubjects in fdf-form.js) carries its own
+                # provider as subjectScheme (e.g. "MGI") plus a
+                # `crossRefOf` naming the *primary* subjectScheme it is
+                # attached to (e.g. "geneAccessionId"). A section's
+                # display_mapping.filter only enumerates primary schemes,
+                # so fall back to crossRefOf when matching on subjectScheme
+                # — this is what lets a section pick up cross-references
+                # for the identifiers it already shows, without needing to
+                # list every possible external provider ahead of time.
+                if key == "subjectScheme" and subj.get("crossRefOf"):
+                    subj_val = subj.get("crossRefOf")
+                if isinstance(expected, list):
+                    if subj_val not in expected:
+                        return False
+                elif isinstance(expected, str) and expected.startswith("^"):
+                    if not subj_val or not re.match(expected, str(subj_val)):
+                        return False
+                else:
+                    if subj_val != expected:
+                        return False
+            return True
+
         def _apply_generic_filter(items, filter_criteria, src_name):
             if not isinstance(items, list):
                 return items
@@ -299,22 +352,7 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
                     ):
                         continue
 
-                match = True
-                for key, expected in filter_criteria.items():
-                    item_val = item.get(key)
-                    if isinstance(expected, list):
-                        if item_val not in expected:
-                            match = False
-                            break
-                    elif isinstance(expected, str) and expected.startswith("^"):
-                        if not item_val or not re.match(expected, str(item_val)):
-                            match = False
-                            break
-                    else:
-                        if item_val != expected:
-                            match = False
-                            break
-                if match:
+                if _subject_matches_filter(item, filter_criteria):
                     filtered.append(item)
             return filtered
 
@@ -338,29 +376,12 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
                 return subjects
 
             # Filter subjects by criteria
-            filtered = []
-            for subj in subjects:
-                if not isinstance(subj, dict):
-                    continue
-                match = True
-                for key, value in filter_criteria.items():
-                    subj_val = subj.get(key)
-                    if isinstance(value, list):
-                        # Match if field value is in list (e.g., ['DOID', 'EFO'])
-                        if subj_val not in value:
-                            match = False
-                            break
-                    elif isinstance(value, str) and value.startswith("^"):
-                        # Treat as regex prefix pattern (e.g. "^Strain:")
-                        if not subj_val or not re.match(value, subj_val):
-                            match = False
-                            break
-                    else:
-                        if subj_val != value:
-                            match = False
-                            break
-                if match:
-                    filtered.append(subj)
+            filtered = [
+                subj
+                for subj in subjects
+                if isinstance(subj, dict)
+                and _subject_matches_filter(subj, filter_criteria)
+            ]
 
             return _clean_for_display(filtered)
 
@@ -383,29 +404,12 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
                     if not filter_criteria:
                         value = subjects
                     else:
-                        value = []
-                        for subj in subjects:
-                            if not isinstance(subj, dict):
-                                continue
-                            match = True
-                            for key, expected in filter_criteria.items():
-                                subj_val = subj.get(key)
-                                if isinstance(expected, list):
-                                    if subj_val not in expected:
-                                        match = False
-                                        break
-                                elif isinstance(expected, str) and expected.startswith(
-                                    "^"
-                                ):
-                                    if not subj_val or not re.match(expected, subj_val):
-                                        match = False
-                                        break
-                                else:
-                                    if subj_val != expected:
-                                        match = False
-                                        break
-                            if match:
-                                value.append(subj)
+                        value = [
+                            subj
+                            for subj in subjects
+                            if isinstance(subj, dict)
+                            and _subject_matches_filter(subj, filter_criteria)
+                        ]
                 else:
                     value = fdf_data.get(src)
 
