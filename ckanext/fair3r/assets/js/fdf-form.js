@@ -18,6 +18,27 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
     };
   };
 
+  // Back-compat only: fields listed here used to bake a "Label: " prefix into
+  // their stored `subject` text (schema `tpl.subject`, e.g. "Gene: $label").
+  // The schema no longer declares that prefix for newly-saved data (the
+  // display template and the DataCite converter already derive the label
+  // from `subjectScheme` instead), but datasets saved before this change
+  // still carry it in their stored text. Keyed by field id (not scheme,
+  // since gene_search's scheme is resolved dynamically per API and can't be
+  // used as a lookup key) so editing those older datasets still prefills
+  // the right raw value instead of "Gene: Apoe".
+  const LEGACY_SUBJECT_PREFIXES = {
+    strain_search: "Strain: ",
+    gene_search: "Gene: ",
+    transgene_origin_species: "Transgene origin: ",
+    gene_chromosome_location: "Gene locus: ",
+    allele_search: "Allele: ",
+    allele_identifier_free: "Allele: ",
+    genetic_background: "Strain: ",
+    xenopus_line_type: "Line type: ",
+    mutationType_display: "Mutation type: ",
+  };
+
   // Simple get implementation for nested object access and basic JMESPath-like syntax
   const getNestedValue = function(obj, path, defaultValue = null) {
     if (!obj) return defaultValue;
@@ -2011,14 +2032,17 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       }
 
       const selectedId = (fieldInput.data("selected-id") || "").toString().trim();
-      const effectiveId = selectedId || enteredValue;
 
-      if (!selectedId && rule.requireValueUri) {
-        errors.push(`${field.label}: This service is temporarily unavailable. Please try again later.`);
+      if (!selectedId) {
+        // No API selection: this is a manually-typed value. Only block it
+        // when the field doesn't explicitly allow manual entry as a fallback.
+        if (rule.requireValueUri && !field.allow_manual) {
+          errors.push(`${field.label}: This service is temporarily unavailable. Please try again later.`);
+        }
         return errors;
       }
 
-      if (rule.requireHttpUri && effectiveId && !(effectiveId.startsWith("http://") || effectiveId.startsWith("https://"))) {
+      if (rule.requireHttpUri && !(selectedId.startsWith("http://") || selectedId.startsWith("https://"))) {
         errors.push(`${field.label}: selected identifier must be a valid URL.`);
       }
 
@@ -2801,8 +2825,12 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       if ((field.type === 'multi_select' || field.type === 'checkbox_group') && Array.isArray(prefillValue)) {
         value = prefillValue;
       }
-      // For preset_or_search, keep object {id, label} as-is if present
-      else if (field.type === 'preset_or_search' && prefillValue && typeof prefillValue === 'object' && prefillValue.id && prefillValue.label) {
+      // For preset_or_search, keep object {id, label} as-is if present.
+      // `id` is optional here: a manually-typed / no-URI value (e.g. a
+      // vocabulary-less "Other" entry) still comes back as {label, id:
+      // undefined, ...} from getPrefillValue, and must still be recognized
+      // as an object so it isn't JSON.stringify'd into the HTML value attr.
+      else if (field.type === 'preset_or_search' && prefillValue && typeof prefillValue === 'object' && prefillValue.label) {
         value = prefillValue;
       }
       // For other types, convert to appropriate type
@@ -3009,10 +3037,11 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
             let searchInputId = "";
             let selectValue = value;
             
-            if (value && typeof value === "object" && value.id && value.label) {
-              // prefillValue is an object with external ID and label
+            if (value && typeof value === "object" && value.label) {
+              // prefillValue is an object with a label and (optionally) an external ID;
+              // a manually-entered value with no resolved ID still lands here.
               searchInputValue = value.label;
-              searchInputId = value.id;
+              searchInputId = value.id || "";
               selectValue = "__OTHER__";
             } else if (value && value !== "__OTHER__" && !items.some(item => item.id === value)) {
               // value might be the label text when __OTHER__ was used
@@ -3537,17 +3566,29 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
             // Get the item at the current instance index
             if (matchingItems.length > instanceIndex) {
               const preferred = matchingItems[instanceIndex];
-              
+
               if (preferred && preferred.subject) {
+                // The current schema declares no prefix (or a different one)
+                // for this field, but the stored text may still carry the
+                // legacy "Label: " prefix from before that field was
+                // migrated. Strip whichever one actually matches.
+                let stripPrefix = prefix;
+                if (!stripPrefix) {
+                  const legacyPrefix = LEGACY_SUBJECT_PREFIXES[field.id];
+                  if (legacyPrefix && preferred.subject.startsWith(legacyPrefix)) {
+                    stripPrefix = legacyPrefix;
+                  }
+                }
+
                 // For plain text fields, return the raw value string (valueURI),
                 // not a wrapped object (which would render as "{" in the input).
                 if (field.type === "text") {
                   return preferred.valueURI !== undefined ? preferred.valueURI
-                    : preferred.subject.substring(prefix.length);
+                    : preferred.subject.substring(stripPrefix.length);
                 }
 
                 // For api_search / other fields, return the rich object
-                const label = preferred.subject.substring(prefix.length);
+                const label = preferred.subject.substring(stripPrefix.length);
                 return {
                   label: label,
                   id: preferred.valueURI,

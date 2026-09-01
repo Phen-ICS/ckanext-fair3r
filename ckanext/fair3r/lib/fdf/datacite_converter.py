@@ -621,7 +621,12 @@ class DataCiteConverter:
             "geneChromosomeLocation": "Gene locus:",
             "GeneLocus": "Gene locus:",
             "speciesBackground": "Strain:",
+            "xenopusStrainLine": "Strain:",
             "Strain": "Strain:",
+            "lineType": "Line type:",
+            "geneMutationType": "Mutation type:",
+            "MutationType": "Mutation type:",
+            "TransgeneOrigin": "Transgene origin:",
         }
         prefix = prefix_by_scheme.get(scheme_name)
         if prefix and text.lower().startswith(prefix.lower()):
