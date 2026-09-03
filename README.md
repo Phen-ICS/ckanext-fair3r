@@ -42,6 +42,12 @@ To install ckanext-fair3r:
 	# The app context (could be DEV, INTEGRATION, VALIDATION, or PRODUCTION)
 	ckanext.fair3r.context = DEV
 
+	# Optional. Directory containing fdf_schema.json and i18n/*.json.
+	# In DEV Docker this is set automatically from FDF_SCHEMA_LOCAL_PATH
+	# (mounted local clone of https://github.com/Phen-ICS/fair3r-fdf-schema).
+	# Leave unset on validation / integration / production (cron downloads GitHub).
+	# ckanext.fair3r.fdf_schema_dir = /fdf-schema
+
 
 ## Developer installation
 

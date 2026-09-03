@@ -67,4 +67,5 @@ def test_load_schema_i18n_catalog_unknown_locale():
 
 
 def test_downloaded_sidecar_path():
-    assert get_schema_i18n_path("fr").endswith("schema/i18n/fr.json")
+    path = get_schema_i18n_path("fr")
+    assert path.endswith(("i18n/fr.json", "i18n\\fr.json"))

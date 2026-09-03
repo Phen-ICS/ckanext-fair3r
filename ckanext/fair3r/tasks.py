@@ -1,13 +1,14 @@
 """
-Celery background task to update the FDF schema from the remote repository.
+Update the FDF schema from the remote repository (or a local clone in DEV).
 
-This module defines a Celery task that downloads the latest FDF schema from
-GitHub, validates it, and writes it to the local schema directory.
+On validation / integration / production, ``fair3r update-schema`` downloads
+the latest FDF schema from GitHub and writes it to the extension schema
+directory. In DEV, when ``ckanext.fair3r.fdf_schema_dir`` points at a local
+clone of fair3r-fdf-schema, the download is skipped and that clone is used
+as-is.
 
-Usage in dev:
-    ckan -c /path/to/dev.ini fair3r update-schema
-
-The CLI command triggers this task asynchronously via Celery.
+Usage:
+    ckan -c /path/to/ckan.ini fair3r update-schema
 """
 
 import json
@@ -16,6 +17,8 @@ import os
 import tempfile
 
 import requests
+
+from ckanext.fair3r.lib.utils import resolve_schema_dir
 
 log = logging.getLogger(__name__)
 
@@ -93,12 +96,38 @@ def _update_schema_i18n_sidecars(result, version):
 def update_fdf_schema():
     """Download and save the FDF schema from the remote repository.
 
+    When a local schema clone is configured (DEV), skip the GitHub download
+    so a container restart cannot overwrite in-progress schema work.
+
     Returns a dict with status information:
         - success: bool
         - message: str
         - version: str | None
     """
     result = {"success": False, "message": "", "version": None}
+
+    schema_dir = resolve_schema_dir()
+    if os.path.abspath(schema_dir) != os.path.abspath(SCHEMA_DIR):
+        schema_path = os.path.join(schema_dir, "fdf_schema.json")
+        try:
+            with open(schema_path, "r", encoding="utf-8") as handle:
+                schema = json.load(handle)
+        except (OSError, json.JSONDecodeError, ValueError) as exc:
+            result["message"] = f"Failed to read local schema at {schema_path}: {exc}"
+            log.error("Schema update skipped (local clone): %s", exc)
+            return result
+        if isinstance(schema, dict):
+            version = schema.get("version", "unknown")
+        else:
+            version = "unknown"
+        result["success"] = True
+        result["version"] = version
+        result["message"] = (
+            f"Using local FDF schema at {schema_dir} (version: {version}); "
+            "GitHub download skipped"
+        )
+        log.info(result["message"])
+        return result
 
     try:
         schema = _download_json(REMOTE_URL)
