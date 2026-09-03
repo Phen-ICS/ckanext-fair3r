@@ -1,9 +1,10 @@
 """
 Sidecar JSON internationalization for the FDF schema (runtime only).
 
-Translations are maintained in the fair3r-fdf-schema repository (i18n/<locale>.json)
-and downloaded by ``fair3r update-schema``. Key paths must stay aligned with
-``tools/i18n.py`` in that repository.
+Translations are maintained in the fair3r-fdf-schema repository (i18n/<locale>.json).
+In DEV they are read from a mounted local clone; otherwise they are downloaded
+by ``fair3r update-schema``. Key paths must stay aligned with ``tools/i18n.py``
+in that repository.
 """
 
 from __future__ import annotations
@@ -14,6 +15,8 @@ import logging
 import os
 import re
 
+from ckanext.fair3r.lib.utils import resolve_schema_dir
+
 log = logging.getLogger(__name__)
 
 LOCALIZABLE_KEYS = frozenset({"title", "label", "placeholder", "help_text", "help"})
@@ -21,10 +24,7 @@ SKIP_PREFIXES = ("{{", "{%")
 
 
 def get_schema_i18n_dir() -> str:
-    plugin_dir = os.path.dirname(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    )
-    return os.path.join(plugin_dir, "schema", "i18n")
+    return os.path.join(resolve_schema_dir(), "i18n")
 
 
 def get_schema_i18n_path(locale: str) -> str:

@@ -14,7 +14,7 @@ def fair3r():
 
 @fair3r.command(name="update-schema")
 def update_schema():
-    """Download FDF schema and locale sidecars from the schema repository."""
+    """Download FDF schema and locale sidecars from GitHub, or use a local clone."""
     result = update_fdf_schema()
     if result["success"]:
         click.secho(result["message"], fg="green")

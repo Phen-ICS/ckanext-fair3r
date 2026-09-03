@@ -33,9 +33,42 @@ def asbool(value):
     return bool(value)
 
 
+def resolve_schema_dir():
+    """
+    Directory that contains ``fdf_schema.json`` and ``i18n/``.
+
+    In DEV Docker this is the mounted local clone of fair3r-fdf-schema when
+    ``ckanext.fair3r.fdf_schema_dir`` (or ``CKANEXT_FAIR3R_FDF_SCHEMA_DIR``)
+    points at a directory that actually contains the schema file. Otherwise
+    the extension's bundled ``schema/`` directory is used.
+    """
+    plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    bundled = os.path.join(plugin_dir, "schema")
+
+    configured = ""
+    try:
+        from ckan.plugins import toolkit
+
+        config = getattr(toolkit, "config", None) or {}
+        try:
+            value = config.get("ckanext.fair3r.fdf_schema_dir")
+        except (AttributeError, TypeError, RuntimeError):
+            value = None
+        if value:
+            configured = str(value).strip()
+    except ImportError:
+        pass
+
+    if not configured:
+        configured = os.environ.get("CKANEXT_FAIR3R_FDF_SCHEMA_DIR", "").strip()
+
+    if configured and os.path.isfile(os.path.join(configured, "fdf_schema.json")):
+        return configured
+    return bundled
+
+
 def get_schema_json_path():
     """
     Return the absolute path to the FDF schema JSON file.
     """
-    plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(plugin_dir, "schema", "fdf_schema.json")
+    return os.path.join(resolve_schema_dir(), "fdf_schema.json")
