@@ -917,6 +917,16 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
                 throw new Error("Invalid response format");
               }
 
+              // Some upstream fields (e.g. mygene's "ensembl") come back as
+              // an array instead of a single object when the record has
+              // cross-species ortholog mappings attached — collapse it to
+              // the one matching this item's own species before mapper
+              // templates like {{ensembl.gene}} ever see it, so nothing
+              // downstream needs to change.
+              if (api.mapper && api.mapper.array_dedupe_by_taxid) {
+                items = items.map((item) => self._applyArrayDedupeByTaxid(item, api.mapper.array_dedupe_by_taxid));
+              }
+
               // Client-side filter by user input when the API ignores the query param (e.g. Ensembl region)
               if (api.filter_by_query && val && val.trim()) {
                 const needle = val.trim().toLowerCase();
@@ -1836,6 +1846,51 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       }
 
       return { label, id, sublabel, extra };
+    },
+
+    // Some upstream APIs (mygene.info's "ensembl" field, notably) return an
+    // array instead of a single object when the record has extra data
+    // attached for related records (e.g. cross-species ortholog gene
+    // mappings) rather than just its own species. A plain `{{ensembl.gene}}`
+    // template can't pick the right entry out of that array on its own, so
+    // this runs first and collapses the array down to a single object —
+    // everything downstream (mapper.xrefs, id_candidates, etc.) then sees
+    // the same shape it already handles correctly for species where the API
+    // never returns an array to begin with (e.g. rat).
+    // Config (api.mapper.array_dedupe_by_taxid), all schema-driven:
+    //   { "path": "ensembl", "field": "gene", "taxid_field": "taxid",
+    //     "prefix_by_taxid": { "10090": "ENSMUSG", ... } }
+    _applyArrayDedupeByTaxid: function(item, config) {
+      if (!item || typeof item !== "object" || !config || !config.path) {
+        return item;
+      }
+
+      const value = item[config.path];
+      if (!Array.isArray(value)) {
+        return item;
+      }
+
+      const field = config.field || "gene";
+      const taxid = item[config.taxid_field || "taxid"];
+      const prefix = (taxid !== undefined && taxid !== null)
+        ? (config.prefix_by_taxid || {})[String(taxid)]
+        : undefined;
+
+      let picked = prefix
+        ? value.find((entry) => entry && typeof entry[field] === "string" && entry[field].startsWith(prefix))
+        : null;
+
+      // No configured prefix for this taxid (or no match found): fall back
+      // to the first entry that actually has the field, rather than
+      // dropping the data entirely.
+      if (!picked) {
+        picked = value.find((entry) => entry && entry[field]) || null;
+      }
+
+      if (picked) {
+        item[config.path] = picked;
+      }
+      return item;
     },
 
     _filterApiResults: function(items, api, inputEl) {
