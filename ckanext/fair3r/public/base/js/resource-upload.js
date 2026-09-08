@@ -396,17 +396,26 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
-      if (failureCount > 0) {
-        // Don't navigate away on failure: the form's fields (description,
-        // any files that failed) are still right there to fix and retry,
-        // and navigating would lose that state for no benefit — the
-        // successful uploads in this batch, if any, are already saved
-        // regardless of what the user does next.
+      if (successCount > 0) {
+        // At least one resource was actually created — navigate on
+        // regardless of any failures in the same batch: those successes
+        // are already saved, there's nothing to "retry" by staying, and
+        // the result list above already showed which file(s) failed and
+        // why before this button appeared.
+        overlay.finish(translate("Continue"), goToNextStep);
+      } else {
+        // Nothing in the batch succeeded: no new resource to go see, so
+        // stay put with the same selection/fields in place to fix and
+        // retry, rather than navigating to a page with nothing new on it.
         overlay.finish(translate("Close"), function () {
           overlay.remove();
+          // CKAN's own basic-form.js disables button[name="save"] on every
+          // submit, assuming the page is about to navigate away shortly
+          // after. Since we're staying put here, nothing else would ever
+          // re-enable it — without this the form looks stuck (Finish
+          // un-clickable) even though it's perfectly usable again.
+          $form.find('button[name="save"]').prop("disabled", false);
         });
-      } else {
-        overlay.finish(translate("Continue"), goToNextStep);
       }
     });
   });
