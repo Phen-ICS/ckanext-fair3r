@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-fair3r 3.1.7\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-08 13:00+0000\n"
+"POT-Creation-Date: 2026-09-08 14:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -604,8 +604,57 @@ msgstr ""
 msgid "FDF payload is not valid JSON."
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:38
+#: ckanext/fair3r/public/base/js/resource-upload.js:175
+#, python-format
+msgid ""
+"%(count)d files selected — each will become its own resource, named after its"
+" file. Format is auto-detected per file."
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:277
+msgid "Upload failed"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:282
+msgid "Network error"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:324
+#: ckanext/fair3r/public/base/js/resource-upload.js:358
 msgid "Uploading…"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:340
+msgid ""
+"Couldn't determine which dataset to upload to — please reload the page and "
+"try again."
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:357
+#, python-format
+msgid "Uploading %(current)d / %(total)d files"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:374
+#, python-format
+msgid "Done — %(ok)d / %(total)d uploaded, %(failed)d failed"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:375
+#, python-format
+msgid "Done — %(total)d / %(total)d uploaded"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:383
+msgid "Loading…"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:405
+msgid "Close"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:409
+msgid "Continue"
 msgstr ""
 
 #: ckanext/fair3r/templates/error_document_template.html:3

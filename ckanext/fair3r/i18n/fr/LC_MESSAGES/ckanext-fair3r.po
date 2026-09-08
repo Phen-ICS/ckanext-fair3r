@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-fair3r 3.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-08 13:00+0000\n"
+"POT-Creation-Date: 2026-09-08 14:32+0000\n"
 "PO-Revision-Date: 2026-07-13 14:45+0000\n"
 "Last-Translator: FAIR3R <debannen@igbmc.fr>\n"
 "Language: fr\n"
@@ -652,9 +652,63 @@ msgstr "Charge utile de métadonnées FDF manquante."
 msgid "FDF payload is not valid JSON."
 msgstr "La charge utile FDF n'est pas un JSON valide."
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:38
+#: ckanext/fair3r/public/base/js/resource-upload.js:175
+#, python-format
+msgid ""
+"%(count)d files selected — each will become its own resource, named after"
+" its file. Format is auto-detected per file."
+msgstr ""
+"%(count)d fichiers sélectionnés — chacun deviendra sa propre ressource, "
+"nommée d'après son fichier. Le format est détecté automatiquement pour "
+"chacun."
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:277
+msgid "Upload failed"
+msgstr "Échec de l'envoi"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:282
+msgid "Network error"
+msgstr "Erreur réseau"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:324
+#: ckanext/fair3r/public/base/js/resource-upload.js:358
 msgid "Uploading…"
 msgstr "Téléversement en cours…"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:340
+msgid ""
+"Couldn't determine which dataset to upload to — please reload the page "
+"and try again."
+msgstr ""
+"Impossible de déterminer vers quel jeu de données envoyer le fichier — "
+"veuillez recharger la page et réessayer."
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:357
+#, python-format
+msgid "Uploading %(current)d / %(total)d files"
+msgstr "Téléversement %(current)d / %(total)d fichiers"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:374
+#, python-format
+msgid "Done — %(ok)d / %(total)d uploaded, %(failed)d failed"
+msgstr "Terminé — %(ok)d / %(total)d envoyés, %(failed)d échoués"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:375
+#, python-format
+msgid "Done — %(total)d / %(total)d uploaded"
+msgstr "Terminé — %(total)d / %(total)d envoyés"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:383
+msgid "Loading…"
+msgstr "Chargement…"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:405
+msgid "Close"
+msgstr "Fermer"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:409
+msgid "Continue"
+msgstr "Continuer"
 
 #: ckanext/fair3r/templates/error_document_template.html:3
 #, python-format

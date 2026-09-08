@@ -268,6 +268,100 @@ main.hero-no-gradient{ background-image: white !important; }
   color: #333;
 }
 
+/* Bulk resource upload: hint shown under the file input once more than
+   one file is selected (see public/base/js/resource-upload.js). */
+.fair3r-bulk-upload-hint {
+  display: none;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--fair3r-color-muted);
+}
+
+/* Bulk resource upload: richer overlay with per-file progress + a live
+   result list, shown instead of .fair3r-upload-overlay's plain spinner
+   when more than one file was selected. */
+.fair3r-upload-overlay-bulk {
+  gap: 10px;
+  padding: 24px;
+}
+
+.fair3r-upload-overlay-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fair3r-color-text);
+}
+
+.fair3r-upload-current {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: min(360px, 80vw);
+}
+
+.fair3r-upload-current-name {
+  font-size: 13px;
+  color: var(--fair3r-color-text-muted);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fair3r-upload-progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--fair3r-color-border);
+  overflow: hidden;
+}
+
+.fair3r-upload-progress-bar {
+  height: 100%;
+  width: 0;
+  background: var(--fair3r-color-accent);
+  transition: width 0.15s ease;
+}
+
+.fair3r-upload-current-pct {
+  font-size: 12px;
+  color: var(--fair3r-color-muted);
+}
+
+.fair3r-upload-status-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  width: min(420px, 85vw);
+  background: var(--fair3r-color-surface);
+  border: 1px solid var(--fair3r-color-border);
+  border-radius: var(--fair3r-radius-sm);
+}
+
+.fair3r-upload-status-list li {
+  padding: 6px 10px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--fair3r-color-border);
+}
+
+.fair3r-upload-status-list li:last-child {
+  border-bottom: none;
+}
+
+.fair3r-upload-status-list li.ok {
+  color: var(--fair3r-color-success-strong);
+}
+
+.fair3r-upload-status-list li.error {
+  color: #c0392b;
+}
+
+.fair3r-upload-continue-btn {
+  margin-top: 4px;
+}
+
 /* FDF dataset form field management */
 .dataset-form.fdf-dataset-form #field-author,
 .dataset-form.fdf-dataset-form #field-author-email,
