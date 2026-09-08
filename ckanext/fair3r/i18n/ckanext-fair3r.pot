@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckanext-fair3r 3.1.3\n"
+"Project-Id-Version: ckanext-fair3r 3.1.7\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-31 12:44+0000\n"
+"POT-Creation-Date: 2026-09-08 13:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,80 +35,80 @@ msgstr ""
 msgid "License information"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:460
-#: ckanext/fair3r/assets/js/fdf-form.js:1003
+#: ckanext/fair3r/assets/js/fdf-form.js:477
+#: ckanext/fair3r/assets/js/fdf-form.js:1030
 msgid "Please select or enter the dependent field first."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:510 ckanext/fair3r/blueprints/fdf.py:107
+#: ckanext/fair3r/assets/js/fdf-form.js:527 ckanext/fair3r/blueprints/fdf.py:107
 msgid "Error"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:520
+#: ckanext/fair3r/assets/js/fdf-form.js:537
 msgid "Invalid response format"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:527
+#: ckanext/fair3r/assets/js/fdf-form.js:544
 msgid "No results"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:630
-#: ckanext/fair3r/assets/js/fdf-form.js:1571
+#: ckanext/fair3r/assets/js/fdf-form.js:647
+#: ckanext/fair3r/assets/js/fdf-form.js:1598
 msgid "Request error"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1235
+#: ckanext/fair3r/assets/js/fdf-form.js:1262
 msgid "Field"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1275
+#: ckanext/fair3r/assets/js/fdf-form.js:1302
 msgid "Searching…"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1531
+#: ckanext/fair3r/assets/js/fdf-form.js:1558
 msgid "Please select an organism model first."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1533
+#: ckanext/fair3r/assets/js/fdf-form.js:1560
 msgid "Search is not available for the selected organism."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1550
+#: ckanext/fair3r/assets/js/fdf-form.js:1577
 msgid "No results found in"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1550
+#: ckanext/fair3r/assets/js/fdf-form.js:1577
 msgid "for this search. You can enter one manually."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1552
+#: ckanext/fair3r/assets/js/fdf-form.js:1579
 msgid "No results found. You can enter one manually"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1567
+#: ckanext/fair3r/assets/js/fdf-form.js:1594
 msgid ""
 "lookup failed (the server could not reach the external service). You can "
 "still enter the value manually."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2284
+#: ckanext/fair3r/assets/js/fdf-form.js:2359
 msgid "FDF validation failed."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2302
+#: ckanext/fair3r/assets/js/fdf-form.js:2377
 msgid "No sections found in schema."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2309
+#: ckanext/fair3r/assets/js/fdf-form.js:2384
 msgid "Section"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2337
+#: ckanext/fair3r/assets/js/fdf-form.js:2412
 #: ckanext/fair3r/templates/group/snippets/group_item.html:56
 msgid "Remove"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2353
+#: ckanext/fair3r/assets/js/fdf-form.js:2428
 msgid "Add"
 msgstr ""
 
@@ -239,7 +239,7 @@ msgstr ""
 
 #: ckanext/fair3r/blueprints/download_all.py:94
 #: ckanext/fair3r/blueprints/download_all.py:159
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:532
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:533
 msgid "Type"
 msgstr ""
 
@@ -604,6 +604,10 @@ msgstr ""
 msgid "FDF payload is not valid JSON."
 msgstr ""
 
+#: ckanext/fair3r/public/base/js/resource-upload.js:38
+msgid "Uploading…"
+msgstr ""
+
 #: ckanext/fair3r/templates/error_document_template.html:3
 #, python-format
 msgid "Error %(error_code)s"
@@ -843,7 +847,7 @@ msgid "Contact Name"
 msgstr ""
 
 #: ckanext/fair3r/templates/contact/snippets/form.html:25
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:410
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:411
 #: ckanext/fair3r/templates/user/edit_user_form.html:19
 #: ckanext/fair3r/templates/user/new_user_form.html:12
 #: ckanext/fair3r/templates/user/snippets/info.html:80
@@ -1155,31 +1159,31 @@ msgid "Download all"
 msgstr ""
 
 #: ckanext/fair3r/templates/package/snippets/additional_info.html:37
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:649
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:650
 msgid "FAIR Metadata (raw JSON)"
 msgstr ""
 
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:403
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:404
 msgid "Contributor Type"
 msgstr ""
 
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:416
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:417
 msgid "Affiliation"
 msgstr ""
 
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:462
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:463
 msgid "Identifiers"
 msgstr ""
 
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:501
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:502
 msgid "Roles (CRediT)"
 msgstr ""
 
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:531
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:532
 msgid "Identifier"
 msgstr ""
 
-#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:533
+#: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:534
 msgid "Relation"
 msgstr ""
 
