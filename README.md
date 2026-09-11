@@ -19,9 +19,14 @@ To install ckanext-fair3r:
 
      . /usr/lib/ckan/default/bin/activate
 
-2. Clone the source and install it on the virtualenv
+2. Install via pip:
 
-    git clone git@serv-gitlab.igbmc.u-strasbg.fr:ics/ckanext-fair3r.git
+    pip install ckanext-fair3r
+	pip install -r requirements.txt
+
+   Or, to install from source:
+
+    git clone <url-of-this-repository>
     cd ckanext-fair3r
     pip install -e .
 	pip install -r requirements.txt
