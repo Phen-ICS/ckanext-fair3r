@@ -1,0 +1,6 @@
+[build-system]
+# Pinned below 77: setuptools>=77 emits Metadata-Version 2.4 (PEP 639),
+# which this GitLab instance's PyPI package registry rejects with a
+# 400 Bad Request on upload.
+requires = ["setuptools<77", "wheel"]
+build-backend = "setuptools.build_meta"
