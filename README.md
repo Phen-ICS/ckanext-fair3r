@@ -1,4 +1,19 @@
+<table>
+<tr>
+<td width="150">
+  <img alt="Fair3R logo" src="https://fair3r.fr/base/images/fair3r_logo.png" width="150">
+</td>
+<td>
+
 # ckanext-fair3r
+
+![CKAN](https://img.shields.io/badge/CKAN-2.11.5-orange)
+![License](https://img.shields.io/badge/license-CeCILL--B-blue)
+[![PyPI](https://img.shields.io/pypi/v/ckanext-fair3r)](https://pypi.org/project/ckanext-fair3r/)
+
+</td>
+</tr>
+</table>
 
 This extension is made to cuztomize fair3r.fr ckan theme and add features
 
