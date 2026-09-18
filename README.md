@@ -8,7 +8,7 @@
 # ckanext-fair3r
 
 ![CKAN](https://img.shields.io/badge/CKAN-2.11.5-orange)
-![License](https://img.shields.io/badge/license-CeCILL--B-blue)
+![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
 [![PyPI](https://img.shields.io/pypi/v/ckanext-fair3r)](https://pypi.org/project/ckanext-fair3r/)
 
 </td>
