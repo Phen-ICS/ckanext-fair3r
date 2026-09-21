@@ -204,6 +204,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
 
       this.renderForm();
       $("#fdf-alert").remove();
+      this._seedAllXrefsFromPrefill();
       this._hideManagedFields();
       this._observeManagedFields();
       this.bindConditions();
@@ -3887,6 +3888,57 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
           instanceIndex: instanceIndex
         });
       }
+    },
+
+    // A search-selected field's cross-references only ever live as
+    // transient jQuery .data("xrefs", ...) on its <input>, set by the live
+    // API search handler (see _parseXrefs/_buildXrefsFromMapper below).
+    // Re-opening the edit form for an already-populated field never
+    // re-runs that search, so without this, _emitXrefSubjects finds
+    // nothing and every previously stored cross-reference subject
+    // (crossRefOf-tagged) is silently dropped on the next save — even a
+    // save that only changes something unrelated, like a dataset's
+    // private/public flag. Reconstruct the same xrefs shape here, from
+    // whatever cross-reference subjects are already sitting in
+    // prefillData for this field's currently selected value, so a plain
+    // re-save doesn't lose them. Generic across any xref_concept field
+    // (gene, allele, or any future one) — no provider-specific logic.
+    _seedXrefsFromPrefill: function(field, fieldInput) {
+      if (!field || !field.xref_concept || !this.prefillData) return;
+      if (fieldInput.data("xrefs")) return; // a live search already ran this load
+
+      const selectedId = fieldInput.data("selected-id");
+      if (!selectedId) return;
+
+      const subjects = this.prefillData.subjects;
+      if (!Array.isArray(subjects)) return;
+
+      const primary = subjects.find(
+        (s) => s && s.valueURI === selectedId && !s.crossRefOf
+      );
+      if (!primary) return;
+
+      const crossRefs = subjects.filter(
+        (s) => s && s.crossRefOf === primary.subjectScheme && s.subject === primary.subject
+      );
+      if (crossRefs.length === 0) return;
+
+      const xrefs = {};
+      crossRefs.forEach((entry, i) => {
+        xrefs[`prefill_${i}`] = { uri: entry.valueURI, label: entry.subjectScheme };
+      });
+      fieldInput.data("xrefs", xrefs);
+    },
+
+    _seedAllXrefsFromPrefill: function() {
+      const self = this;
+      const fields = this.schema.sections.flatMap((section) => section.fields || []);
+      fields.forEach((field) => {
+        if (!field.xref_concept) return;
+        $(`[name="${field.id}"]`).each(function() {
+          self._seedXrefsFromPrefill(field, $(this));
+        });
+      });
     },
 
     // Generic, always-on: whenever a subject-producing field's selection
