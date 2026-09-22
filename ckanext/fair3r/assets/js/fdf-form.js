@@ -3121,6 +3121,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
                       placeholder="${field.placeholder || _("Search…")}" value="${searchInputValue}" 
                       style="margin-top:5px; display:${selectValue === "__OTHER__" ? "block" : "none"};" ${disabledAttr}/>
                     <div class="fdf-api-results" style="border:1px solid #ccc; display:none; max-height:150px; overflow:auto;"></div>
+                    ${field.help ? `<small class="form-text text-muted">${field.help}</small>` : ""}
                 </div>
             `;
             break;
