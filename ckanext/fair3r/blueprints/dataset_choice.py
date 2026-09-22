@@ -46,5 +46,6 @@ def dataset_creation():
                 "pkg_dict": None,
                 "dataset_type": "dataset",
                 "enable_fdf": enable_fdf,
+                "stage": ["active"],
             },
         )
