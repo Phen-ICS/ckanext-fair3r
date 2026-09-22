@@ -8,6 +8,7 @@
     <form class="contact-form form-horizontal" method="post" data-module="form-contact"
           data-module-action="{{ recaptcha_v3_action }}" data-module-key="{{ recaptcha_v3_key }}">
 
+        {{ h.csrf_input() }}
         {{ form.errors(error_summary) }}
 
         <fieldset>

@@ -13,6 +13,7 @@
 <article class="module">
   {% block primary_content_inner %}
   <form id="dataset-edit" class="dataset-form form-horizontal fdf-dataset-form" method="post" data-module="basic-form" novalidate>
+    {{ h.csrf_input() }}
     <div class="module-content">
       {% block errors %}
       {% if error_summary %}
