@@ -424,8 +424,31 @@ document.addEventListener("DOMContentLoaded", function () {
         // never gets activated by anything at all. Activating here too is
         // a harmless no-op on an already-active dataset, and closes that
         // gap regardless of which button CKAN happened to render.
+        // Xloader processes each uploaded resource in its own background
+        // job and calls back into the API (xloader_hook) once it's done -
+        // which, like any resource update, triggers its own package
+        // reindex. Confirmed directly in the logs: that callback can land
+        // *after* the activation patch below and win the race, re-writing
+        // Solr with whatever (possibly still-draft) copy of the package
+        // it had - even though the DB itself stays correctly 'active'.
+        // A second, delayed activation call gives that callback a window
+        // to finish first in the common case (small test files), so this
+        // second call is the one left standing. Not a guarantee for a
+        // resource big enough that xloader is still running past this
+        // delay, but the dataset is genuinely active either way - only
+        // the badge can still lag in that slower case.
+        function activateWithRetryForXloader() {
+          return activateDraftDataset(packageName).then(function () {
+            return new Promise(function (resolve) {
+              setTimeout(resolve, 2500);
+            });
+          }).then(function () {
+            return activateDraftDataset(packageName);
+          });
+        }
+
         var finalize = (saveValue === "go-metadata" || saveValue === "go-dataset-complete")
-          ? activateDraftDataset(packageName).catch(function () { /* best effort */ })
+          ? activateWithRetryForXloader().catch(function () { /* best effort */ })
           : Promise.resolve();
 
         finalize.then(function () {
