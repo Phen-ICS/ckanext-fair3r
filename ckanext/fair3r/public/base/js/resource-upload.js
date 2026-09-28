@@ -274,6 +274,7 @@ document.addEventListener("DOMContentLoaded", function () {
         resolve({
           ok: ok,
           file: file,
+          resourceId: ok ? payload.result.id : null,
           errorMessage: ok ? null : (extractErrorMessage(payload) || xhr.statusText || translate("Upload failed"))
         });
       };
@@ -286,17 +287,84 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // The real root cause (found by reading ckan/logic/action/update.py):
+  // resource_update (which ckanext-xloader's own completion callback,
+  // xloader_hook, triggers on every uploaded resource) fetches the whole
+  // parent package via package_show to embed the changed resource in it,
+  // then re-saves that entire package. If that package_show call answers
+  // with a stale Solr-cached copy (still "draft", from before this file's
+  // own activation call), that stale copy - not just its resource list -
+  // gets written straight back over the DB, undoing our activation
+  // outright (confirmed directly: the *database* state column reverted
+  // to 'draft', not just what package_show displayed).
+  //
+  // package_patch (tried first) doesn't help: it fetches its own
+  // "original" copy via package_show too and can lose the same race.
+  // package_revise is CKAN's own recommended fix for exactly this class
+  // of concurrent-update problem (see github.com/ckan/ckan/issues/6420)
+  // - it fetches the package once under a row lock (for_update=True) and
+  // hands that same locked copy straight to package_update, instead of
+  // package_update fetching (and possibly getting a stale copy) again
+  // itself.
   function activateDraftDataset(packageName) {
     var token = csrfHeaderToken();
     var headers = { "Content-Type": "application/json" };
     if (token) {
       headers["X-CSRFToken"] = token;
     }
-    return fetch("/api/3/action/package_patch", {
+    return fetch("/api/3/action/package_revise", {
       method: "POST",
       credentials: "same-origin",
       headers: headers,
-      body: JSON.stringify({ id: packageName, state: "active" })
+      body: JSON.stringify({
+        match: { name: packageName },
+        update: { state: "active" }
+      })
+    });
+  }
+
+  // xloader's own resource_update-triggering callback (see above) is the
+  // actual source of the race, not just a timing coincidence - so the
+  // most direct fix is waiting for it to be done, not guessing how long
+  // that takes. ckanext-xloader exposes xloader_status precisely for
+  // this. Terminal states per ckanext-xloader's job lifecycle: anything
+  // other than these still has work in flight.
+  var XLOADER_PENDING_STATUSES = ["pending", "submitting", "running"];
+
+  function xloaderJobSettled(resourceId) {
+    return fetch(
+      "/api/3/action/xloader_status?id=" + encodeURIComponent(resourceId),
+      { credentials: "same-origin" }
+    ).then(function (resp) {
+      return resp.json();
+    }).then(function (payload) {
+      var status = payload && payload.success && payload.result
+        ? payload.result.status
+        : null;
+      // No status at all (e.g. task_status_show found nothing) means no
+      // xloader job was ever submitted for this resource - nothing to
+      // wait for, so treat it as settled rather than retrying forever.
+      return !status || XLOADER_PENDING_STATUSES.indexOf(status) === -1;
+    }).catch(function () {
+      // Can't tell - don't let a transient network hiccup here block the
+      // dataset from ever being activated.
+      return true;
+    });
+  }
+
+  function waitForXloaderJobs(resourceIds, attemptsLeft) {
+    if (!resourceIds.length) {
+      return Promise.resolve();
+    }
+    return Promise.all(resourceIds.map(xloaderJobSettled)).then(function (settled) {
+      if (settled.every(Boolean) || attemptsLeft <= 0) {
+        return;
+      }
+      return new Promise(function (resolve) {
+        setTimeout(resolve, 500);
+      }).then(function () {
+        return waitForXloaderJobs(resourceIds, attemptsLeft - 1);
+      });
     });
   }
 
@@ -350,6 +418,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var overlay = buildBulkOverlay();
     overlay.setCurrent(fileArray[0].name, 0);
 
+    var createdResourceIds = [];
     var chain = Promise.resolve();
     fileArray.forEach(function (file, index) {
       chain = chain.then(function () {
@@ -363,6 +432,8 @@ document.addEventListener("DOMContentLoaded", function () {
           overlay.addResult(result.ok, file.name, result.errorMessage);
           if (!result.ok) {
             failureCount += 1;
+          } else if (result.resourceId) {
+            createdResourceIds.push(result.resourceId);
           }
         });
       });
@@ -383,12 +454,58 @@ document.addEventListener("DOMContentLoaded", function () {
         overlay.showLoading(translate("Loading…"));
 
         var redirectUrl = packageReadUrl();
-        var finalize = (saveValue === "go-metadata")
-          ? activateDraftDataset(packageName).catch(function () { /* best effort */ })
+        // "go-metadata" (Publish) is CKAN's own signal that this is the
+        // last resource of a still-draft dataset - its server-side handler
+        // activates the dataset for us. "go-dataset-complete" (Add) is
+        // meant for adding a resource to an *already active* dataset, and
+        // its handler deliberately does nothing to activate it. Which
+        // button actually renders, though, is decided server-side from a
+        // package_show call of its own (views/resource.py's GET handler)
+        // that's subject to the exact same Solr-cache staleness this file
+        // already works around above - so a dataset that's still genuinely
+        // draft can end up showing "Add" instead of "Publish", and then
+        // never gets activated by anything at all. Activating here too is
+        // a harmless no-op on an already-active dataset, and closes that
+        // gap regardless of which button CKAN happened to render.
+        // Xloader processes each uploaded resource in its own background
+        // job and calls back into the API once it's done, which (see
+        // activateDraftDataset above) can race our own activation and
+        // revert it. Waiting for every job actually submitted from this
+        // page to reach a terminal status removes the race at its source
+        // instead of just outrunning it with a guessed delay. Bounded to
+        // 20 tries (10s): a resource that's genuinely still processing
+        // past that point falls through to activation anyway - the
+        // dataset is correctly active in the DB regardless, only the
+        // badge could still lag on that slower path.
+        var finalize = (saveValue === "go-metadata" || saveValue === "go-dataset-complete")
+          ? waitForXloaderJobs(createdResourceIds, 20)
+              .then(function () { return activateDraftDataset(packageName); })
+              .catch(function () { /* best effort */ })
           : Promise.resolve();
 
         finalize.then(function () {
           if (saveValue === "again") {
+            // CKAN's own resource-upload-field.js decides once, at page
+            // load, whether the Name field is "dirty" (has any value at
+            // all) and if so never auto-fills it again from the next
+            // selected file. A plain reload can leave the browser's own
+            // form-restore autofill sitting in this field (it's a generic
+            // name="name" input) before that script even runs - so the
+            // *next* resource silently inherits this one's name. Clearing
+            // it right before reloading is what the field needs to look
+            // empty again once the fresh page loads.
+            if ($nameInput.length) {
+              $nameInput.val("");
+            }
+            // Same browser quirk as the Name field above: a plain reload
+            // can restore this file input's previous selection too, even
+            // though a script can never *set* a file input to an actual
+            // file (security restriction) - clearing it to "" is the one
+            // exception browsers do allow, and is exactly what a truly
+            // fresh "add another resource" form should show.
+            if ($currentFileInput.length) {
+              $currentFileInput.val("");
+            }
             window.location.reload();
           } else {
             window.location.href = redirectUrl;
