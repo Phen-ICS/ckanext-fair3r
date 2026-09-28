@@ -450,6 +450,15 @@ document.addEventListener("DOMContentLoaded", function () {
             if ($nameInput.length) {
               $nameInput.val("");
             }
+            // Same browser quirk as the Name field above: a plain reload
+            // can restore this file input's previous selection too, even
+            // though a script can never *set* a file input to an actual
+            // file (security restriction) - clearing it to "" is the one
+            // exception browsers do allow, and is exactly what a truly
+            // fresh "add another resource" form should show.
+            if ($currentFileInput.length) {
+              $currentFileInput.val("");
+            }
             window.location.reload();
           } else {
             window.location.href = redirectUrl;
