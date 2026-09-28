@@ -389,6 +389,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
         finalize.then(function () {
           if (saveValue === "again") {
+            // CKAN's own resource-upload-field.js decides once, at page
+            // load, whether the Name field is "dirty" (has any value at
+            // all) and if so never auto-fills it again from the next
+            // selected file. A plain reload can leave the browser's own
+            // form-restore autofill sitting in this field (it's a generic
+            // name="name" input) before that script even runs - so the
+            // *next* resource silently inherits this one's name. Clearing
+            // it right before reloading is what the field needs to look
+            // empty again once the fresh page loads.
+            if ($nameInput.length) {
+              $nameInput.val("");
+            }
             window.location.reload();
           } else {
             window.location.href = redirectUrl;
