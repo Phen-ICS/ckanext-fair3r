@@ -315,7 +315,15 @@ document.addEventListener("DOMContentLoaded", function () {
       body: JSON.stringify({
         id: packageName,
         state: "active",
-        metadata_modified: new Date().toISOString()
+        // .toISOString()'s trailing "Z" makes Solr reject the value CKAN
+        // reindexes with outright (500: "Invalid Date in Date Math
+        // String") - confirmed directly, and it's what actually broke
+        // this same call the first time this fix was tried. CKAN's own
+        // metadata_modified values (e.g. what package_show itself
+        // returns) never carry a "Z" or UTC offset, just a bare
+        // "YYYY-MM-DDTHH:mm:ss.sss" - stripping it here matches that and
+        // is accepted, confirmed the same way.
+        metadata_modified: new Date().toISOString().replace("Z", "")
       })
     });
   }
