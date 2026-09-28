@@ -274,6 +274,7 @@ document.addEventListener("DOMContentLoaded", function () {
         resolve({
           ok: ok,
           file: file,
+          resourceId: ok ? payload.result.id : null,
           errorMessage: ok ? null : (extractErrorMessage(payload) || xhr.statusText || translate("Upload failed"))
         });
       };
@@ -286,45 +287,84 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // The real root cause (found by reading ckan/logic/action/update.py):
+  // resource_update (which ckanext-xloader's own completion callback,
+  // xloader_hook, triggers on every uploaded resource) fetches the whole
+  // parent package via package_show to embed the changed resource in it,
+  // then re-saves that entire package. If that package_show call answers
+  // with a stale Solr-cached copy (still "draft", from before this file's
+  // own activation call), that stale copy - not just its resource list -
+  // gets written straight back over the DB, undoing our activation
+  // outright (confirmed directly: the *database* state column reverted
+  // to 'draft', not just what package_show displayed).
+  //
+  // package_patch (tried first) doesn't help: it fetches its own
+  // "original" copy via package_show too and can lose the same race.
+  // package_revise is CKAN's own recommended fix for exactly this class
+  // of concurrent-update problem (see github.com/ckan/ckan/issues/6420)
+  // - it fetches the package once under a row lock (for_update=True) and
+  // hands that same locked copy straight to package_update, instead of
+  // package_update fetching (and possibly getting a stale copy) again
+  // itself.
   function activateDraftDataset(packageName) {
     var token = csrfHeaderToken();
     var headers = { "Content-Type": "application/json" };
     if (token) {
       headers["X-CSRFToken"] = token;
     }
-    return fetch("/api/3/action/package_patch", {
+    return fetch("/api/3/action/package_revise", {
       method: "POST",
       credentials: "same-origin",
       headers: headers,
-      // package_update only compares dicts field-by-field to decide
-      // whether anything actually changed (and thus whether to save,
-      // bump metadata_modified and reindex Solr at all) when
-      // metadata_modified is absent from the payload - in which case it
-      // explicitly zeroes that field out of the comparison first. State
-      // alone can look unchanged in that comparison depending on which
-      // (possibly stale) snapshot of the dataset it's compared against,
-      // silently skipping the update entirely and leaving Solr's cached
-      // copy stuck on "draft" forever (confirmed directly in Postgres:
-      // state genuinely never left 'draft', and every page load, even
-      // well after this one, kept answering 'draft' too - not a timing
-      // race that resolves on its own). Supplying our own fresh
-      // metadata_modified takes the *other* branch instead, which
-      // compares the full dicts including that field - guaranteed to
-      // differ from whatever the old one was - forcing package_update to
-      // always actually save and reindex, not just when we get lucky.
       body: JSON.stringify({
-        id: packageName,
-        state: "active",
-        // .toISOString()'s trailing "Z" makes Solr reject the value CKAN
-        // reindexes with outright (500: "Invalid Date in Date Math
-        // String") - confirmed directly, and it's what actually broke
-        // this same call the first time this fix was tried. CKAN's own
-        // metadata_modified values (e.g. what package_show itself
-        // returns) never carry a "Z" or UTC offset, just a bare
-        // "YYYY-MM-DDTHH:mm:ss.sss" - stripping it here matches that and
-        // is accepted, confirmed the same way.
-        metadata_modified: new Date().toISOString().replace("Z", "")
+        match: { name: packageName },
+        update: { state: "active" }
       })
+    });
+  }
+
+  // xloader's own resource_update-triggering callback (see above) is the
+  // actual source of the race, not just a timing coincidence - so the
+  // most direct fix is waiting for it to be done, not guessing how long
+  // that takes. ckanext-xloader exposes xloader_status precisely for
+  // this. Terminal states per ckanext-xloader's job lifecycle: anything
+  // other than these still has work in flight.
+  var XLOADER_PENDING_STATUSES = ["pending", "submitting", "running"];
+
+  function xloaderJobSettled(resourceId) {
+    return fetch(
+      "/api/3/action/xloader_status?id=" + encodeURIComponent(resourceId),
+      { credentials: "same-origin" }
+    ).then(function (resp) {
+      return resp.json();
+    }).then(function (payload) {
+      var status = payload && payload.success && payload.result
+        ? payload.result.status
+        : null;
+      // No status at all (e.g. task_status_show found nothing) means no
+      // xloader job was ever submitted for this resource - nothing to
+      // wait for, so treat it as settled rather than retrying forever.
+      return !status || XLOADER_PENDING_STATUSES.indexOf(status) === -1;
+    }).catch(function () {
+      // Can't tell - don't let a transient network hiccup here block the
+      // dataset from ever being activated.
+      return true;
+    });
+  }
+
+  function waitForXloaderJobs(resourceIds, attemptsLeft) {
+    if (!resourceIds.length) {
+      return Promise.resolve();
+    }
+    return Promise.all(resourceIds.map(xloaderJobSettled)).then(function (settled) {
+      if (settled.every(Boolean) || attemptsLeft <= 0) {
+        return;
+      }
+      return new Promise(function (resolve) {
+        setTimeout(resolve, 500);
+      }).then(function () {
+        return waitForXloaderJobs(resourceIds, attemptsLeft - 1);
+      });
     });
   }
 
@@ -378,6 +418,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var overlay = buildBulkOverlay();
     overlay.setCurrent(fileArray[0].name, 0);
 
+    var createdResourceIds = [];
     var chain = Promise.resolve();
     fileArray.forEach(function (file, index) {
       chain = chain.then(function () {
@@ -391,6 +432,8 @@ document.addEventListener("DOMContentLoaded", function () {
           overlay.addResult(result.ok, file.name, result.errorMessage);
           if (!result.ok) {
             failureCount += 1;
+          } else if (result.resourceId) {
+            createdResourceIds.push(result.resourceId);
           }
         });
       });
@@ -425,30 +468,19 @@ document.addEventListener("DOMContentLoaded", function () {
         // a harmless no-op on an already-active dataset, and closes that
         // gap regardless of which button CKAN happened to render.
         // Xloader processes each uploaded resource in its own background
-        // job and calls back into the API (xloader_hook) once it's done -
-        // which, like any resource update, triggers its own package
-        // reindex. Confirmed directly in the logs: that callback can land
-        // *after* the activation patch below and win the race, re-writing
-        // Solr with whatever (possibly still-draft) copy of the package
-        // it had - even though the DB itself stays correctly 'active'.
-        // A second, delayed activation call gives that callback a window
-        // to finish first in the common case (small test files), so this
-        // second call is the one left standing. Not a guarantee for a
-        // resource big enough that xloader is still running past this
-        // delay, but the dataset is genuinely active either way - only
-        // the badge can still lag in that slower case.
-        function activateWithRetryForXloader() {
-          return activateDraftDataset(packageName).then(function () {
-            return new Promise(function (resolve) {
-              setTimeout(resolve, 2500);
-            });
-          }).then(function () {
-            return activateDraftDataset(packageName);
-          });
-        }
-
+        // job and calls back into the API once it's done, which (see
+        // activateDraftDataset above) can race our own activation and
+        // revert it. Waiting for every job actually submitted from this
+        // page to reach a terminal status removes the race at its source
+        // instead of just outrunning it with a guessed delay. Bounded to
+        // 20 tries (10s): a resource that's genuinely still processing
+        // past that point falls through to activation anyway - the
+        // dataset is correctly active in the DB regardless, only the
+        // badge could still lag on that slower path.
         var finalize = (saveValue === "go-metadata" || saveValue === "go-dataset-complete")
-          ? activateWithRetryForXloader().catch(function () { /* best effort */ })
+          ? waitForXloaderJobs(createdResourceIds, 20)
+              .then(function () { return activateDraftDataset(packageName); })
+              .catch(function () { /* best effort */ })
           : Promise.resolve();
 
         finalize.then(function () {
