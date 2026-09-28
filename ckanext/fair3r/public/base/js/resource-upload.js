@@ -419,7 +419,20 @@ document.addEventListener("DOMContentLoaded", function () {
         overlay.showLoading(translate("Loading…"));
 
         var redirectUrl = packageReadUrl();
-        var finalize = (saveValue === "go-metadata")
+        // "go-metadata" (Publish) is CKAN's own signal that this is the
+        // last resource of a still-draft dataset - its server-side handler
+        // activates the dataset for us. "go-dataset-complete" (Add) is
+        // meant for adding a resource to an *already active* dataset, and
+        // its handler deliberately does nothing to activate it. Which
+        // button actually renders, though, is decided server-side from a
+        // package_show call of its own (views/resource.py's GET handler)
+        // that's subject to the exact same Solr-cache staleness this file
+        // already works around above - so a dataset that's still genuinely
+        // draft can end up showing "Add" instead of "Publish", and then
+        // never gets activated by anything at all. Activating here too is
+        // a harmless no-op on an already-active dataset, and closes that
+        // gap regardless of which button CKAN happened to render.
+        var finalize = (saveValue === "go-metadata" || saveValue === "go-dataset-complete")
           ? activateDraftDataset(packageName).catch(function () { /* best effort */ })
           : Promise.resolve();
 
