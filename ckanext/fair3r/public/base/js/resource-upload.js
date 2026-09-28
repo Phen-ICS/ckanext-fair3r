@@ -286,6 +286,40 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // CKAN's own package_show trusts its Solr-cached copy of a dataset
+  // whenever the DB's metadata_modified still matches whatever Solr last
+  // indexed - and right after this same page's own resource uploads, that
+  // comparison can lag just long enough for the state=active patch below
+  // to land in the DB (confirmed directly in Postgres) while package_show
+  // keeps answering "draft" for a bit, on every subsequent page load, not
+  // just this one. A few short, bounded retries absorb that race without
+  // blocking the redirect for long if it never resolves either way.
+  function fetchPackageState(packageName) {
+    return fetch(
+      "/api/3/action/package_show?id=" + encodeURIComponent(packageName),
+      { credentials: "same-origin" }
+    ).then(function (resp) {
+      return resp.json();
+    }).then(function (payload) {
+      return (payload && payload.result) ? payload.result.state : null;
+    }).catch(function () {
+      return null;
+    });
+  }
+
+  function waitUntilActive(packageName, attemptsLeft) {
+    return fetchPackageState(packageName).then(function (state) {
+      if (state === "active" || attemptsLeft <= 0) {
+        return;
+      }
+      return new Promise(function (resolve) {
+        setTimeout(resolve, 400);
+      }).then(function () {
+        return waitUntilActive(packageName, attemptsLeft - 1);
+      });
+    });
+  }
+
   function activateDraftDataset(packageName) {
     var token = csrfHeaderToken();
     var headers = { "Content-Type": "application/json" };
@@ -297,6 +331,8 @@ document.addEventListener("DOMContentLoaded", function () {
       credentials: "same-origin",
       headers: headers,
       body: JSON.stringify({ id: packageName, state: "active" })
+    }).then(function () {
+      return waitUntilActive(packageName, 5);
     });
   }
 
