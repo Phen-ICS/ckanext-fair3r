@@ -17,6 +17,9 @@ setup(
     entry_points="""
         [ckan.plugins]
         fair3r=ckanext.fair3r.plugin:Fair3RPlugin
+
+        [ckan.rdf.profiles]
+        fair3r_croissant=ckanext.fair3r.lib.fdf.croissant_profile:Fair3RCroissantProfile
     """,
     install_requires=[
         "cryptography==46.0.3",
