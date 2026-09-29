@@ -7,7 +7,7 @@
 
 # ckanext-fair3r
 
-![CKAN](https://img.shields.io/badge/CKAN-2.11.5-orange)
+![CKAN](https://img.shields.io/badge/CKAN-2.12.0-orange)
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
 [![PyPI](https://img.shields.io/pypi/v/ckanext-fair3r)](https://pypi.org/project/ckanext-fair3r/)
 
@@ -17,14 +17,13 @@
 
 This extension is made to cuztomize fair3r.fr ckan theme and add features
 
-## Requirements
+## Deployment
 
-Compatibility with core CKAN versions:
+For a ready-to-run FAIR3R stack with this extension already wired up, see
+[fair3r-docker-dev](https://github.com/Phen-ICS/fair3r-docker-dev).
 
-| CKAN version    | Compatible? |
-|-----------------|-------------|
-| 2.11.5          | yes         |
-
+The instructions below are for adding `ckanext-fair3r` to your own existing
+CKAN 2.12 instance.
 
 ## Installation
 
