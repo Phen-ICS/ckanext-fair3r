@@ -4,8 +4,8 @@
 {# Allows custom attributes to be added to the <html> tag #}
 {%- block htmltag -%}
 {% set lang = h.lang() %}
-<!--[if IE 9]> <html lang="{{ lang }}" class="ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="{{ lang }}" {% if h.is_rtl_language()  %} dir="rtl" {% endif %} > <!--<![endif]-->
+<!--[if IE 9]> <html lang="{{ lang }}" class="ie9 js"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="{{ lang }}" {% if h.is_rtl_language()  %} dir="rtl" {% endif %} class="js"> <!--<![endif]-->
 {%- endblock -%}
 
   {# Allows custom attributes to be added to the <head> tag #}
@@ -28,6 +28,8 @@
       <meta name="google-site-verification" content="LwplwcQR_17PWZ3OzL8F7cpUGgNr4wrk9hSck3DYbhk" />
       <meta name="keywords" content="fair3r, fair3r.fr, FAIR data, FC3R, open science, biological research, data portal, reproducible research, scientific datasets, data management, life sciences">
       <meta name="{{ g.csrf_field_name }}" content="{{ csrf_token() }}" />
+      <meta name="site-root" content="{{ h.url_for('home.index', locale='default', _external=true) }}" />
+      <meta name="locale-root" content="{{ h.url_for('home.index', _external=true) }}" />
 
       {% block meta_generator %}<meta name="generator" content="ckan {{ h.ckan_version() }}" />{% endblock %}
       {% block meta_viewport %}<meta name="viewport" content="width=device-width, initial-scale=1.0">{% endblock %}
