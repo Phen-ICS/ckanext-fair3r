@@ -14,8 +14,9 @@ own convention), so the concrete class must set a SCHEMA class attribute.
 from rdflib import BNode, Literal, URIRef
 from rdflib.namespace import RDF
 
-from ckanext.fair3r.lib.fdf.rdf_extras import get_doi_url
+from ckanext.fair3r.lib.fdf.rdf_extras import get_doi_url, subject_scheme_uri
 from ckanext.fair3r.lib.fdf.rdf_extras import get_json_extra as _json_extra
+from ckanext.fair3r.lib.fdf.rdf_extras import looks_like_uri as _looks_like_uri
 
 
 class FDFSchemaOrgFieldsMixin:
@@ -81,10 +82,30 @@ class FDFSchemaOrgFieldsMixin:
 
     def _fdf_subjects_graph(self, dataset_ref, dataset_dict):
         for subject in _json_extra(dataset_dict, "datacite.subjects") or []:
-            if isinstance(subject, dict) and subject.get("subject"):
-                self.g.add(
-                    (dataset_ref, self.SCHEMA.keywords, Literal(subject["subject"]))
-                )
+            if not isinstance(subject, dict) or not subject.get("subject"):
+                continue
+
+            subject_text = subject["subject"]
+            self.g.add((dataset_ref, self.SCHEMA.keywords, Literal(subject_text)))
+
+            value_uri = subject.get("valueURI")
+            if not _looks_like_uri(value_uri):
+                continue
+
+            # schema.org's analogue of a labelled, categorised SKOS concept:
+            # a DefinedTerm (this value) that belongs to a DefinedTermSet
+            # (which FDF field/vocabulary it came from, e.g. "NCBITaxon").
+            term_ref = URIRef(value_uri)
+            self.g.add((dataset_ref, self.SCHEMA.about, term_ref))
+            self.g.add((term_ref, RDF.type, self.SCHEMA.DefinedTerm))
+            self.g.add((term_ref, self.SCHEMA.name, Literal(subject_text)))
+
+            scheme_name = subject.get("subjectScheme")
+            if scheme_name:
+                term_set_ref = URIRef(subject_scheme_uri(scheme_name))
+                self.g.add((term_ref, self.SCHEMA.inDefinedTermSet, term_set_ref))
+                self.g.add((term_set_ref, RDF.type, self.SCHEMA.DefinedTermSet))
+                self.g.add((term_set_ref, self.SCHEMA.name, Literal(scheme_name)))
 
     def _fdf_related_identifiers_graph(self, dataset_ref, dataset_dict):
         for item in _json_extra(dataset_dict, "datacite.relatedIdentifiers") or []:

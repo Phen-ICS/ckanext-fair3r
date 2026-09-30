@@ -14,12 +14,9 @@ from rdflib.namespace import RDF, SKOS
 
 from ckanext.dcat.profiles.base import DCAT, DCT, FOAF
 from ckanext.dcat.profiles.euro_dcat_ap_3 import EuropeanDCATAP3Profile
-from ckanext.fair3r.lib.fdf.rdf_extras import get_doi_url
+from ckanext.fair3r.lib.fdf.rdf_extras import get_doi_url, subject_scheme_uri
 from ckanext.fair3r.lib.fdf.rdf_extras import get_json_extra as _json_extra
-
-
-def _looks_like_uri(value):
-    return isinstance(value, str) and value.startswith(("http://", "https://"))
+from ckanext.fair3r.lib.fdf.rdf_extras import looks_like_uri as _looks_like_uri
 
 
 class Fair3RDCATAPProfile(EuropeanDCATAP3Profile):
@@ -75,6 +72,18 @@ class Fair3RDCATAPProfile(EuropeanDCATAP3Profile):
                 # dereference the ontology URI to know what it stands for.
                 self.g.add((concept_ref, RDF.type, SKOS.Concept))
                 self.g.add((concept_ref, SKOS.prefLabel, Literal(subject_text)))
+
+                # Which FDF field/vocabulary this term came from (e.g.
+                # "NCBITaxon", "geneAccessionId") - FDF gives us the name but
+                # no reliable scheme-specific registry URI, so mint a local,
+                # labelled scheme under the portal's own namespace instead
+                # of guessing or omitting it.
+                scheme_name = subject.get("subjectScheme")
+                if scheme_name:
+                    scheme_ref = URIRef(subject_scheme_uri(scheme_name))
+                    self.g.add((concept_ref, SKOS.inScheme, scheme_ref))
+                    self.g.add((scheme_ref, RDF.type, SKOS.ConceptScheme))
+                    self.g.add((scheme_ref, SKOS.prefLabel, Literal(scheme_name)))
 
     def _fdf_related_identifiers_graph(self, dataset_ref, dataset_dict):
         for item in _json_extra(dataset_dict, "datacite.relatedIdentifiers") or []:
