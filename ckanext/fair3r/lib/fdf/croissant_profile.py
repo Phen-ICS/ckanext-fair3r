@@ -17,35 +17,13 @@ contributors, subjects and related identifiers also show up in the
 Croissant/schema.org JSON-LD embedded on the dataset page.
 """
 
-import json
-import logging
-
 from rdflib import BNode, Literal
 from rdflib.namespace import RDF, Namespace
 
 from ckanext.dcat.profiles.croissant import CroissantProfile
-
-log = logging.getLogger(__name__)
+from ckanext.fair3r.lib.fdf.rdf_extras import get_json_extra as _json_extra
 
 SCHEMA = Namespace("https://schema.org/")
-
-
-def _get_extra(dataset_dict, key):
-    for extra in dataset_dict.get("extras", []) or []:
-        if isinstance(extra, dict) and extra.get("key") == key:
-            return extra.get("value")
-    return None
-
-
-def _json_extra(dataset_dict, key):
-    raw = _get_extra(dataset_dict, key)
-    if not raw:
-        return None
-    try:
-        return json.loads(raw)
-    except (TypeError, ValueError):
-        log.warning("Could not parse extra '%s' as JSON for Croissant output", key)
-        return None
 
 
 class Fair3RCroissantProfile(CroissantProfile):

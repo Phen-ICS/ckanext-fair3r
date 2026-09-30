@@ -20,6 +20,7 @@ setup(
 
         [ckan.rdf.profiles]
         fair3r_croissant=ckanext.fair3r.lib.fdf.croissant_profile:Fair3RCroissantProfile
+        fair3r_dcat_ap=ckanext.fair3r.lib.fdf.dcat_ap_profile:Fair3RDCATAPProfile
     """,
     install_requires=[
         "cryptography==46.0.3",
