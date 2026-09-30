@@ -21,7 +21,7 @@ import json
 import logging
 
 from rdflib import BNode, Literal
-from rdflib.namespace import Namespace, RDF
+from rdflib.namespace import RDF, Namespace
 
 from ckanext.dcat.profiles.croissant import CroissantProfile
 
@@ -52,7 +52,9 @@ class Fair3RCroissantProfile(CroissantProfile):
     """CroissantProfile extended with FAIR3R FDF form metadata."""
 
     def additional_fields(self, dataset_ref, dataset_dict):
-        self._fdf_agents_graph(dataset_ref, dataset_dict, "datacite.creators", SCHEMA.creator)
+        self._fdf_agents_graph(
+            dataset_ref, dataset_dict, "datacite.creators", SCHEMA.creator
+        )
         self._fdf_agents_graph(
             dataset_ref, dataset_dict, "datacite.contributors", SCHEMA.contributor
         )
