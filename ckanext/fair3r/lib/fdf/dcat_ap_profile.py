@@ -10,7 +10,7 @@ docstring for where they come from).
 """
 
 from rdflib import BNode, Literal, URIRef
-from rdflib.namespace import RDF
+from rdflib.namespace import RDF, SKOS
 
 from ckanext.dcat.profiles.base import DCAT, DCT, FOAF
 from ckanext.dcat.profiles.euro_dcat_ap_3 import EuropeanDCATAP3Profile
@@ -57,11 +57,17 @@ class Fair3RDCATAPProfile(EuropeanDCATAP3Profile):
             if not isinstance(subject, dict) or not subject.get("subject"):
                 continue
 
-            self.g.add((dataset_ref, DCAT.keyword, Literal(subject["subject"])))
+            subject_text = subject["subject"]
+            self.g.add((dataset_ref, DCAT.keyword, Literal(subject_text)))
 
             value_uri = subject.get("valueURI")
             if _looks_like_uri(value_uri):
-                self.g.add((dataset_ref, DCT.subject, URIRef(value_uri)))
+                concept_ref = URIRef(value_uri)
+                self.g.add((dataset_ref, DCT.subject, concept_ref))
+                # Label the concept locally so consumers don't have to
+                # dereference the ontology URI to know what it stands for.
+                self.g.add((concept_ref, RDF.type, SKOS.Concept))
+                self.g.add((concept_ref, SKOS.prefLabel, Literal(subject_text)))
 
     def _fdf_related_identifiers_graph(self, dataset_ref, dataset_dict):
         for item in _json_extra(dataset_dict, "datacite.relatedIdentifiers") or []:
