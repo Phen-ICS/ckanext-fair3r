@@ -17,10 +17,11 @@ contributors, subjects and related identifiers also show up in the
 Croissant/schema.org JSON-LD embedded on the dataset page.
 """
 
-from rdflib import BNode, Literal
+from rdflib import BNode, Literal, URIRef
 from rdflib.namespace import RDF, Namespace
 
 from ckanext.dcat.profiles.croissant import CroissantProfile
+from ckanext.fair3r.lib.fdf.rdf_extras import get_doi_url
 from ckanext.fair3r.lib.fdf.rdf_extras import get_json_extra as _json_extra
 
 SCHEMA = Namespace("https://schema.org/")
@@ -39,6 +40,12 @@ class Fair3RCroissantProfile(CroissantProfile):
         self._fdf_publisher_graph(dataset_ref, dataset_dict)
         self._fdf_subjects_graph(dataset_ref, dataset_dict)
         self._fdf_related_identifiers_graph(dataset_ref, dataset_dict)
+        self._fdf_doi_graph(dataset_ref, dataset_dict)
+
+    def _fdf_doi_graph(self, dataset_ref, dataset_dict):
+        doi_url = get_doi_url(dataset_dict)
+        if doi_url:
+            self.g.add((dataset_ref, SCHEMA.identifier, URIRef(doi_url)))
 
     def _fdf_agents_graph(self, dataset_ref, dataset_dict, extra_key, predicate):
         for agent in _json_extra(dataset_dict, extra_key) or []:

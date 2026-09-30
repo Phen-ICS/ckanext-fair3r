@@ -14,6 +14,7 @@ from rdflib.namespace import RDF, SKOS
 
 from ckanext.dcat.profiles.base import DCAT, DCT, FOAF
 from ckanext.dcat.profiles.euro_dcat_ap_3 import EuropeanDCATAP3Profile
+from ckanext.fair3r.lib.fdf.rdf_extras import get_doi_url
 from ckanext.fair3r.lib.fdf.rdf_extras import get_json_extra as _json_extra
 
 
@@ -35,6 +36,12 @@ class Fair3RDCATAPProfile(EuropeanDCATAP3Profile):
         )
         self._fdf_subjects_graph(dataset_ref, dataset_dict)
         self._fdf_related_identifiers_graph(dataset_ref, dataset_dict)
+        self._fdf_doi_graph(dataset_ref, dataset_dict)
+
+    def _fdf_doi_graph(self, dataset_ref, dataset_dict):
+        doi_url = get_doi_url(dataset_dict)
+        if doi_url:
+            self.g.add((dataset_ref, DCT.identifier, URIRef(doi_url)))
 
     def _fdf_agents_graph(self, dataset_ref, dataset_dict, extra_key, predicate):
         for agent in _json_extra(dataset_dict, extra_key) or []:

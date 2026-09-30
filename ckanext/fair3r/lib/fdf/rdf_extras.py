@@ -25,3 +25,12 @@ def get_json_extra(dataset_dict, key):
     except (TypeError, ValueError):
         log.warning("Could not parse extra '%s' as JSON for RDF output", key)
         return None
+
+
+def get_doi_url(dataset_dict):
+    """Resolvable https://doi.org/... URL, only once ckanext-doi has
+    actually published (registered) the DOI - a reserved-but-unpublished
+    DOI is not a real, resolvable identifier yet."""
+    if dataset_dict.get("doi") and dataset_dict.get("doi_status"):
+        return f"https://doi.org/{dataset_dict['doi']}"
+    return None
