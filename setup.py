@@ -17,6 +17,11 @@ setup(
     entry_points="""
         [ckan.plugins]
         fair3r=ckanext.fair3r.plugin:Fair3RPlugin
+
+        [ckan.rdf.profiles]
+        fair3r_croissant=ckanext.fair3r.lib.fdf.croissant_profile:Fair3RCroissantProfile
+        fair3r_dcat_ap=ckanext.fair3r.lib.fdf.dcat_ap_profile:Fair3RDCATAPProfile
+        fair3r_schemaorg=ckanext.fair3r.lib.fdf.schemaorg_profile:Fair3RSchemaOrgProfile
     """,
     install_requires=[
         "cryptography==46.0.3",
@@ -24,5 +29,5 @@ setup(
     package_data={
         "ckanext.fair3r.tests": ["test.ini"],
     },
-    version="3.1.29",
+    version="3.1.30",
 )
