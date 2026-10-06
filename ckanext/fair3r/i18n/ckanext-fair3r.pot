@@ -6,109 +6,135 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckanext-fair3r 3.1.7\n"
+"Project-Id-Version: ckanext-fair3r 3.1.41\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-08 14:32+0000\n"
+"POT-Creation-Date: 2026-10-05 15:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.15.0\n"
+"Generated-By: Babel 2.18.0\n"
 
-#: ckanext/fair3r/plugin.py:141
+#: ckanext/fair3r/plugin.py:149
+#, python-brace-format
 msgid "{num} Member"
 msgid_plural "{num} Members"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ckanext/fair3r/plugin.py:146
+#: ckanext/fair3r/plugin.py:153
 msgid "0 Members"
 msgstr ""
 
-#: ckanext/fair3r/plugin.py:153
+#: ckanext/fair3r/plugin.py:160
 msgid "Licenses"
 msgstr ""
 
-#: ckanext/fair3r/plugin.py:1291
+#: ckanext/fair3r/plugin.py:1300
 msgid "License information"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:477
-#: ckanext/fair3r/assets/js/fdf-form.js:1030
+#: ckanext/fair3r/assets/js/fdf-form.js:444
+#: ckanext/fair3r/templates/package/snippets/additional_info.html:9
+msgid "Completeness"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:445
+#: ckanext/fair3r/templates/package/snippets/additional_info.html:10
+msgid ""
+"How complete the FAIR3R metadata of this dataset is: the weighted share of "
+"the fields that apply (required fields count double), CKAN basics included. "
+"Conditional fields that are hidden are ignored."
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:449
+msgid "field(s) missing"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:449
+msgid "required fields"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:459
+msgid "missing"
+msgstr ""
+
+#: ckanext/fair3r/assets/js/fdf-form.js:561
+#: ckanext/fair3r/assets/js/fdf-form.js:1114
 msgid "Please select or enter the dependent field first."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:527 ckanext/fair3r/blueprints/fdf.py:107
+#: ckanext/fair3r/assets/js/fdf-form.js:611 ckanext/fair3r/blueprints/fdf.py:107
 msgid "Error"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:537
+#: ckanext/fair3r/assets/js/fdf-form.js:621
 msgid "Invalid response format"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:544
+#: ckanext/fair3r/assets/js/fdf-form.js:628
 msgid "No results"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:647
-#: ckanext/fair3r/assets/js/fdf-form.js:1598
+#: ckanext/fair3r/assets/js/fdf-form.js:731
+#: ckanext/fair3r/assets/js/fdf-form.js:1704
 msgid "Request error"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1262
+#: ckanext/fair3r/assets/js/fdf-form.js:1368
 msgid "Field"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1302
+#: ckanext/fair3r/assets/js/fdf-form.js:1408
 msgid "Searching…"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1558
+#: ckanext/fair3r/assets/js/fdf-form.js:1664
 msgid "Please select an organism model first."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1560
+#: ckanext/fair3r/assets/js/fdf-form.js:1666
 msgid "Search is not available for the selected organism."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1577
+#: ckanext/fair3r/assets/js/fdf-form.js:1683
 msgid "No results found in"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1577
+#: ckanext/fair3r/assets/js/fdf-form.js:1683
 msgid "for this search. You can enter one manually."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1579
+#: ckanext/fair3r/assets/js/fdf-form.js:1685
 msgid "No results found. You can enter one manually"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1594
+#: ckanext/fair3r/assets/js/fdf-form.js:1700
 msgid ""
 "lookup failed (the server could not reach the external service). You can "
 "still enter the value manually."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2359
+#: ckanext/fair3r/assets/js/fdf-form.js:2465
 msgid "FDF validation failed."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2377
+#: ckanext/fair3r/assets/js/fdf-form.js:2483
 msgid "No sections found in schema."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2384
+#: ckanext/fair3r/assets/js/fdf-form.js:2490
 msgid "Section"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2412
+#: ckanext/fair3r/assets/js/fdf-form.js:2518
 #: ckanext/fair3r/templates/group/snippets/group_item.html:56
 msgid "Remove"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2428
+#: ckanext/fair3r/assets/js/fdf-form.js:2534
 msgid "Add"
 msgstr ""
 
@@ -121,7 +147,7 @@ msgstr ""
 msgid "Account request from %(name)s"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/account_request.py:49
+#: ckanext/fair3r/blueprints/account_request.py:50
 #, python-format
 msgid ""
 "A visitor requested an account on %(site)s\n"
@@ -154,7 +180,7 @@ msgstr ""
 msgid "Your request has been sent. We will contact you soon."
 msgstr ""
 
-#: ckanext/fair3r/blueprints/account_request.py:82
+#: ckanext/fair3r/blueprints/account_request.py:83
 msgid "There was a problem sending your request. Please try again later."
 msgstr ""
 
@@ -326,7 +352,7 @@ msgstr ""
 msgid "Authentication required"
 msgstr ""
 
-#: ckanext/fair3r/lib/actions.py:376
+#: ckanext/fair3r/lib/actions.py:377
 #, python-format
 msgid "Unsupported external lookup: provider=%(provider)r, resource=%(resource)r"
 msgstr ""
@@ -478,14 +504,17 @@ msgid "Trash"
 msgstr ""
 
 #: ckanext/fair3r/lib/admin_i18n.py:41
+#, python-brace-format
 msgid "{number} datasets have been purged"
 msgstr ""
 
 #: ckanext/fair3r/lib/admin_i18n.py:42
+#, python-brace-format
 msgid "{number} groups have been purged"
 msgstr ""
 
 #: ckanext/fair3r/lib/admin_i18n.py:43
+#, python-brace-format
 msgid "{number} organizations have been purged"
 msgstr ""
 
@@ -505,7 +534,7 @@ msgstr ""
 msgid "DataCite DOI created"
 msgstr ""
 
-#: ckanext/fair3r/lib/fdf/doi.py:151
+#: ckanext/fair3r/lib/fdf/doi.py:152
 msgid ""
 "DataCite metadata validation warning (minLength). Dataset saved; DOI metadata"
 " update skipped for now."
@@ -519,7 +548,7 @@ msgstr ""
 msgid "DataCite DOI metadata updated"
 msgstr ""
 
-#: ckanext/fair3r/lib/fdf/doi.py:181
+#: ckanext/fair3r/lib/fdf/doi.py:182
 msgid "DataCite metadata update warning (minLength). Dataset was updated locally."
 msgstr ""
 
@@ -538,12 +567,12 @@ msgstr ""
 msgid "%(field)s: required field."
 msgstr ""
 
-#: ckanext/fair3r/lib/fdf/validation.py:323
+#: ckanext/fair3r/lib/fdf/validation.py:324
 #, python-format
 msgid "%(field)s: value does not match allowed vocabulary/options."
 msgstr ""
 
-#: ckanext/fair3r/lib/fdf/validation.py:348
+#: ckanext/fair3r/lib/fdf/validation.py:349
 #, python-format
 msgid "%(field)s: value '%(value)s' is outside allowed vocabulary."
 msgstr ""
@@ -582,7 +611,7 @@ msgstr ""
 msgid "%(field)s: missing label for controlled vocabulary entry."
 msgstr ""
 
-#: ckanext/fair3r/lib/fdf/validation.py:662
+#: ckanext/fair3r/lib/fdf/validation.py:663
 #, python-format
 msgid ""
 "%(field)s: missing identifier URI (choose a value from vocabulary search "
@@ -611,50 +640,50 @@ msgid ""
 " file. Format is auto-detected per file."
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:277
+#: ckanext/fair3r/public/base/js/resource-upload.js:278
 msgid "Upload failed"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:282
+#: ckanext/fair3r/public/base/js/resource-upload.js:283
 msgid "Network error"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:324
-#: ckanext/fair3r/public/base/js/resource-upload.js:358
+#: ckanext/fair3r/public/base/js/resource-upload.js:392
+#: ckanext/fair3r/public/base/js/resource-upload.js:427
 msgid "Uploading…"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:340
+#: ckanext/fair3r/public/base/js/resource-upload.js:408
 msgid ""
 "Couldn't determine which dataset to upload to — please reload the page and "
 "try again."
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:357
+#: ckanext/fair3r/public/base/js/resource-upload.js:426
 #, python-format
 msgid "Uploading %(current)d / %(total)d files"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:374
+#: ckanext/fair3r/public/base/js/resource-upload.js:445
 #, python-format
 msgid "Done — %(ok)d / %(total)d uploaded, %(failed)d failed"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:375
+#: ckanext/fair3r/public/base/js/resource-upload.js:446
 #, python-format
 msgid "Done — %(total)d / %(total)d uploaded"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:383
+#: ckanext/fair3r/public/base/js/resource-upload.js:454
 msgid "Loading…"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:405
-msgid "Close"
+#: ckanext/fair3r/public/base/js/resource-upload.js:522
+msgid "Continue"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:409
-msgid "Continue"
+#: ckanext/fair3r/public/base/js/resource-upload.js:527
+msgid "Close"
 msgstr ""
 
 #: ckanext/fair3r/templates/error_document_template.html:3
@@ -671,6 +700,7 @@ msgid "Click here to login"
 msgstr ""
 
 #: ckanext/fair3r/templates/footer.html:9
+#, python-brace-format
 msgid "About {0}"
 msgstr ""
 
@@ -761,7 +791,7 @@ msgstr ""
 msgid "Search datasets..."
 msgstr ""
 
-#: ckanext/fair3r/templates/contact/snippets/form.html:44
+#: ckanext/fair3r/templates/contact/snippets/form.html:45
 #: ckanext/fair3r/templates/header.html:125
 msgid "Submit"
 msgstr ""
@@ -886,16 +916,16 @@ msgstr ""
 msgid "Contact Us"
 msgstr ""
 
-#: ckanext/fair3r/templates/contact/snippets/form.html:17
+#: ckanext/fair3r/templates/contact/snippets/form.html:18
 #: ckanext/fair3r/templates/contact/success.html:22
 msgid "Questions? Comments? We are always glad to hear from you!"
 msgstr ""
 
-#: ckanext/fair3r/templates/contact/snippets/form.html:22
+#: ckanext/fair3r/templates/contact/snippets/form.html:23
 msgid "Contact Name"
 msgstr ""
 
-#: ckanext/fair3r/templates/contact/snippets/form.html:25
+#: ckanext/fair3r/templates/contact/snippets/form.html:26
 #: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:411
 #: ckanext/fair3r/templates/user/edit_user_form.html:19
 #: ckanext/fair3r/templates/user/new_user_form.html:12
@@ -903,19 +933,19 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: ckanext/fair3r/templates/contact/snippets/form.html:29
+#: ckanext/fair3r/templates/contact/snippets/form.html:30
 msgid "Subject"
 msgstr ""
 
-#: ckanext/fair3r/templates/contact/snippets/form.html:31
+#: ckanext/fair3r/templates/contact/snippets/form.html:32
 msgid "Optional subject"
 msgstr ""
 
-#: ckanext/fair3r/templates/contact/snippets/form.html:33
+#: ckanext/fair3r/templates/contact/snippets/form.html:34
 msgid "Your Request"
 msgstr ""
 
-#: ckanext/fair3r/templates/contact/snippets/form.html:35
+#: ckanext/fair3r/templates/contact/snippets/form.html:36
 msgid "What do you have to tell us?"
 msgstr ""
 
@@ -1023,6 +1053,7 @@ msgstr ""
 
 #: ckanext/fair3r/templates/group/snippets/group_item.html:32
 #: ckanext/fair3r/templates/organization/snippets/organization_item.html:31
+#, python-brace-format
 msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
 msgstr[0] ""
@@ -1035,6 +1066,7 @@ msgstr ""
 
 #: ckanext/fair3r/templates/group/snippets/group_item.html:51
 #: ckanext/fair3r/templates/group/snippets/group_item.html:52
+#, python-brace-format
 msgid "View {name}"
 msgstr ""
 
@@ -1108,6 +1140,7 @@ msgstr ""
 
 #: ckanext/fair3r/templates/organization/snippets/organization_item.html:49
 #: ckanext/fair3r/templates/organization/snippets/organization_item.html:50
+#, python-brace-format
 msgid "View {organization_name}"
 msgstr ""
 
@@ -1175,27 +1208,27 @@ msgid "Loading FAIR3R dynamic form fields..."
 msgstr ""
 
 #: ckanext/fair3r/templates/package/edit.html:95
-#: ckanext/fair3r/templates/package/new_fdf.html:87
+#: ckanext/fair3r/templates/package/new_fdf.html:88
 msgid "Fair3R Dataset Form"
 msgstr ""
 
 #: ckanext/fair3r/templates/package/edit.html:99
-#: ckanext/fair3r/templates/package/new_fdf.html:91
+#: ckanext/fair3r/templates/package/new_fdf.html:92
 msgid ""
 "The Fair3R Dataset Form (FDF) is a dynamic ontology-driven form. Metadata "
 "fields are generated from a JSON schema and may query external databases."
 msgstr ""
 
-#: ckanext/fair3r/templates/package/edit_fdf.html:20
-#: ckanext/fair3r/templates/package/new_fdf.html:27
+#: ckanext/fair3r/templates/package/edit_fdf.html:21
+#: ckanext/fair3r/templates/package/new_fdf.html:28
 msgid "The form contains invalid entries:"
 msgstr ""
 
-#: ckanext/fair3r/templates/package/edit_fdf.html:47
+#: ckanext/fair3r/templates/package/edit_fdf.html:48
 msgid "Update"
 msgstr ""
 
-#: ckanext/fair3r/templates/package/new_fdf.html:54
+#: ckanext/fair3r/templates/package/new_fdf.html:55
 msgid "Next: Add Data"
 msgstr ""
 
@@ -1207,7 +1240,11 @@ msgstr ""
 msgid "Download all"
 msgstr ""
 
-#: ckanext/fair3r/templates/package/snippets/additional_info.html:37
+#: ckanext/fair3r/templates/package/snippets/additional_info.html:26
+msgid "Missing fields"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/snippets/additional_info.html:74
 #: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:650
 msgid "FAIR Metadata (raw JSON)"
 msgstr ""
@@ -1346,6 +1383,7 @@ msgid "No activity found for this type"
 msgstr ""
 
 #: ckanext/fair3r/templates/snippets/activities/changed_package.html:7
+#, python-brace-format
 msgid "{actor} updated the {dataset_type} {dataset}"
 msgstr ""
 
@@ -1365,26 +1403,32 @@ msgid "Changes"
 msgstr ""
 
 #: ckanext/fair3r/templates/snippets/activities/changed_resource_view.html:9
+#, python-brace-format
 msgid "{actor} updated resource view {view_link}"
 msgstr ""
 
 #: ckanext/fair3r/templates/snippets/activities/deleted_package.html:8
+#, python-brace-format
 msgid "{actor} deleted the {dataset_type} {dataset}"
 msgstr ""
 
 #: ckanext/fair3r/templates/snippets/activities/deleted_resource_view.html:9
+#, python-brace-format
 msgid "{actor} deleted resource view \"{view_title}\" for resource {resource_link}"
 msgstr ""
 
 #: ckanext/fair3r/templates/snippets/activities/follow_dataset.html:6
+#, python-brace-format
 msgid "{actor} started following {dataset}"
 msgstr ""
 
 #: ckanext/fair3r/templates/snippets/activities/new_package.html:7
+#, python-brace-format
 msgid "{actor} created the {dataset_type} {dataset}"
 msgstr ""
 
 #: ckanext/fair3r/templates/snippets/activities/new_resource_view.html:9
+#, python-brace-format
 msgid "{actor} created resource view {view_link}"
 msgstr ""
 

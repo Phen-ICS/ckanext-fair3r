@@ -192,7 +192,10 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
 
           if (resumeParam || samePageReferrer || isReload) {
             try {
-              this.prefillData = JSON.parse(savedDraft);
+              const parsed = JSON.parse(savedDraft);
+              this._draftBase = parsed.__base || null;
+              delete parsed.__base;
+              this.prefillData = parsed;
             } catch (e) {
             }
           } else {
@@ -203,6 +206,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
 
 
       this.renderForm();
+      this._restoreBaseFields();
       $("#fdf-alert").remove();
       this._seedAllXrefsFromPrefill();
       this._hideManagedFields();
@@ -288,6 +292,13 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       }
       
       
+      // Live completeness banner: refresh on every change, and once on load.
+      self._formEl = form;
+      form.on("input change", "input, select, textarea", function () {
+        self._refreshCompleteness();
+      });
+      self._refreshCompleteness();
+
       // Strategy 1: Attach to form.submit event (for normal HTML form submission)
       form.on("submit", function(e) {
         if (!self.validateFDFForm()) {
@@ -380,6 +391,77 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       observer.observe(formContainer, { childList: true, subtree: true });
     },
 
+    _refreshCompleteness: function() {
+      const self = this;
+      clearTimeout(self._completenessTimer);
+      self._completenessTimer = setTimeout(function () {
+        const csrfField = $("meta[name='csrf_field_name']").attr("content");
+        const csrfToken = csrfField ? $("meta[name='" + csrfField + "']").attr("content") : "";
+        const payload = {
+          fdf_output_json: JSON.stringify(self.collectFormData() || {}),
+          title: $("input[name='title']").val() || "",
+          notes: $("textarea[name='notes']").val() || "",
+          tag_string: $("input[name='tag_string']").val() || "",
+          license_id: $("select[name='license_id']").val() || "",
+        };
+        $.ajax({
+          url: "/api/3/action/fdf_completeness",
+          type: "POST",
+          contentType: "application/json",
+          headers: { "X-CSRFToken": csrfToken },
+          data: JSON.stringify(payload),
+        }).done(function (resp) {
+          self._renderCompleteness(resp.result);
+        });
+      }, 400);
+    },
+
+    _renderCompleteness: function(result) {
+      let box = $("#fair3r-completeness");
+      if (box.length === 0) {
+        box = $('<div id="fair3r-completeness"></div>');
+        const stages = this._formEl ? this._formEl.find("ol.stages").first() : $();
+        if (stages.length) {
+          stages.after(box);
+        } else {
+          (this._formEl || this.container).prepend(box);
+        }
+      }
+      const cls = { red: "alert-danger", orange: "alert-warning", green: "alert-success" }[result.band] || "alert-info";
+      box.attr("class", "alert " + cls);
+      box.empty();
+      if (!$("#fair3r-tip-style").length) {
+        $("head").append(
+          '<style id="fair3r-tip-style">' +
+          '.fair3r-tip{position:relative;display:inline-block;margin-left:6px;color:#777;cursor:help;font-weight:normal}' +
+          '.fair3r-tip::after{content:attr(data-tip);position:absolute;left:0;top:140%;z-index:20;width:300px;padding:8px 10px;' +
+          'background:#333;color:#fff;font-size:12px;line-height:1.4;border-radius:4px;white-space:normal;' +
+          'opacity:0;visibility:hidden;pointer-events:none;transition:opacity .1s}' +
+          '.fair3r-tip:hover::after,.fair3r-tip:focus::after{opacity:1;visibility:visible}' +
+          '</style>'
+        );
+      }
+      box.append($("<strong></strong>").text(_("Completeness") + ": " + result.score + " %"));
+      box.append($("<span class='fair3r-tip' tabindex='0'><i class='fa fa-info-circle'></i></span>").attr("data-tip", _("How complete the FAIR3R metadata of this dataset is: the weighted share of the fields that apply (required fields count double), CKAN basics included. Conditional fields that are hidden are ignored.")));
+      if (result.missing.length) {
+        const required = result.missing.filter(function (m) { return m[2]; });
+        box.append($("<div></div>").text(
+          result.missing.length + " " + _("field(s) missing") + (required.length ? ", " + required.length + " " + _("required fields") : "")
+        ));
+        const bySection = {};
+        const order = [];
+        result.missing.forEach(function (m) {
+          if (!bySection[m[0]]) { bySection[m[0]] = 0; order.push(m[0]); }
+          bySection[m[0]] += 1;
+        });
+        const list = $("<ul class='list-unstyled small'></ul>");
+        order.forEach(function (section) {
+          list.append($("<li></li>").text(section + ": " + bySection[section] + " " + _("missing")));
+        });
+        box.append(list);
+      }
+    },
+
     _populateFDFField: function() {
       const self = this;
       
@@ -395,6 +477,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       
       const jsonString = JSON.stringify(formData);
       jsonField.val(jsonString);
+      self._refreshCompleteness();
 
       // Keep CKAN extras__n__value in sync when present.
       const extrasKeyInputs = $("input[name^='extras__'][name$='__key']");
@@ -1243,20 +1326,42 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       });
     },
 
+    _baseFieldSelectors: {
+      title: "input[name='title']",
+      notes: "textarea[name='notes']",
+      tag_string: "input[name='tag_string']",
+      license_id: "select[name='license_id']",
+    },
+
+    _restoreBaseFields: function() {
+      const base = this._draftBase;
+      if (!base) {
+        return;
+      }
+      Object.keys(this._baseFieldSelectors).forEach((key) => {
+        if (base[key] !== undefined && base[key] !== null) {
+          $(this._baseFieldSelectors[key]).val(base[key]);
+        }
+      });
+    },
+
     _attachDraftSaver: function() {
       if (!this._draftKey) {
         return;
       }
 
       const self = this;
-      this.container.on(
-        "input change",
-        "input, textarea, select",
-        debounce(function () {
-          const draftData = self.collectFormData();
-          window.localStorage.setItem(self._draftKey, JSON.stringify(draftData));
-        }, 500)
-      );
+      const saveDraft = debounce(function () {
+        const draftData = self.collectFormData() || {};
+        const base = {};
+        Object.keys(self._baseFieldSelectors).forEach((key) => {
+          base[key] = $(self._baseFieldSelectors[key]).val() || "";
+        });
+        draftData.__base = base;
+        window.localStorage.setItem(self._draftKey, JSON.stringify(draftData));
+      }, 500);
+      this.container.on("input change", "input, textarea, select", saveDraft);
+      $(document).on("input change", "#dataset-edit input, #dataset-edit textarea, #dataset-edit select", saveDraft);
     },
 
     _formatFieldLabel: function(field) {
@@ -4019,8 +4124,12 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
 
         // For api_search fields, keep stored ID for output while preserving label for $label
         if (field.type === "api_search") {
-          const selectedId = (fieldInput.data("selected-id") || "").toString().trim();
-          const selectedLabel = (fieldInput.data("selected-label") || "").toString().trim();
+          // A selection only counts while its label is still in the box: the
+          // selection data is cleared by a debounced handler, so a field the
+          // user just emptied could still carry the old id when saving.
+          const typedText = String(fieldInput.val() || "").trim();
+          const selectedId = typedText ? (fieldInput.data("selected-id") || "").toString().trim() : "";
+          const selectedLabel = typedText ? (fieldInput.data("selected-label") || "").toString().trim() : "";
           const mappedExtra = fieldInput.data("mapped-extra");
           if (mappedExtra && typeof mappedExtra === "object") {
             extraContext = mappedExtra;
