@@ -26,8 +26,13 @@ from ckanext.fair3r.lib import mailer as fair3r_mailer
 from ckanext.fair3r.lib.actions import (
     external_lookup,
     external_lookup_auth,
+    fdf_completeness,
+    fdf_completeness_auth,
     xenbase_strains,
     xenbase_strains_auth,
+)
+from ckanext.fair3r.lib.fdf.completeness import (
+    completeness_for_package as fair3r_completeness,
 )
 from ckanext.fair3r.lib.fdf.schema import load_fdf_schema
 
@@ -74,6 +79,10 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
             "fair3r_is_resource_read": self.fair3r_is_resource_read,
             "fair3r_context": self.fair3r_context,
             "fair3r_is_superadmin": self.fair3r_is_superadmin,
+            "fair3r_completeness": fair3r_completeness,
+            "fair3r_show_completeness_row": lambda: (
+                not plugins.plugin_loaded("citations")
+            ),
             "fdf_schema": self._get_fdf_schema,
             "parse_fdf_json": self.parse_fdf_json,
             "fdf_schema_sections": self._get_fdf_schema_sections,
@@ -465,6 +474,7 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
         return {
             "external_lookup": external_lookup,
             "xenbase_strains": xenbase_strains,
+            "fdf_completeness": fdf_completeness,
         }
 
     # IAuthFunctions
@@ -474,6 +484,7 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
         return {
             "external_lookup": external_lookup_auth,
             "xenbase_strains": xenbase_strains_auth,
+            "fdf_completeness": fdf_completeness_auth,
         }
 
     # IDoi - DataCite metadata customization

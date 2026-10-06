@@ -1,5 +1,42 @@
 {% ckan_extends %}
 
+{% block package_additional_info %}
+  {% if h.fair3r_show_completeness_row() %}
+    {% set completeness = h.fair3r_completeness(pkg_dict) %}
+    {% set bar_class = {"red": "fair3r-bar-red", "orange": "fair3r-bar-orange", "green": "fair3r-bar-green"}[completeness.band] %}
+    <tr>
+      <th scope="row" class="dataset-label">
+        {{ _('Completeness') }}
+        <span class="fair3r-tip" tabindex="0" data-tip="{{ _('How complete the FAIR3R metadata of this dataset is: the weighted share of the fields that apply (required fields count double), CKAN basics included. Conditional fields that are hidden are ignored.') }}"><i class="fa fa-info-circle"></i></span>
+      </th>
+      <td class="dataset-details">
+        <style>
+          .fair3r-tip { position: relative; display: inline-block; margin-left: 6px; color: #777; cursor: help; font-weight: normal; }
+          .fair3r-tip::after { content: attr(data-tip); position: absolute; left: 0; top: 140%; z-index: 20; width: 300px; padding: 8px 10px; background: #333; color: #fff; font-size: 12px; line-height: 1.4; border-radius: 4px; white-space: normal; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .1s; }
+          .fair3r-tip:hover::after, .fair3r-tip:focus::after { opacity: 1; visibility: visible; }
+          .fair3r-bar-red { background-color: #d9534f; }
+          .fair3r-bar-orange { background-color: #f0ad4e; color: #333; }
+          .fair3r-bar-green { background-color: #5cb85c; }
+        </style>
+        <div class="progress" style="margin-bottom: 4px; max-width: 320px;">
+          <div class="progress-bar {{ bar_class }}" role="progressbar" style="width: {{ completeness.score }}%; min-width: 2.5em;" aria-valuenow="{{ completeness.score }}" aria-valuemin="0" aria-valuemax="100">{{ completeness.score }} %</div>
+        </div>
+        {% if completeness.missing %}
+          <details>
+            <summary>{{ _('Missing fields') }} ({{ completeness.missing|length }})</summary>
+            <ul class="list-unstyled">
+              {% for section, label, required in completeness.missing %}
+                <li>{{ section }} — {{ label }}{% if required %} <strong>*</strong>{% endif %}</li>
+              {% endfor %}
+            </ul>
+          </details>
+        {% endif %}
+      </td>
+    </tr>
+  {% endif %}
+  {{ super() }}
+{% endblock %}
+
 {% block extras scoped %}
   {% set ns = namespace(fdf_json_value='') %}
   {% for extra in h.sorted_extras(pkg_dict.extras) %}
