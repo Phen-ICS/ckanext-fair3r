@@ -34,6 +34,7 @@ from ckanext.fair3r.lib.actions import (
 from ckanext.fair3r.lib.fdf.completeness import (
     completeness_for_package as fair3r_completeness,
 )
+from ckanext.fair3r.lib.fdf.draft_guard import guard_against_stale_draft_revert
 from ckanext.fair3r.lib.fdf.schema import load_fdf_schema
 
 log = logging.getLogger(__name__)
@@ -57,6 +58,7 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
     plugins.implements(IDoi, inherit=True)
     plugins.implements(plugins.IClick)
     plugins.implements(plugins.IFacets)
+    plugins.implements(plugins.IPackageController, inherit=True)
 
     # IConfigurer
 
@@ -170,6 +172,14 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
 
     def organization_facets(self, facets_dict, organization_type, package_type):
         return self._localized_license_facet_title(facets_dict)
+
+    # IPackageController
+    def after_dataset_update(self, context, pkg_dict):
+        """See ckanext/fair3r/lib/fdf/draft_guard.py: self-heals a known CKAN
+        core/ckanext-xloader race that can silently revert a just-published
+        dataset back to 'draft'."""
+        guard_against_stale_draft_revert(pkg_dict)
+        return pkg_dict
 
     def fair3r_context(self):
         """Fetch the fair3r context from the configuration"""
