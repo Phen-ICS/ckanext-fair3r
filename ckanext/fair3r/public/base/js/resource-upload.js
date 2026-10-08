@@ -323,50 +323,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // xloader's own resource_update-triggering callback (see above) is the
-  // actual source of the race, not just a timing coincidence - so the
-  // most direct fix is waiting for it to be done, not guessing how long
-  // that takes. ckanext-xloader exposes xloader_status precisely for
-  // this. Terminal states per ckanext-xloader's job lifecycle: anything
-  // other than these still has work in flight.
-  var XLOADER_PENDING_STATUSES = ["pending", "submitting", "running"];
-
-  function xloaderJobSettled(resourceId) {
-    return fetch(
-      "/api/3/action/xloader_status?id=" + encodeURIComponent(resourceId),
-      { credentials: "same-origin" }
-    ).then(function (resp) {
-      return resp.json();
-    }).then(function (payload) {
-      var status = payload && payload.success && payload.result
-        ? payload.result.status
-        : null;
-      // No status at all (e.g. task_status_show found nothing) means no
-      // xloader job was ever submitted for this resource - nothing to
-      // wait for, so treat it as settled rather than retrying forever.
-      return !status || XLOADER_PENDING_STATUSES.indexOf(status) === -1;
-    }).catch(function () {
-      // Can't tell - don't let a transient network hiccup here block the
-      // dataset from ever being activated.
-      return true;
-    });
-  }
-
-  function waitForXloaderJobs(resourceIds, attemptsLeft) {
-    if (!resourceIds.length) {
-      return Promise.resolve();
-    }
-    return Promise.all(resourceIds.map(xloaderJobSettled)).then(function (settled) {
-      if (settled.every(Boolean) || attemptsLeft <= 0) {
-        return;
-      }
-      return new Promise(function (resolve) {
-        setTimeout(resolve, 500);
-      }).then(function () {
-        return waitForXloaderJobs(resourceIds, attemptsLeft - 1);
-      });
-    });
-  }
+  // A previous version of this file waited here for ckanext-xloader's own
+  // background job (which can race activateDraftDataset above - see its
+  // comment) to reach a terminal status via xloader_status, bounded to 10s,
+  // before activating. That could only narrow the race, never close it, and
+  // cost every save a real delay for a race that's now caught server-side
+  // instead (ckanext/fair3r/lib/fdf/draft_guard.py) - removed rather than
+  // tuned, since no bound is actually safe.
 
   $form.on("submit", function (event) {
     var submitter = event.originalEvent && event.originalEvent.submitter;
@@ -418,7 +381,6 @@ document.addEventListener("DOMContentLoaded", function () {
     var overlay = buildBulkOverlay();
     overlay.setCurrent(fileArray[0].name, 0);
 
-    var createdResourceIds = [];
     var chain = Promise.resolve();
     fileArray.forEach(function (file, index) {
       chain = chain.then(function () {
@@ -432,8 +394,6 @@ document.addEventListener("DOMContentLoaded", function () {
           overlay.addResult(result.ok, file.name, result.errorMessage);
           if (!result.ok) {
             failureCount += 1;
-          } else if (result.resourceId) {
-            createdResourceIds.push(result.resourceId);
           }
         });
       });
@@ -461,26 +421,22 @@ document.addEventListener("DOMContentLoaded", function () {
         // its handler deliberately does nothing to activate it. Which
         // button actually renders, though, is decided server-side from a
         // package_show call of its own (views/resource.py's GET handler)
-        // that's subject to the exact same Solr-cache staleness this file
-        // already works around above - so a dataset that's still genuinely
-        // draft can end up showing "Add" instead of "Publish", and then
-        // never gets activated by anything at all. Activating here too is
-        // a harmless no-op on an already-active dataset, and closes that
+        // that's subject to the exact same staleness this file already
+        // works around above - so a dataset that's still genuinely draft
+        // can end up showing "Add" instead of "Publish", and then never
+        // gets activated by anything at all. Activating here too is a
+        // harmless no-op on an already-active dataset, and closes that
         // gap regardless of which button CKAN happened to render.
-        // Xloader processes each uploaded resource in its own background
-        // job and calls back into the API once it's done, which (see
-        // activateDraftDataset above) can race our own activation and
-        // revert it. Waiting for every job actually submitted from this
-        // page to reach a terminal status removes the race at its source
-        // instead of just outrunning it with a guessed delay. Bounded to
-        // 20 tries (10s): a resource that's genuinely still processing
-        // past that point falls through to activation anyway - the
-        // dataset is correctly active in the DB regardless, only the
-        // badge could still lag on that slower path.
+        //
+        // No wait-for-xloader step before this call: xloader's own
+        // background job racing this activation (see activateDraftDataset
+        // above) is now caught server-side instead, by
+        // ckanext/fair3r/lib/fdf/draft_guard.py - any bounded client-side
+        // wait here could only ever narrow that race, never close it
+        // (xloader can always take longer than whatever's guessed), so
+        // it's not worth the user-visible delay on every save.
         var finalize = (saveValue === "go-metadata" || saveValue === "go-dataset-complete")
-          ? waitForXloaderJobs(createdResourceIds, 20)
-              .then(function () { return activateDraftDataset(packageName); })
-              .catch(function () { /* best effort */ })
+          ? activateDraftDataset(packageName).catch(function () { /* best effort */ })
           : Promise.resolve();
 
         finalize.then(function () {
