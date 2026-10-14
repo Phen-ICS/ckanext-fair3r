@@ -277,6 +277,16 @@ main.hero-no-gradient{ background-image: white !important; }
   color: var(--fair3r-color-muted);
 }
 
+/* "Store this file on Zenodo instead" checkbox, only present when
+   ckanext-zenodo is installed (see public/base/js/resource-upload.js). */
+.fair3r-force-zenodo-label {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--fair3r-color-muted);
+}
+
 /* Bulk resource upload: richer overlay with per-file progress + a live
    result list, shown instead of .fair3r-upload-overlay's plain spinner
    when more than one file was selected. */

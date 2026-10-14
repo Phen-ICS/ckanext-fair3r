@@ -142,6 +142,61 @@ document.addEventListener("DOMContentLoaded", function () {
   var $nameInput = $("#field-name");
   var $bulkHint = null;
 
+  // The <meta> tag only exists when ckanext-zenodo is installed and
+  // enabled (see fair3r_zenodo_routing_config() / base.html) - on a
+  // deployment without it, this whole feature (checkbox included) simply
+  // isn't there, rather than a dead control that would always no-op.
+  function zenodoRoutingConfig() {
+    var raw = $('meta[name="zenodo-routing-config"]').attr("content");
+    if (!raw) {
+      return null;
+    }
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  var zenodoConfig = zenodoRoutingConfig();
+  var $forceZenodoCheckbox = null;
+
+  if (zenodoConfig && $("#field-resource-upload").length) {
+    $forceZenodoCheckbox = $('<label class="fair3r-force-zenodo-label">')
+      .append('<input type="checkbox" id="field-force-zenodo">')
+      .append(document.createTextNode(
+        " " + translate("Store this file on Zenodo instead of this catalogue")
+      ))
+      .insertAfter($("#field-resource-upload"));
+  }
+
+  // Pure decision, no DOM/network - file.size/.name/.type are already
+  // known synchronously the instant a file is picked. Mirrors (and
+  // supersedes) the version worked out and verified in isolation at
+  // ckanext-zenodo's docs/stage3-routing-design.js - kept in sync with
+  // this one by hand until that design file is deleted.
+  function shouldRouteToZenodo(file, config, forced) {
+    if (forced) {
+      return true;
+    }
+    if (!config) {
+      // Can't decide - this check is a UX nicety only, never
+      // authoritative (the server re-validates size/format for real in
+      // the /zenodo/upload/ blueprint) - default to "stays on CKAN"
+      // rather than surprising the user by routing somewhere unasked.
+      return false;
+    }
+    if (file.size > config.max_resource_size_bytes) {
+      return true;
+    }
+    var ext = (file.name.split(".").pop() || "").toLowerCase();
+    var type = (file.type || "").toLowerCase();
+    var readable = config.xloader_formats.some(function (f) {
+      return f.toLowerCase() === ext || f.toLowerCase() === type;
+    });
+    return !readable;
+  }
+
   // CKAN's own "Remove" button for the upload field replaces
   // #field-resource-upload with a clone (see resource_upload_field.html:
   // `$('#field-resource-upload').replaceWith($('#field-resource-upload')
@@ -287,6 +342,57 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Same XHR-with-progress shape as createOneResource above, pointed at
+  // ckanext-zenodo's upload blueprint instead of resource_create - that
+  // endpoint streams straight to Zenodo's bucket rather than CKAN's own
+  // storage, so there's no CKAN resource id to report back (resourceId
+  // stays null; nothing here needs it).
+  function createZenodoResource(file, packageName, onProgress, forced) {
+    return new Promise(function (resolve) {
+      var fd = new FormData();
+      fd.append("upload", file, file.name);
+      if (forced) {
+        fd.append("force_zenodo", "true");
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/zenodo/upload/" + encodeURIComponent(packageName), true);
+      xhr.withCredentials = true;
+      var csrfToken = csrfHeaderToken();
+      if (csrfToken) {
+        xhr.setRequestHeader("X-CSRFToken", csrfToken);
+      }
+
+      xhr.upload.addEventListener("progress", function (e) {
+        if (e.lengthComputable && typeof onProgress === "function") {
+          onProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      });
+
+      xhr.onload = function () {
+        var payload = null;
+        try {
+          payload = JSON.parse(xhr.responseText);
+        } catch (e) {
+          payload = null;
+        }
+        var ok = xhr.status >= 200 && xhr.status < 300 && !!(payload && payload.success);
+        resolve({
+          ok: ok,
+          file: file,
+          resourceId: null,
+          errorMessage: ok ? null : (extractErrorMessage(payload) || xhr.statusText || translate("Upload to Zenodo failed"))
+        });
+      };
+
+      xhr.onerror = function () {
+        resolve({ ok: false, file: file, errorMessage: translate("Network error") });
+      };
+
+      xhr.send(fd);
+    });
+  }
+
   // The real root cause (found by reading ckan/logic/action/update.py):
   // resource_update (which ckanext-xloader's own completion callback,
   // xloader_hook, triggers on every uploaded resource) fetches the whole
@@ -381,6 +487,8 @@ document.addEventListener("DOMContentLoaded", function () {
     var overlay = buildBulkOverlay();
     overlay.setCurrent(fileArray[0].name, 0);
 
+    var forceZenodo = !!($forceZenodoCheckbox && $forceZenodoCheckbox.find("input").is(":checked"));
+
     var chain = Promise.resolve();
     fileArray.forEach(function (file, index) {
       chain = chain.then(function () {
@@ -388,9 +496,14 @@ document.addEventListener("DOMContentLoaded", function () {
           ? translate("Uploading %(current)d / %(total)d files", { current: index + 1, total: total })
           : translate("Uploading…"));
         overlay.setCurrent(file.name, 0);
-        return createOneResource(file, packageName, function (pct) {
+        var routeToZenodo = shouldRouteToZenodo(file, zenodoConfig, forceZenodo);
+        // 4th arg means something different per function: "forced" for
+        // createZenodoResource, "overrideName" (bulk) for createOneResource.
+        var uploadFn = routeToZenodo ? createZenodoResource : createOneResource;
+        var fourthArg = routeToZenodo ? forceZenodo : isBulk;
+        return uploadFn(file, packageName, function (pct) {
           overlay.setCurrent(file.name, pct);
-        }, isBulk).then(function (result) {
+        }, fourthArg).then(function (result) {
           overlay.addResult(result.ok, file.name, result.errorMessage);
           if (!result.ok) {
             failureCount += 1;
