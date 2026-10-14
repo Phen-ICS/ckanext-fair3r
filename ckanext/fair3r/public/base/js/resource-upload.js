@@ -159,15 +159,30 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   var zenodoConfig = zenodoRoutingConfig();
+  // Kept as $forceZenodoCheckbox for the rest of this file (the submit
+  // loop below only ever reads its inner <input>'s checked state) - only
+  // its construction changed, from a plain small checkbox+label (easy to
+  // miss entirely) to a branded toggle pill with the Zenodo badge and a
+  // checkmark that actually shows when it's on.
   var $forceZenodoCheckbox = null;
+  var $zenodoRoutingHint = null;
 
   if (zenodoConfig && $("#field-resource-upload").length) {
-    $forceZenodoCheckbox = $('<label class="fair3r-force-zenodo-label">')
-      .append('<input type="checkbox" id="field-force-zenodo">')
-      .append(document.createTextNode(
-        " " + translate("Store this file on Zenodo instead of this catalogue")
-      ))
-      .insertAfter($("#field-resource-upload"));
+    $forceZenodoCheckbox = $(
+      '<label class="fair3r-zenodo-toggle" for="field-force-zenodo">' +
+        '<input type="checkbox" id="field-force-zenodo" class="fair3r-zenodo-toggle-input">' +
+        '<span class="fair3r-zenodo-toggle-pill">' +
+          '<span class="fair3r-zenodo-toggle-badge" aria-hidden="true">Z</span>' +
+          '<span class="fair3r-zenodo-toggle-text"></span>' +
+          '<span class="fair3r-zenodo-toggle-check" aria-hidden="true">&#10003;</span>' +
+        '</span>' +
+      '</label>'
+    ).insertAfter($("#field-resource-upload"));
+    $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-text").text(
+      translate("Always store on Zenodo instead of this catalogue")
+    );
+    $zenodoRoutingHint = $("<div>", { "class": "fair3r-zenodo-routing-hint" })
+      .insertAfter($forceZenodoCheckbox);
   }
 
   // Pure decision, no DOM/network - file.size/.name/.type are already
@@ -197,6 +212,42 @@ document.addEventListener("DOMContentLoaded", function () {
     return !readable;
   }
 
+  // Real-time feedback on where the selected file(s) will actually end
+  // up - the root issue a plain unchecked checkbox didn't solve: a file
+  // that auto-routes to Zenodo (too large, or an unreadable format) did
+  // so correctly even with the toggle off, but nothing on screen said so
+  // until the dataset page was checked after the fact.
+  function updateZenodoRoutingHint(files) {
+    if (!$zenodoRoutingHint) {
+      return;
+    }
+    if (!files || !files.length) {
+      $zenodoRoutingHint.hide();
+      return;
+    }
+    var forced = !!($forceZenodoCheckbox && $forceZenodoCheckbox.find("input").is(":checked"));
+    var toZenodo = 0;
+    Array.prototype.forEach.call(files, function (file) {
+      if (shouldRouteToZenodo(file, zenodoConfig, forced)) {
+        toZenodo += 1;
+      }
+    });
+    if (toZenodo === 0) {
+      $zenodoRoutingHint.hide();
+      return;
+    }
+    var message = files.length === 1
+      ? translate("📦 This file will be stored on Zenodo, not in this catalogue (too large, or not a format the data viewer can read).")
+      : translate("📦 %(count)d of %(total)d file(s) will be stored on Zenodo, not in this catalogue.", { count: toZenodo, total: files.length });
+    $zenodoRoutingHint.text(message).show();
+  }
+
+  if ($forceZenodoCheckbox) {
+    $forceZenodoCheckbox.find("input").on("change", function () {
+      updateZenodoRoutingHint($("#field-resource-upload")[0].files);
+    });
+  }
+
   // CKAN's own "Remove" button for the upload field replaces
   // #field-resource-upload with a clone (see resource_upload_field.html:
   // `$('#field-resource-upload').replaceWith($('#field-resource-upload')
@@ -214,6 +265,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var files = this.files || [];
     var isBulk = files.length > 1;
+
+    updateZenodoRoutingHint(files);
 
     if ($formatInput.length) {
       $formatInput.prop("disabled", isBulk);

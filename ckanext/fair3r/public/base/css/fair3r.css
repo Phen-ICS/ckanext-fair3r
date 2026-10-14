@@ -277,14 +277,86 @@ main.hero-no-gradient{ background-image: white !important; }
   color: var(--fair3r-color-muted);
 }
 
-/* "Store this file on Zenodo instead" checkbox, only present when
-   ckanext-zenodo is installed (see public/base/js/resource-upload.js). */
-.fair3r-force-zenodo-label {
-  display: block;
+/* "Always store on Zenodo instead" toggle - a branded pill rather than a
+   plain checkbox, so it's actually noticeable - only present when
+   ckanext-zenodo is installed (see public/base/js/resource-upload.js).
+   The real <input type="checkbox"> stays in the DOM for form semantics/
+   keyboard accessibility but is visually hidden; its checked state
+   drives .fair3r-zenodo-toggle-pill's appearance via the sibling
+   selector below. */
+.fair3r-zenodo-toggle {
+  display: inline-flex;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+.fair3r-zenodo-toggle-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fair3r-zenodo-toggle-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 6px;
+  border: 1px solid #1282b2;
+  border-radius: 999px;
+  background: #fff;
+  color: #1282b2;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background-color .12s, color .12s;
+}
+
+.fair3r-zenodo-toggle-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #1282b2;
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.fair3r-zenodo-toggle-check {
+  visibility: hidden;
+  font-size: 12px;
+}
+
+.fair3r-zenodo-toggle-input:checked + .fair3r-zenodo-toggle-pill {
+  background: #1282b2;
+  color: #fff;
+}
+
+.fair3r-zenodo-toggle-input:checked + .fair3r-zenodo-toggle-pill .fair3r-zenodo-toggle-badge {
+  background: #fff;
+  color: #1282b2;
+}
+
+.fair3r-zenodo-toggle-input:checked + .fair3r-zenodo-toggle-pill .fair3r-zenodo-toggle-check {
+  visibility: visible;
+}
+
+.fair3r-zenodo-toggle-input:focus-visible + .fair3r-zenodo-toggle-pill {
+  outline: 2px solid #1282b2;
+  outline-offset: 2px;
+}
+
+/* Live feedback on where the selected file(s) will actually end up -
+   shown under the toggle the moment a file is picked, auto-routed or
+   not (see updateZenodoRoutingHint in resource-upload.js). */
+.fair3r-zenodo-routing-hint {
+  display: none;
   margin-top: 6px;
   font-size: 12px;
-  font-weight: normal;
-  color: var(--fair3r-color-muted);
+  color: #205b73;
 }
 
 /* Bulk resource upload: richer overlay with per-file progress + a live
