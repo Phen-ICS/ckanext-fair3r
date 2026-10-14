@@ -30,6 +30,10 @@
       <meta name="{{ g.csrf_field_name }}" content="{{ csrf_token() }}" />
       <meta name="site-root" content="{{ h.url_for('home.index', locale='default', _external=true) }}" />
       <meta name="locale-root" content="{{ h.url_for('home.index', _external=true) }}" />
+      {% set zenodo_routing_config = h.fair3r_zenodo_routing_config() %}
+      {% if zenodo_routing_config %}
+        <meta name="zenodo-routing-config" content="{{ zenodo_routing_config }}" />
+      {% endif %}
 
       {% block meta_generator %}<meta name="generator" content="ckan {{ h.ckan_version() }}" />{% endblock %}
       {% block meta_viewport %}<meta name="viewport" content="width=device-width, initial-scale=1.0">{% endblock %}
