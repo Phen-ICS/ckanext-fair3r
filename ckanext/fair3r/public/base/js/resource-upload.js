@@ -224,11 +224,11 @@ document.addEventListener("DOMContentLoaded", function () {
     var size = zenodoConfig ? Math.round(zenodoConfig.max_resource_size_bytes / (1024 * 1024)) : null;
     return forced
       ? translate(
-          "This file will be stored on Zenodo, not in this catalogue (file over %(size)s MB, or not a format the data viewer can read).",
+          "This file will be stored on Zenodo, not in this catalogue (it's over %(size)s MB, or in a format the data viewer can't read).",
           { size: size }
         )
       : translate(
-          "Files over %(size)s MB or not a format the data viewer can read go to Zenodo automatically either way.",
+          "Files larger than %(size)s MB, or in a format the data viewer can't read, go to Zenodo automatically either way.",
           { size: size }
         );
   }
@@ -288,7 +288,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
     var message = files.length === 1
-      ? translate("This file will be stored on Zenodo, not in this catalogue (too large, or not a format the data viewer can read).")
+      ? translate("This file will be stored on Zenodo, not in this catalogue (too large, or in a format the data viewer can't read).")
       : translate("%(count)d of %(total)d file(s) will be stored on Zenodo, not in this catalogue.", { count: toZenodo, total: files.length });
     $zenodoRoutingHint.text(message).show();
   }
