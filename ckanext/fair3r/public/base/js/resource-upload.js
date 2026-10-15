@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", function () {
       '</label>'
     ).insertAfter($("#field-resource-upload"));
     $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-text").text(
-      translate("always store this file on Zenodo instead of this catalogue")
+      translate("Store this file on Zenodo instead of this catalogue")
     );
     var $zenodoToggleState = $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-state");
     var updateZenodoToggleState = function () {
