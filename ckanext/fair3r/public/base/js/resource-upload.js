@@ -160,27 +160,42 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var zenodoConfig = zenodoRoutingConfig();
   // Kept as $forceZenodoCheckbox for the rest of this file (the submit
-  // loop below only ever reads its inner <input>'s checked state) - only
-  // its construction changed, from a plain small checkbox+label (easy to
-  // miss entirely) to a branded toggle pill with the Zenodo badge and a
-  // checkmark that actually shows when it's on.
+  // loop below only ever reads its inner <input>'s checked state) - the
+  // first version of this (a pill that only changed background colour,
+  // with a single "Z" letter as its only branding) tested confusing: no
+  // clear on/off affordance, and "Z" alone didn't read as "Zenodo" to
+  // anyone not already looking for it. Rebuilt as an actual switch (a
+  // sliding track+thumb - the one widget shape everyone already reads as
+  // on/off unambiguously) plus a persistent icon+"Zenodo" label that
+  // never changes, so what the control is *for* doesn't depend on
+  // noticing its current state.
   var $forceZenodoCheckbox = null;
   var $zenodoRoutingHint = null;
 
   if (zenodoConfig && $("#field-resource-upload").length) {
     $forceZenodoCheckbox = $(
       '<label class="fair3r-zenodo-toggle" for="field-force-zenodo">' +
-        '<input type="checkbox" id="field-force-zenodo" class="fair3r-zenodo-toggle-input">' +
-        '<span class="fair3r-zenodo-toggle-pill">' +
-          '<span class="fair3r-zenodo-toggle-badge" aria-hidden="true">Z</span>' +
-          '<span class="fair3r-zenodo-toggle-text"></span>' +
-          '<span class="fair3r-zenodo-toggle-check" aria-hidden="true">&#10003;</span>' +
+        '<span class="fair3r-zenodo-toggle-brand">' +
+          '<i class="fa fa-archive" aria-hidden="true"></i> Zenodo' +
         '</span>' +
+        '<input type="checkbox" id="field-force-zenodo" class="fair3r-zenodo-toggle-input">' +
+        '<span class="fair3r-zenodo-toggle-switch" aria-hidden="true">' +
+          '<span class="fair3r-zenodo-toggle-switch-thumb"></span>' +
+        '</span>' +
+        '<span class="fair3r-zenodo-toggle-state" aria-hidden="true"></span>' +
+        '<span class="fair3r-zenodo-toggle-text"></span>' +
       '</label>'
     ).insertAfter($("#field-resource-upload"));
     $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-text").text(
-      translate("Always store on Zenodo instead of this catalogue")
+      translate("always store this file on Zenodo instead of this catalogue")
     );
+    var $zenodoToggleState = $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-state");
+    var updateZenodoToggleState = function () {
+      var on = $forceZenodoCheckbox.find("input").is(":checked");
+      $zenodoToggleState.text(on ? translate("On") : translate("Off"));
+    };
+    updateZenodoToggleState();
+    $forceZenodoCheckbox.find("input").on("change", updateZenodoToggleState);
     $zenodoRoutingHint = $("<div>", { "class": "fair3r-zenodo-routing-hint" })
       .insertAfter($forceZenodoCheckbox);
   }
