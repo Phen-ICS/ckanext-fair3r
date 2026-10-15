@@ -188,39 +188,44 @@ document.addEventListener("DOMContentLoaded", function () {
     ).insertAfter($("#field-resource-upload"));
     var $zenodoToggleState = $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-state");
     var $zenodoToggleText = $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-text");
-    // Said once, up front, rather than only after a file is picked (that's
-    // what the separate, dynamic $zenodoRoutingHint below is for) - so
-    // "this is off" doesn't read as "this file will definitely stay here"
-    // when it's actually a large/unreadable file that auto-routes anyway.
-    // xloader_formats mixes file extensions and MIME types (e.g. "csv"
-    // and "application/csv" for the same real-world format) - the MIME
-    // variants are redundant to show here (shouldRouteToZenodo still
-    // checks both), so only the extension-looking entries are listed.
-    var readableExtensions = zenodoConfig.xloader_formats.filter(function (f) {
-      return f.indexOf("/") === -1;
-    });
-    var autoRoutingNote = translate(
-      "files over %(size)s MB or not a format this catalogue can read as a table (%(formats)s) go to Zenodo automatically either way",
-      {
-        size: Math.round(zenodoConfig.max_resource_size_bytes / (1024 * 1024)),
-        formats: readableExtensions.join(", ")
-      }
-    );
     var updateZenodoToggleState = function () {
       var on = $forceZenodoCheckbox.find("input").is(":checked");
       $zenodoToggleState.text(on ? translate("On") : translate("Off"));
       // Describes what will actually happen in the current state, not a
       // static "what turning this on does" sentence - so it stays
       // correct and useful even without looking at the switch itself.
+      // The *why* (size/format thresholds) is a separate line, always
+      // visible, below - see $zenodoRoutingHint/genericZenodoExplanation.
       var baseText = on
         ? translate("Store this file on Zenodo instead of this catalogue")
         : translate("Store this file on this catalogue instead of Zenodo");
-      $zenodoToggleText.text(baseText + ": " + autoRoutingNote);
+      $zenodoToggleText.text(baseText + " :");
     };
     updateZenodoToggleState();
     $forceZenodoCheckbox.find("input").on("change", updateZenodoToggleState);
     $zenodoRoutingHint = $("<div>", { "class": "fair3r-zenodo-routing-hint" })
       .insertAfter($forceZenodoCheckbox);
+    // Shown right away, before any file is even picked - genericZenodoExplanation
+    // and updateZenodoRoutingHint are function declarations further down,
+    // hoisted, so calling them here is safe.
+    updateZenodoRoutingHint(null);
+  }
+
+  // The background explanation of *why* a file might end up on Zenodo
+  // regardless of the toggle - shown by default (before any file is
+  // picked, and whenever nothing currently selected actually routes
+  // there), computed from the real config rather than hardcoded.
+  function genericZenodoExplanation(forced) {
+    var size = zenodoConfig ? Math.round(zenodoConfig.max_resource_size_bytes / (1024 * 1024)) : null;
+    return forced
+      ? translate(
+          "This file will be stored on Zenodo, not in this catalogue (file over %(size)s MB, or not a format the data viewer can read).",
+          { size: size }
+        )
+      : translate(
+          "Files over %(size)s MB or not a format the data viewer can read go to Zenodo automatically either way.",
+          { size: size }
+        );
   }
 
   // Pure decision, no DOM/network - file.size/.name/.type are already
@@ -259,11 +264,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!$zenodoRoutingHint) {
       return;
     }
+    var forced = !!($forceZenodoCheckbox && $forceZenodoCheckbox.find("input").is(":checked"));
     if (!files || !files.length) {
-      $zenodoRoutingHint.hide();
+      $zenodoRoutingHint.text(genericZenodoExplanation(forced)).show();
       return;
     }
-    var forced = !!($forceZenodoCheckbox && $forceZenodoCheckbox.find("input").is(":checked"));
     var toZenodo = 0;
     Array.prototype.forEach.call(files, function (file) {
       if (shouldRouteToZenodo(file, zenodoConfig, forced)) {
@@ -271,12 +276,15 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
     if (toZenodo === 0) {
-      $zenodoRoutingHint.hide();
+      // Nothing currently selected actually routes to Zenodo - the
+      // background explanation of when it would is still useful here,
+      // rather than showing nothing at all.
+      $zenodoRoutingHint.text(genericZenodoExplanation(forced)).show();
       return;
     }
     var message = files.length === 1
-      ? translate("📦 This file will be stored on Zenodo, not in this catalogue (too large, or not a format the data viewer can read).")
-      : translate("📦 %(count)d of %(total)d file(s) will be stored on Zenodo, not in this catalogue.", { count: toZenodo, total: files.length });
+      ? translate("This file will be stored on Zenodo, not in this catalogue (too large, or not a format the data viewer can read).")
+      : translate("%(count)d of %(total)d file(s) will be stored on Zenodo, not in this catalogue.", { count: toZenodo, total: files.length });
     $zenodoRoutingHint.text(message).show();
   }
 
