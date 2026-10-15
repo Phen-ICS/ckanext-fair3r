@@ -297,6 +297,15 @@ main.hero-no-gradient{ background-image: white !important; }
   cursor: pointer;
 }
 
+/* CKAN's own main.css adds `label:after { content: ":"; }` to every
+   <label> (explicitly suppressed there only for .radio/.checkbox) - this
+   label isn't one of those, so it got CKAN's own colon on top of the one
+   already in the text set by JS, making it look doubled. Same
+   suppression CKAN itself already does for .radio/.checkbox. */
+.fair3r-zenodo-toggle::after {
+  content: "";
+}
+
 .fair3r-zenodo-toggle-brand {
   display: inline-flex;
   align-items: center;

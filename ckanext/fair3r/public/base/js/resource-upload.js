@@ -201,7 +201,9 @@ document.addEventListener("DOMContentLoaded", function () {
         : translate("Store this file on this catalogue instead of Zenodo");
       // No space before the colon - a space there lets the browser wrap
       // the line right before it, leaving a lone ":" dangling on its own
-      // row when the container is narrow.
+      // row when the container is narrow. Safe to add our own now that
+      // CKAN's own label:after{content:":"} is suppressed for this
+      // label in fair3r.css - it used to double up with this one.
       $zenodoToggleText.text(baseText + ":");
     };
     updateZenodoToggleState();
