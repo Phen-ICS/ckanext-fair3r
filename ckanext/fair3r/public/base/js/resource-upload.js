@@ -199,7 +199,10 @@ document.addEventListener("DOMContentLoaded", function () {
       var baseText = on
         ? translate("Store this file on Zenodo instead of this catalogue")
         : translate("Store this file on this catalogue instead of Zenodo");
-      $zenodoToggleText.text(baseText + " :");
+      // No space before the colon - a space there lets the browser wrap
+      // the line right before it, leaving a lone ":" dangling on its own
+      // row when the container is narrow.
+      $zenodoToggleText.text(baseText + ":");
     };
     updateZenodoToggleState();
     $forceZenodoCheckbox.find("input").on("change", updateZenodoToggleState);
