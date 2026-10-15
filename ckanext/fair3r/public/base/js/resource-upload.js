@@ -186,13 +186,17 @@ document.addEventListener("DOMContentLoaded", function () {
         '<span class="fair3r-zenodo-toggle-text"></span>' +
       '</label>'
     ).insertAfter($("#field-resource-upload"));
-    $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-text").text(
-      translate("Store this file on Zenodo instead of this catalogue")
-    );
     var $zenodoToggleState = $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-state");
+    var $zenodoToggleText = $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-text");
     var updateZenodoToggleState = function () {
       var on = $forceZenodoCheckbox.find("input").is(":checked");
       $zenodoToggleState.text(on ? translate("On") : translate("Off"));
+      // Describes what will actually happen in the current state, not a
+      // static "what turning this on does" sentence - so it stays
+      // correct and useful even without looking at the switch itself.
+      $zenodoToggleText.text(on
+        ? translate("Store this file on Zenodo instead of this catalogue")
+        : translate("Store this file on this catalogue instead of Zenodo"));
     };
     updateZenodoToggleState();
     $forceZenodoCheckbox.find("input").on("change", updateZenodoToggleState);
