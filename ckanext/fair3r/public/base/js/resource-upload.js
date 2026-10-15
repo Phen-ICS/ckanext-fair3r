@@ -188,15 +188,34 @@ document.addEventListener("DOMContentLoaded", function () {
     ).insertAfter($("#field-resource-upload"));
     var $zenodoToggleState = $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-state");
     var $zenodoToggleText = $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-text");
+    // Said once, up front, rather than only after a file is picked (that's
+    // what the separate, dynamic $zenodoRoutingHint below is for) - so
+    // "this is off" doesn't read as "this file will definitely stay here"
+    // when it's actually a large/unreadable file that auto-routes anyway.
+    // xloader_formats mixes file extensions and MIME types (e.g. "csv"
+    // and "application/csv" for the same real-world format) - the MIME
+    // variants are redundant to show here (shouldRouteToZenodo still
+    // checks both), so only the extension-looking entries are listed.
+    var readableExtensions = zenodoConfig.xloader_formats.filter(function (f) {
+      return f.indexOf("/") === -1;
+    });
+    var autoRoutingNote = translate(
+      "files over %(size)s MB or not a format this catalogue can read as a table (%(formats)s) go to Zenodo automatically either way",
+      {
+        size: Math.round(zenodoConfig.max_resource_size_bytes / (1024 * 1024)),
+        formats: readableExtensions.join(", ")
+      }
+    );
     var updateZenodoToggleState = function () {
       var on = $forceZenodoCheckbox.find("input").is(":checked");
       $zenodoToggleState.text(on ? translate("On") : translate("Off"));
       // Describes what will actually happen in the current state, not a
       // static "what turning this on does" sentence - so it stays
       // correct and useful even without looking at the switch itself.
-      $zenodoToggleText.text(on
+      var baseText = on
         ? translate("Store this file on Zenodo instead of this catalogue")
-        : translate("Store this file on this catalogue instead of Zenodo"));
+        : translate("Store this file on this catalogue instead of Zenodo");
+      $zenodoToggleText.text(baseText + ": " + autoRoutingNote);
     };
     updateZenodoToggleState();
     $forceZenodoCheckbox.find("input").on("change", updateZenodoToggleState);

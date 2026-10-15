@@ -362,6 +362,7 @@ main.hero-no-gradient{ background-image: white !important; }
 }
 
 .fair3r-zenodo-toggle-text {
+  flex-basis: 100%;
   font-size: 12px;
   font-weight: normal;
   color: var(--fair3r-color-muted);
