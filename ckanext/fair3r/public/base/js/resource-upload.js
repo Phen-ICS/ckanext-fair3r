@@ -379,16 +379,13 @@ document.addEventListener("DOMContentLoaded", function () {
       $zenodoRoutingHint.text(genericZenodoExplanation(forced)).show();
       return;
     }
-    // Same real, configured threshold genericZenodoExplanation already
-    // computes (ckanext.zenodo.max_resource_size_bytes, 20 MB today) -
-    // "too large" on its own didn't say large compared to what, and a
-    // hardcoded number here would silently drift from that config.
-    var size = zenodoConfig ? Math.round(zenodoConfig.max_resource_size_bytes / (1024 * 1024)) : null;
+    // No reason clause here, unlike genericZenodoExplanation above -
+    // that one explains *when* a file would route to Zenodo before any
+    // file is picked; once one actually is (this branch), it's going
+    // there regardless of which reason applied, so the reason adds
+    // nothing a user needs to act on.
     var message = files.length === 1
-      ? translate(
-          "This file will be stored on Zenodo, not in this catalogue (it's over %(size)s MB, or in a format the data viewer can't read).",
-          { size: size }
-        )
+      ? translate('This file will be stored on Zenodo, not in this catalogue.')
       : translate("%(count)d of %(total)d file(s) will be stored on Zenodo, not in this catalogue.", { count: toZenodo, total: files.length });
     $zenodoRoutingHint.text(message).show();
   }
