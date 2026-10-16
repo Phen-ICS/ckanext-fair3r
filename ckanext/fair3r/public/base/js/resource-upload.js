@@ -227,7 +227,7 @@ document.addEventListener("DOMContentLoaded", function () {
     refreshZenodoCapacity();
   }
 
-  // ----- Live "how much room is left on the server" capacity badge -----
+  // ----- Live "how big a file could actually go through right now" badge -----
   //
   // Advisory only, never authoritative: disk space can change between
   // this call and the user's actual upload (someone else's upload can
@@ -237,6 +237,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // error if it no longer fits). This is purely so the user isn't
   // surprised by that rejection after already waiting through most of a
   // multi-GB upload.
+  //
+  // The number itself already comes capped by max_file_size_bytes from
+  // the server (GET /zenodo/upload-capacity) - raw disk headroom alone
+  // would otherwise advertise far more than this plugin will ever
+  // actually accept (e.g. hundreds of GB free on a dev machine, when
+  // the plugin itself caps any single file well below that regardless).
+  // So the color below reads as a fraction *of that cap*, not of disk
+  // space in isolation: close to the cap (disk isn't the bottleneck) is
+  // green, well under it (disk pressure is actually biting) is red.
 
   function formatGigabytes(bytes) {
     return (bytes / (1024 * 1024 * 1024)).toFixed(1);
@@ -258,17 +267,18 @@ document.addEventListener("DOMContentLoaded", function () {
     var maxFile = zenodoConfig && zenodoConfig.max_file_size_bytes;
     var level = "green";
     if (maxFile) {
-      if (availableBytes < maxFile) {
-        // Less room than a single allowed file could need - the next
+      var ratio = availableBytes / maxFile;
+      if (ratio < 0.3) {
+        // Disk pressure has cut deep into the per-file cap - the next
         // large upload may well be rejected outright.
         level = "red";
-      } else if (availableBytes < maxFile * 2) {
+      } else if (ratio < 0.9) {
         level = "orange";
       }
     }
     $zenodoCapacity.addClass("fair3r-zenodo-capacity-" + level);
     $zenodoCapacity.text(
-      translate("%(size)s GB free on the server right now", { size: formatGigabytes(availableBytes) })
+      translate("up to %(size)s GB can be uploaded right now", { size: formatGigabytes(availableBytes) })
     );
   }
 
