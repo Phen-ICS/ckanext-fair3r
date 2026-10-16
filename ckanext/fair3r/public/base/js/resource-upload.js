@@ -379,8 +379,16 @@ document.addEventListener("DOMContentLoaded", function () {
       $zenodoRoutingHint.text(genericZenodoExplanation(forced)).show();
       return;
     }
+    // Same real, configured threshold genericZenodoExplanation already
+    // computes (ckanext.zenodo.max_resource_size_bytes, 20 MB today) -
+    // "too large" on its own didn't say large compared to what, and a
+    // hardcoded number here would silently drift from that config.
+    var size = zenodoConfig ? Math.round(zenodoConfig.max_resource_size_bytes / (1024 * 1024)) : null;
     var message = files.length === 1
-      ? translate("This file will be stored on Zenodo, not in this catalogue (too large, or in a format the data viewer can't read).")
+      ? translate(
+          "This file will be stored on Zenodo, not in this catalogue (it's over %(size)s MB, or in a format the data viewer can't read).",
+          { size: size }
+        )
       : translate("%(count)d of %(total)d file(s) will be stored on Zenodo, not in this catalogue.", { count: toZenodo, total: files.length });
     $zenodoRoutingHint.text(message).show();
   }
