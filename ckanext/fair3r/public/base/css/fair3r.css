@@ -377,6 +377,35 @@ main.hero-no-gradient{ background-image: white !important; }
   color: var(--fair3r-color-muted);
 }
 
+/* Live "how much room is left on the server" badge - shares the
+   toggle's first flex row with the brand/switch/state (the toggle text
+   below always wraps to its own full-width row regardless), pushed to
+   the far right of that row by margin-left:auto so it reads as
+   attached to, but distinct from, the toggle itself. See
+   refreshZenodoCapacity() in resource-upload.js. */
+.fair3r-zenodo-capacity {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #888;
+}
+
+/* Same red/orange/green reading as ckanext-citations' completeness bar
+   (citations-bar-red/orange/green) - one shared "how worried should I
+   be" color language across the two extensions. */
+.fair3r-zenodo-capacity-red {
+  color: #d9534f;
+}
+
+.fair3r-zenodo-capacity-orange {
+  color: #b8860b;
+}
+
+.fair3r-zenodo-capacity-green {
+  color: #3c8a3c;
+}
+
 /* Live feedback on where the selected file(s) will actually end up -
    shown under the toggle the moment a file is picked, auto-routed or
    not (see updateZenodoRoutingHint in resource-upload.js). */

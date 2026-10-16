@@ -171,6 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // noticing its current state.
   var $forceZenodoCheckbox = null;
   var $zenodoRoutingHint = null;
+  var $zenodoCapacity = null;
 
   if (zenodoConfig && $("#field-resource-upload").length) {
     $forceZenodoCheckbox = $(
@@ -183,11 +184,20 @@ document.addEventListener("DOMContentLoaded", function () {
           '<span class="fair3r-zenodo-toggle-switch-thumb"></span>' +
         '</span>' +
         '<span class="fair3r-zenodo-toggle-state" aria-hidden="true"></span>' +
+        // Placed on the same flex row as the brand/switch/state above
+        // (not the full-width text below, which always wraps to its own
+        // line) and pushed to the far right of that row by its own
+        // margin-left:auto (see fair3r.css) - the toggle is the one spot
+        // on this form already dedicated to Zenodo, so a glance to its
+        // right is where this is most likely to actually get read,
+        // right as the user is about to pick a file.
+        '<span class="fair3r-zenodo-capacity" aria-live="polite"></span>' +
         '<span class="fair3r-zenodo-toggle-text"></span>' +
       '</label>'
     ).insertAfter($("#field-resource-upload"));
     var $zenodoToggleState = $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-state");
     var $zenodoToggleText = $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-text");
+    $zenodoCapacity = $forceZenodoCheckbox.find(".fair3r-zenodo-capacity");
     var updateZenodoToggleState = function () {
       var on = $forceZenodoCheckbox.find("input").is(":checked");
       $zenodoToggleState.text(on ? translate("On") : translate("Off"));
@@ -210,10 +220,74 @@ document.addEventListener("DOMContentLoaded", function () {
     $forceZenodoCheckbox.find("input").on("change", updateZenodoToggleState);
     $zenodoRoutingHint = $("<div>", { "class": "fair3r-zenodo-routing-hint" })
       .insertAfter($forceZenodoCheckbox);
-    // Shown right away, before any file is even picked - genericZenodoExplanation
-    // and updateZenodoRoutingHint are function declarations further down,
-    // hoisted, so calling them here is safe.
+    // Shown right away, before any file is even picked - genericZenodoExplanation,
+    // updateZenodoRoutingHint and refreshZenodoCapacity are function
+    // declarations further down, hoisted, so calling them here is safe.
     updateZenodoRoutingHint(null);
+    refreshZenodoCapacity();
+  }
+
+  // ----- Live "how much room is left on the server" capacity badge -----
+  //
+  // Advisory only, never authoritative: disk space can change between
+  // this call and the user's actual upload (someone else's upload can
+  // start or finish in between), so the real gate stays server-side
+  // (disk_guard.reserve() in ckanext-zenodo's /zenodo/upload/ blueprint,
+  // which re-checks for real at accept time and rejects with a clear
+  // error if it no longer fits). This is purely so the user isn't
+  // surprised by that rejection after already waiting through most of a
+  // multi-GB upload.
+
+  function formatGigabytes(bytes) {
+    return (bytes / (1024 * 1024 * 1024)).toFixed(1);
+  }
+
+  function updateZenodoCapacityDisplay(availableBytes) {
+    if (!$zenodoCapacity || !$zenodoCapacity.length) {
+      return;
+    }
+    $zenodoCapacity.removeClass(
+      "fair3r-zenodo-capacity-red fair3r-zenodo-capacity-orange fair3r-zenodo-capacity-green"
+    );
+    if (availableBytes === null || availableBytes === undefined) {
+      // Couldn't fetch it (network hiccup, session expired) - say
+      // nothing rather than show a stale or made-up number.
+      $zenodoCapacity.text("");
+      return;
+    }
+    var maxFile = zenodoConfig && zenodoConfig.max_file_size_bytes;
+    var level = "green";
+    if (maxFile) {
+      if (availableBytes < maxFile) {
+        // Less room than a single allowed file could need - the next
+        // large upload may well be rejected outright.
+        level = "red";
+      } else if (availableBytes < maxFile * 2) {
+        level = "orange";
+      }
+    }
+    $zenodoCapacity.addClass("fair3r-zenodo-capacity-" + level);
+    $zenodoCapacity.text(
+      translate("%(size)s GB free on the server right now", { size: formatGigabytes(availableBytes) })
+    );
+  }
+
+  function refreshZenodoCapacity() {
+    if (!$zenodoCapacity || !$zenodoCapacity.length) {
+      return;
+    }
+    fetch("/zenodo/upload-capacity", { credentials: "same-origin" })
+      .then(function (response) {
+        return response.ok ? response.json() : null;
+      })
+      .then(function (payload) {
+        updateZenodoCapacityDisplay(
+          payload && payload.success ? payload.result.available_bytes : null
+        );
+      })
+      .catch(function () {
+        updateZenodoCapacityDisplay(null);
+      });
   }
 
   // The background explanation of *why* a file might end up on Zenodo
@@ -318,6 +392,9 @@ document.addEventListener("DOMContentLoaded", function () {
     var isBulk = files.length > 1;
 
     updateZenodoRoutingHint(files);
+    // Freshest read right as the user is about to decide, not whatever
+    // was available back when the page first loaded.
+    refreshZenodoCapacity();
 
     if ($formatInput.length) {
       $formatInput.prop("disabled", isBulk);
