@@ -282,12 +282,14 @@ main.hero-no-gradient{ background-image: white !important; }
    A first version (a pill that only changed background colour, with a
    single "Z" letter as its only branding) tested confusing - no clear
    on/off affordance, "Z" alone didn't read as "Zenodo". Rebuilt as a
-   real switch (track+thumb) plus a persistent icon+"Zenodo" label that
-   never changes. The real <input type="checkbox"> stays in the DOM for
+   real switch (track+thumb) plus an icon+"Zenodo" label that stays in
+   place but dims to grey while off, same reading as the switch/state
+   themselves. The real <input type="checkbox"> stays in the DOM for
    form semantics/keyboard accessibility but is visually hidden; its
-   checked state drives the switch/state/thumb via the general sibling
-   selector (~, not + - .fair3r-zenodo-toggle-state sits two siblings
-   after the input, not immediately after it). */
+   checked state drives the switch/state/thumb/brand via the general
+   sibling selector (~ - only matches *later* siblings, which is why
+   the input itself is the markup's very first child, before all of
+   them, rather than sitting between the brand and the switch). */
 .fair3r-zenodo-toggle {
   display: inline-flex;
   align-items: center;
@@ -312,7 +314,12 @@ main.hero-no-gradient{ background-image: white !important; }
   gap: 5px;
   font-weight: 700;
   font-size: 13px;
-  color: #1282b2;
+  /* Grey (not the brand blue) while off - same "off" reading
+     .fair3r-zenodo-toggle-state's own #888 already uses, so the icon
+     and label visibly dim together with the rest of the toggle
+     instead of staying permanently branded regardless of state. */
+  color: #888;
+  transition: color .15s;
 }
 
 .fair3r-zenodo-toggle-input {
@@ -337,7 +344,10 @@ main.hero-no-gradient{ background-image: white !important; }
 .fair3r-zenodo-toggle-switch-thumb {
   position: absolute;
   top: 2px;
-  left: 2px;
+  /* Resting on the *right* while off (34px track - 14px thumb - 2px
+     margin either side = 18px) - slides back to the left (see the
+     :checked rule below) once turned on. */
+  left: 18px;
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -351,7 +361,11 @@ main.hero-no-gradient{ background-image: white !important; }
 }
 
 .fair3r-zenodo-toggle-input:checked ~ .fair3r-zenodo-toggle-switch .fair3r-zenodo-toggle-switch-thumb {
-  transform: translateX(16px);
+  transform: translateX(-16px);
+}
+
+.fair3r-zenodo-toggle-input:checked ~ .fair3r-zenodo-toggle-brand {
+  color: #1282b2;
 }
 
 .fair3r-zenodo-toggle-input:focus-visible ~ .fair3r-zenodo-toggle-switch {

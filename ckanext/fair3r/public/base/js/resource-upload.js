@@ -176,10 +176,18 @@ document.addEventListener("DOMContentLoaded", function () {
   if (zenodoConfig && $("#field-resource-upload").length) {
     $forceZenodoCheckbox = $(
       '<label class="fair3r-zenodo-toggle" for="field-force-zenodo">' +
+        // The (visually hidden) <input> comes first, before the brand
+        // span - not just before the switch - so CSS's general sibling
+        // selector (~, which only ever matches *later* siblings) can
+        // also grey out the brand icon+label when off, same as it
+        // already does for the switch/state below (see fair3r.css).
+        // Its own position:absolute already takes it out of the
+        // visible flex flow, so this reorder has no layout effect of
+        // its own.
+        '<input type="checkbox" id="field-force-zenodo" class="fair3r-zenodo-toggle-input">' +
         '<span class="fair3r-zenodo-toggle-brand">' +
           '<i class="fa fa-archive" aria-hidden="true"></i> Zenodo' +
         '</span>' +
-        '<input type="checkbox" id="field-force-zenodo" class="fair3r-zenodo-toggle-input">' +
         '<span class="fair3r-zenodo-toggle-switch" aria-hidden="true">' +
           '<span class="fair3r-zenodo-toggle-switch-thumb"></span>' +
         '</span>' +
