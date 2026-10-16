@@ -309,20 +309,17 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // The background explanation of *why* a file might end up on Zenodo
-  // regardless of the toggle - shown by default (before any file is
+  // even with the toggle off - shown by default (before any file is
   // picked, and whenever nothing currently selected actually routes
-  // there), computed from the real config rather than hardcoded.
-  function genericZenodoExplanation(forced) {
+  // there), computed from the real config rather than hardcoded. Only
+  // ever called when not forced - see updateZenodoRoutingHint below for
+  // why there's no "forced" version of this to show instead.
+  function genericZenodoExplanation() {
     var size = zenodoConfig ? Math.round(zenodoConfig.max_resource_size_bytes / (1024 * 1024)) : null;
-    return forced
-      ? translate(
-          "This file will be stored on Zenodo, not in this catalogue (it's over %(size)s MB, or in a format the data viewer can't read).",
-          { size: size }
-        )
-      : translate(
-          "Files larger than %(size)s MB, or in a format the data viewer can't read, go to Zenodo automatically either way.",
-          { size: size }
-        );
+    return translate(
+      "Files larger than %(size)s MB, or in a format the data viewer can't read, go to Zenodo automatically either way.",
+      { size: size }
+    );
   }
 
   // Pure decision, no DOM/network - file.size/.name/.type are already
@@ -362,8 +359,16 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
     var forced = !!($forceZenodoCheckbox && $forceZenodoCheckbox.find("input").is(":checked"));
+    if (forced) {
+      // The toggle's own label (updateZenodoToggleState, right above)
+      // already says, unambiguously, that *every* file goes to Zenodo
+      // while it's on - showing this hint too just repeated the same
+      // sentence a second time right underneath it.
+      $zenodoRoutingHint.hide();
+      return;
+    }
     if (!files || !files.length) {
-      $zenodoRoutingHint.text(genericZenodoExplanation(forced)).show();
+      $zenodoRoutingHint.text(genericZenodoExplanation()).show();
       return;
     }
     var toZenodo = 0;
@@ -376,7 +381,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Nothing currently selected actually routes to Zenodo - the
       // background explanation of when it would is still useful here,
       // rather than showing nothing at all.
-      $zenodoRoutingHint.text(genericZenodoExplanation(forced)).show();
+      $zenodoRoutingHint.text(genericZenodoExplanation()).show();
       return;
     }
     // No reason clause here, unlike genericZenodoExplanation above -
