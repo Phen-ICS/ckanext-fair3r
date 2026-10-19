@@ -1798,6 +1798,12 @@ msgstr "Le dataset n'a pas pu être publié et reste privé : {}"
 msgid "Not authorized to publish this dataset"
 msgstr "Non autorisé à publier ce dataset"
 
+msgid "Published"
+msgstr "Publié"
+
+msgid "Published - DOI {doi}"
+msgstr "Publié - DOI {doi}"
+
 #~ msgid "New dataset"
 #~ msgstr "jeu de données"
 

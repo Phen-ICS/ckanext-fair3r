@@ -12,6 +12,21 @@
        data-module-confirm-text="{{ _('Publish') }}">
       <i class="fa fa-globe"></i> {{ _('Publish') }}
     </a>
+  {% elif not pkg.private and pkg.state == 'active' and h.check_access('package_update', {'id': pkg.id }) %}
+    {# Takes the Publish button's place once public, so editors don't
+       go looking for it. Links to the DOI once DataCite minted it
+       (ckanext-doi's doi/doi_status fields). Making the dataset private
+       again stays possible via Manage -> Visibility. #}
+    {% if pkg.doi and pkg.doi_status %}
+      <a class="btn btn-outline-success" href="https://doi.org/{{ pkg.doi }}" target="_blank" rel="noopener"
+         title="{{ _('Published - DOI {doi}').format(doi=pkg.doi) }}">
+        <i class="fa fa-check"></i> {{ _('Published') }}
+      </a>
+    {% else %}
+      <span class="btn btn-outline-success disabled">
+        <i class="fa fa-check"></i> {{ _('Published') }}
+      </span>
+    {% endif %}
   {% endif %}
   {% if h.check_access('package_update', {'id': pkg.id }) %}
     <a class="btn btn-default" href="{{ h.url_for(pkg.type ~ '_resource.new', id=pkg.name) }}">

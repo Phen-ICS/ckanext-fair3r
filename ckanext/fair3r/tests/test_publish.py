@@ -63,3 +63,34 @@ class TestPublish:
         assert response.status_code in (302, 303)
         model.Session.expire_all()
         assert model.Package.get(dataset["id"]).private is True
+
+
+@pytest.mark.ckan_config("ckan.plugins", "fair3r")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+class TestPublishButton:
+    def _page(self, app, dataset, token):
+        return app.get(
+            toolkit.url_for("dataset.read", id=dataset["name"]),
+            headers={"Authorization": token},
+        ).body
+
+    def test_private_dataset_shows_the_publish_button(self, app):
+        user = factories.SysadminWithToken()
+        dataset = factories.Dataset(
+            owner_org=factories.Organization()["id"], private=True
+        )
+
+        body = self._page(app, dataset, user["token"])
+
+        assert f"/dataset/{dataset['name']}/publish" in body
+
+    def test_public_dataset_shows_the_published_badge_instead(self, app):
+        user = factories.SysadminWithToken()
+        dataset = factories.Dataset(
+            owner_org=factories.Organization()["id"], private=False
+        )
+
+        body = self._page(app, dataset, user["token"])
+
+        assert f"/dataset/{dataset['name']}/publish" not in body
+        assert "Published" in body
