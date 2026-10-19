@@ -395,9 +395,95 @@ document.addEventListener("DOMContentLoaded", function () {
     $zenodoRoutingHint.text(message).show();
   }
 
+  // ----- "A file with this name is already here" warning -----
+  //
+  // CKAN itself allows several resources with the same name (only the
+  // id is unique), so this only warns, never blocks. What re-uploading
+  // actually does depends on where the file goes: a Zenodo file sent to
+  // Zenodo again replaces it there (same name = same key in the
+  // deposition's bucket - confirmed on the sandbox), anything else adds
+  // a second copy next to the existing one.
+
+  var $duplicateHint = null;
+  var existingFilesPromise = null;
+  var duplicateCheckSeq = 0;
+
+  function fileNameFromUrl(url) {
+    var path = (url || "").split(/[?#]/)[0];
+    try {
+      return decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
+    } catch (e) {
+      return "";
+    }
+  }
+
+  // name -> true if a resource of that name is a Zenodo file. Fetched
+  // once per page: the page is reloaded after every upload anyway.
+  function existingFiles(packageName) {
+    if (!existingFilesPromise) {
+      existingFilesPromise = fetch(
+        "/api/3/action/package_show?id=" + encodeURIComponent(packageName),
+        { credentials: "same-origin" }
+      )
+        .then(function (response) {
+          return response.ok ? response.json() : null;
+        })
+        .then(function (payload) {
+          var byName = Object.create(null);
+          var resources = payload && payload.success ? payload.result.resources || [] : [];
+          resources.forEach(function (res) {
+            var onZenodo = /zenodo\.org\/records\//.test(res.url || "");
+            var uploadedName = res.url_type === "upload" ? fileNameFromUrl(res.url) : null;
+            [res.name, uploadedName].forEach(function (name) {
+              if (name) {
+                byName[name] = byName[name] === true || onZenodo;
+              }
+            });
+          });
+          return byName;
+        })
+        .catch(function () {
+          return Object.create(null);
+        });
+    }
+    return existingFilesPromise;
+  }
+
+  function updateDuplicateHint(files) {
+    var packageName = packageNameFromAction();
+    if (!$duplicateHint || !packageName) {
+      return;
+    }
+    var seq = ++duplicateCheckSeq;
+    if (!files || !files.length) {
+      $duplicateHint.empty().hide();
+      return;
+    }
+    var forced = !!($forceZenodoCheckbox && $forceZenodoCheckbox.find("input").is(":checked"));
+    existingFiles(packageName).then(function (byName) {
+      if (seq !== duplicateCheckSeq) {
+        return; // a newer selection already replaced this one
+      }
+      $duplicateHint.empty();
+      Array.prototype.forEach.call(files, function (file) {
+        if (!(file.name in byName)) {
+          return;
+        }
+        var replaces = byName[file.name] && shouldRouteToZenodo(file, zenodoConfig, forced);
+        var message = replaces
+          ? translate("%(name)s is already on Zenodo in this dataset: uploading it again replaces it.", { name: file.name })
+          : translate("%(name)s already exists in this dataset: uploading it again adds a second copy next to it.", { name: file.name });
+        $duplicateHint.append($("<div>").text(message));
+      });
+      $duplicateHint.toggle($duplicateHint.children().length > 0);
+    });
+  }
+
   if ($forceZenodoCheckbox) {
     $forceZenodoCheckbox.find("input").on("change", function () {
-      updateZenodoRoutingHint($("#field-resource-upload")[0].files);
+      var files = $("#field-resource-upload")[0].files;
+      updateZenodoRoutingHint(files);
+      updateDuplicateHint(files);
     });
   }
 
@@ -443,6 +529,12 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       $bulkHint.hide();
     }
+
+    if (!$duplicateHint) {
+      $duplicateHint = $("<div>", { "class": "fair3r-duplicate-upload-hint", role: "status" })
+        .insertAfter($bulkHint);
+    }
+    updateDuplicateHint(files);
   });
 
   // ----- Submit handling -----

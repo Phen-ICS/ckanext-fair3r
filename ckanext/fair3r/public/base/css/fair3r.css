@@ -277,6 +277,15 @@ main.hero-no-gradient{ background-image: white !important; }
   color: var(--fair3r-color-muted);
 }
 
+/* Same-name warning under the file input - advisory only, the upload
+   still goes through (see public/base/js/resource-upload.js). */
+.fair3r-duplicate-upload-hint {
+  display: none;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #8a5300;
+}
+
 /* "Always store on Zenodo instead" toggle - only present when
    ckanext-zenodo is installed (see public/base/js/resource-upload.js).
    A first version (a pill that only changed background colour, with a
