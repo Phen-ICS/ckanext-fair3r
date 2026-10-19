@@ -277,17 +277,49 @@ main.hero-no-gradient{ background-image: white !important; }
   color: var(--fair3r-color-muted);
 }
 
-/* "Always store on Zenodo instead" toggle - a branded pill rather than a
-   plain checkbox, so it's actually noticeable - only present when
+/* "Always store on Zenodo instead" toggle - only present when
    ckanext-zenodo is installed (see public/base/js/resource-upload.js).
-   The real <input type="checkbox"> stays in the DOM for form semantics/
-   keyboard accessibility but is visually hidden; its checked state
-   drives .fair3r-zenodo-toggle-pill's appearance via the sibling
-   selector below. */
+   A first version (a pill that only changed background colour, with a
+   single "Z" letter as its only branding) tested confusing - no clear
+   on/off affordance, "Z" alone didn't read as "Zenodo". Rebuilt as a
+   real switch (track+thumb) plus an icon+"Zenodo" label that stays in
+   place but dims to grey while off, same reading as the switch/state
+   themselves. The real <input type="checkbox"> stays in the DOM for
+   form semantics/keyboard accessibility but is visually hidden; its
+   checked state drives the switch/state/thumb/brand via the general
+   sibling selector (~ - only matches *later* siblings, which is why
+   the input itself is the markup's very first child, before all of
+   them, rather than sitting between the brand and the switch). */
 .fair3r-zenodo-toggle {
   display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 8px;
   cursor: pointer;
+}
+
+/* CKAN's own main.css adds `label:after { content: ":"; }` to every
+   <label> (explicitly suppressed there only for .radio/.checkbox) - this
+   label isn't one of those, so it got CKAN's own colon on top of the one
+   already in the text set by JS, making it look doubled. Same
+   suppression CKAN itself already does for .radio/.checkbox. */
+.fair3r-zenodo-toggle::after {
+  content: "";
+}
+
+.fair3r-zenodo-toggle-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
+  font-size: 13px;
+  /* Grey (not the brand blue) while off - same "off" reading
+     .fair3r-zenodo-toggle-state's own #888 already uses, so the icon
+     and label visibly dim together with the rest of the toggle
+     instead of staying permanently branded regardless of state. */
+  color: #888;
+  transition: color .15s;
 }
 
 .fair3r-zenodo-toggle-input {
@@ -298,55 +330,94 @@ main.hero-no-gradient{ background-image: white !important; }
   pointer-events: none;
 }
 
-.fair3r-zenodo-toggle-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px 5px 6px;
-  border: 1px solid #1282b2;
-  border-radius: 999px;
-  background: #fff;
-  color: #1282b2;
-  font-size: 12px;
-  font-weight: 600;
-  transition: background-color .12s, color .12s;
-}
-
-.fair3r-zenodo-toggle-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
+.fair3r-zenodo-toggle-switch {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-block;
+  width: 34px;
   height: 18px;
+  border-radius: 999px;
+  background: #bbb;
+  transition: background-color .15s;
+}
+
+.fair3r-zenodo-toggle-switch-thumb {
+  position: absolute;
+  top: 2px;
+  /* Resting on the *right* while off (34px track - 14px thumb - 2px
+     margin either side = 18px) - slides back to the left (see the
+     :checked rule below) once turned on. */
+  left: 18px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: #1282b2;
-  color: #fff;
-  font-size: 11px;
-  font-weight: bold;
-}
-
-.fair3r-zenodo-toggle-check {
-  visibility: hidden;
-  font-size: 12px;
-}
-
-.fair3r-zenodo-toggle-input:checked + .fair3r-zenodo-toggle-pill {
-  background: #1282b2;
-  color: #fff;
-}
-
-.fair3r-zenodo-toggle-input:checked + .fair3r-zenodo-toggle-pill .fair3r-zenodo-toggle-badge {
   background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+  transition: transform .15s;
+}
+
+.fair3r-zenodo-toggle-input:checked ~ .fair3r-zenodo-toggle-switch {
+  background: #1282b2;
+}
+
+.fair3r-zenodo-toggle-input:checked ~ .fair3r-zenodo-toggle-switch .fair3r-zenodo-toggle-switch-thumb {
+  transform: translateX(-16px);
+}
+
+.fair3r-zenodo-toggle-input:checked ~ .fair3r-zenodo-toggle-brand {
   color: #1282b2;
 }
 
-.fair3r-zenodo-toggle-input:checked + .fair3r-zenodo-toggle-pill .fair3r-zenodo-toggle-check {
-  visibility: visible;
-}
-
-.fair3r-zenodo-toggle-input:focus-visible + .fair3r-zenodo-toggle-pill {
+.fair3r-zenodo-toggle-input:focus-visible ~ .fair3r-zenodo-toggle-switch {
   outline: 2px solid #1282b2;
   outline-offset: 2px;
+}
+
+.fair3r-zenodo-toggle-state {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.fair3r-zenodo-toggle-input:checked ~ .fair3r-zenodo-toggle-state {
+  color: #1282b2;
+}
+
+.fair3r-zenodo-toggle-text {
+  flex-basis: 100%;
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--fair3r-color-muted);
+}
+
+/* Live "how much room is left on the server" badge - shares the
+   toggle's first flex row with the brand/switch/state (the toggle text
+   below always wraps to its own full-width row regardless), pushed to
+   the far right of that row by margin-left:auto so it reads as
+   attached to, but distinct from, the toggle itself. See
+   refreshZenodoCapacity() in resource-upload.js. */
+.fair3r-zenodo-capacity {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #888;
+}
+
+/* Same red/orange/green reading as ckanext-citations' completeness bar
+   (citations-bar-red/orange/green) - one shared "how worried should I
+   be" color language across the two extensions. */
+.fair3r-zenodo-capacity-red {
+  color: #d9534f;
+}
+
+.fair3r-zenodo-capacity-orange {
+  color: #b8860b;
+}
+
+.fair3r-zenodo-capacity-green {
+  color: #3c8a3c;
 }
 
 /* Live feedback on where the selected file(s) will actually end up -

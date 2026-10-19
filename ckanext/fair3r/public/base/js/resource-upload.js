@@ -160,29 +160,166 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var zenodoConfig = zenodoRoutingConfig();
   // Kept as $forceZenodoCheckbox for the rest of this file (the submit
-  // loop below only ever reads its inner <input>'s checked state) - only
-  // its construction changed, from a plain small checkbox+label (easy to
-  // miss entirely) to a branded toggle pill with the Zenodo badge and a
-  // checkmark that actually shows when it's on.
+  // loop below only ever reads its inner <input>'s checked state) - the
+  // first version of this (a pill that only changed background colour,
+  // with a single "Z" letter as its only branding) tested confusing: no
+  // clear on/off affordance, and "Z" alone didn't read as "Zenodo" to
+  // anyone not already looking for it. Rebuilt as an actual switch (a
+  // sliding track+thumb - the one widget shape everyone already reads as
+  // on/off unambiguously) plus a persistent icon+"Zenodo" label that
+  // never changes, so what the control is *for* doesn't depend on
+  // noticing its current state.
   var $forceZenodoCheckbox = null;
   var $zenodoRoutingHint = null;
+  var $zenodoCapacity = null;
 
   if (zenodoConfig && $("#field-resource-upload").length) {
     $forceZenodoCheckbox = $(
       '<label class="fair3r-zenodo-toggle" for="field-force-zenodo">' +
+        // The (visually hidden) <input> comes first, before the brand
+        // span - not just before the switch - so CSS's general sibling
+        // selector (~, which only ever matches *later* siblings) can
+        // also grey out the brand icon+label when off, same as it
+        // already does for the switch/state below (see fair3r.css).
+        // Its own position:absolute already takes it out of the
+        // visible flex flow, so this reorder has no layout effect of
+        // its own.
         '<input type="checkbox" id="field-force-zenodo" class="fair3r-zenodo-toggle-input">' +
-        '<span class="fair3r-zenodo-toggle-pill">' +
-          '<span class="fair3r-zenodo-toggle-badge" aria-hidden="true">Z</span>' +
-          '<span class="fair3r-zenodo-toggle-text"></span>' +
-          '<span class="fair3r-zenodo-toggle-check" aria-hidden="true">&#10003;</span>' +
+        '<span class="fair3r-zenodo-toggle-brand">' +
+          '<i class="fa fa-archive" aria-hidden="true"></i> Zenodo' +
         '</span>' +
+        '<span class="fair3r-zenodo-toggle-switch" aria-hidden="true">' +
+          '<span class="fair3r-zenodo-toggle-switch-thumb"></span>' +
+        '</span>' +
+        '<span class="fair3r-zenodo-toggle-state" aria-hidden="true"></span>' +
+        // Placed on the same flex row as the brand/switch/state above
+        // (not the full-width text below, which always wraps to its own
+        // line) and pushed to the far right of that row by its own
+        // margin-left:auto (see fair3r.css) - the toggle is the one spot
+        // on this form already dedicated to Zenodo, so a glance to its
+        // right is where this is most likely to actually get read,
+        // right as the user is about to pick a file.
+        '<span class="fair3r-zenodo-capacity" aria-live="polite"></span>' +
+        '<span class="fair3r-zenodo-toggle-text"></span>' +
       '</label>'
     ).insertAfter($("#field-resource-upload"));
-    $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-text").text(
-      translate("Always store on Zenodo instead of this catalogue")
-    );
+    var $zenodoToggleState = $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-state");
+    var $zenodoToggleText = $forceZenodoCheckbox.find(".fair3r-zenodo-toggle-text");
+    $zenodoCapacity = $forceZenodoCheckbox.find(".fair3r-zenodo-capacity");
+    var updateZenodoToggleState = function () {
+      var on = $forceZenodoCheckbox.find("input").is(":checked");
+      $zenodoToggleState.text(on ? translate("On") : translate("Off"));
+      // Describes what will actually happen in the current state, not a
+      // static "what turning this on does" sentence - so it stays
+      // correct and useful even without looking at the switch itself.
+      // The *why* (size/format thresholds) is a separate line, always
+      // visible, below - see $zenodoRoutingHint/genericZenodoExplanation.
+      var baseText = on
+        ? translate("Store this file on Zenodo instead of this catalogue")
+        : translate("Store this file on this catalogue instead of Zenodo");
+      // No space before the colon - a space there lets the browser wrap
+      // the line right before it, leaving a lone ":" dangling on its own
+      // row when the container is narrow. Safe to add our own now that
+      // CKAN's own label:after{content:":"} is suppressed for this
+      // label in fair3r.css - it used to double up with this one.
+      $zenodoToggleText.text(baseText + ":");
+    };
+    updateZenodoToggleState();
+    $forceZenodoCheckbox.find("input").on("change", updateZenodoToggleState);
     $zenodoRoutingHint = $("<div>", { "class": "fair3r-zenodo-routing-hint" })
       .insertAfter($forceZenodoCheckbox);
+    // Shown right away, before any file is even picked - genericZenodoExplanation,
+    // updateZenodoRoutingHint and refreshZenodoCapacity are function
+    // declarations further down, hoisted, so calling them here is safe.
+    updateZenodoRoutingHint(null);
+    refreshZenodoCapacity();
+  }
+
+  // ----- Live "how big a file could actually go through right now" badge -----
+  //
+  // Advisory only, never authoritative: disk space can change between
+  // this call and the user's actual upload (someone else's upload can
+  // start or finish in between), so the real gate stays server-side
+  // (disk_guard.reserve() in ckanext-zenodo's /zenodo/upload/ blueprint,
+  // which re-checks for real at accept time and rejects with a clear
+  // error if it no longer fits). This is purely so the user isn't
+  // surprised by that rejection after already waiting through most of a
+  // multi-GB upload.
+  //
+  // The number itself already comes capped by max_file_size_bytes from
+  // the server (GET /zenodo/upload-capacity) - raw disk headroom alone
+  // would otherwise advertise far more than this plugin will ever
+  // actually accept (e.g. hundreds of GB free on a dev machine, when
+  // the plugin itself caps any single file well below that regardless).
+  // So the color below reads as a fraction *of that cap*, not of disk
+  // space in isolation: close to the cap (disk isn't the bottleneck) is
+  // green, well under it (disk pressure is actually biting) is red.
+
+  function formatGigabytes(bytes) {
+    return (bytes / (1024 * 1024 * 1024)).toFixed(1);
+  }
+
+  function updateZenodoCapacityDisplay(availableBytes) {
+    if (!$zenodoCapacity || !$zenodoCapacity.length) {
+      return;
+    }
+    $zenodoCapacity.removeClass(
+      "fair3r-zenodo-capacity-red fair3r-zenodo-capacity-orange fair3r-zenodo-capacity-green"
+    );
+    if (availableBytes === null || availableBytes === undefined) {
+      // Couldn't fetch it (network hiccup, session expired) - say
+      // nothing rather than show a stale or made-up number.
+      $zenodoCapacity.text("");
+      return;
+    }
+    var maxFile = zenodoConfig && zenodoConfig.max_file_size_bytes;
+    var level = "green";
+    if (maxFile) {
+      var ratio = availableBytes / maxFile;
+      if (ratio < 0.3) {
+        // Disk pressure has cut deep into the per-file cap - the next
+        // large upload may well be rejected outright.
+        level = "red";
+      } else if (ratio < 0.9) {
+        level = "orange";
+      }
+    }
+    $zenodoCapacity.addClass("fair3r-zenodo-capacity-" + level);
+    $zenodoCapacity.text(
+      translate("up to %(size)s GB can be uploaded right now", { size: formatGigabytes(availableBytes) })
+    );
+  }
+
+  function refreshZenodoCapacity() {
+    if (!$zenodoCapacity || !$zenodoCapacity.length) {
+      return;
+    }
+    fetch("/zenodo/upload-capacity", { credentials: "same-origin" })
+      .then(function (response) {
+        return response.ok ? response.json() : null;
+      })
+      .then(function (payload) {
+        updateZenodoCapacityDisplay(
+          payload && payload.success ? payload.result.available_bytes : null
+        );
+      })
+      .catch(function () {
+        updateZenodoCapacityDisplay(null);
+      });
+  }
+
+  // The background explanation of *why* a file might end up on Zenodo
+  // even with the toggle off - shown by default (before any file is
+  // picked, and whenever nothing currently selected actually routes
+  // there), computed from the real config rather than hardcoded. Only
+  // ever called when not forced - see updateZenodoRoutingHint below for
+  // why there's no "forced" version of this to show instead.
+  function genericZenodoExplanation() {
+    var size = zenodoConfig ? Math.round(zenodoConfig.max_resource_size_bytes / (1024 * 1024)) : null;
+    return translate(
+      "Files larger than %(size)s MB, or in a format the data viewer can't read, go to Zenodo automatically either way.",
+      { size: size }
+    );
   }
 
   // Pure decision, no DOM/network - file.size/.name/.type are already
@@ -221,11 +358,19 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!$zenodoRoutingHint) {
       return;
     }
-    if (!files || !files.length) {
+    var forced = !!($forceZenodoCheckbox && $forceZenodoCheckbox.find("input").is(":checked"));
+    if (forced) {
+      // The toggle's own label (updateZenodoToggleState, right above)
+      // already says, unambiguously, that *every* file goes to Zenodo
+      // while it's on - showing this hint too just repeated the same
+      // sentence a second time right underneath it.
       $zenodoRoutingHint.hide();
       return;
     }
-    var forced = !!($forceZenodoCheckbox && $forceZenodoCheckbox.find("input").is(":checked"));
+    if (!files || !files.length) {
+      $zenodoRoutingHint.text(genericZenodoExplanation()).show();
+      return;
+    }
     var toZenodo = 0;
     Array.prototype.forEach.call(files, function (file) {
       if (shouldRouteToZenodo(file, zenodoConfig, forced)) {
@@ -233,12 +378,20 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
     if (toZenodo === 0) {
-      $zenodoRoutingHint.hide();
+      // Nothing currently selected actually routes to Zenodo - the
+      // background explanation of when it would is still useful here,
+      // rather than showing nothing at all.
+      $zenodoRoutingHint.text(genericZenodoExplanation()).show();
       return;
     }
+    // No reason clause here, unlike genericZenodoExplanation above -
+    // that one explains *when* a file would route to Zenodo before any
+    // file is picked; once one actually is (this branch), it's going
+    // there regardless of which reason applied, so the reason adds
+    // nothing a user needs to act on.
     var message = files.length === 1
-      ? translate("📦 This file will be stored on Zenodo, not in this catalogue (too large, or not a format the data viewer can read).")
-      : translate("📦 %(count)d of %(total)d file(s) will be stored on Zenodo, not in this catalogue.", { count: toZenodo, total: files.length });
+      ? translate('This file will be stored on Zenodo, not in this catalogue.')
+      : translate("%(count)d of %(total)d file(s) will be stored on Zenodo, not in this catalogue.", { count: toZenodo, total: files.length });
     $zenodoRoutingHint.text(message).show();
   }
 
@@ -267,6 +420,9 @@ document.addEventListener("DOMContentLoaded", function () {
     var isBulk = files.length > 1;
 
     updateZenodoRoutingHint(files);
+    // Freshest read right as the user is about to decide, not whatever
+    // was available back when the page first loaded.
+    refreshZenodoCapacity();
 
     if ($formatInput.length) {
       $formatInput.prop("disabled", isBulk);
