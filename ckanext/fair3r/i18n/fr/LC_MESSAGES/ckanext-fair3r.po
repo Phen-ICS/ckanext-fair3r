@@ -1804,6 +1804,12 @@ msgstr "Publié"
 msgid "Published - DOI {doi}"
 msgstr "Publié - DOI {doi}"
 
+msgid "Catalogue files (.zip)"
+msgstr "Fichiers du catalogue (.zip)"
+
+msgid "Zenodo files (.zip)"
+msgstr "Fichiers Zenodo (.zip)"
+
 #~ msgid "New dataset"
 #~ msgstr "jeu de données"
 

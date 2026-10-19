@@ -35,8 +35,29 @@
     {% endif %}
   {% endif %}
   {% if h.check_access('package_show', {'id': pkg.id }) and pkg.resources %}
-    <a class="btn btn-primary" href="{{ h.url_for('download_all.download', id=pkg.name) }}">
-      <i class="fa fa-download"></i> {{ _('Download all') }}
-    </a>
+    {# Catalogue files are zipped by CKAN; Zenodo files come as Zenodo's
+       own ZIP, straight from Zenodo - never through this server (that's
+       the point of storing them there). Both -> a choice between the two. #}
+    {% set has_uploads = pkg.resources | selectattr('url_type', 'equalto', 'upload') | list %}
+    {% set zenodo_zip = h.fair3r_zenodo_files_archive_url(pkg.id) %}
+    {% if has_uploads and zenodo_zip %}
+      <div class="dropdown btn-group">
+        <a href="#" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fa fa-download"></i> {{ _('Download all') }}
+        </a>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{{ h.url_for('download_all.download', id=pkg.name) }}">{{ _('Catalogue files (.zip)') }}</a></li>
+          <li><a class="dropdown-item" href="{{ zenodo_zip }}">{{ _('Zenodo files (.zip)') }}</a></li>
+        </ul>
+      </div>
+    {% elif has_uploads %}
+      <a class="btn btn-primary" href="{{ h.url_for('download_all.download', id=pkg.name) }}">
+        <i class="fa fa-download"></i> {{ _('Download all') }}
+      </a>
+    {% elif zenodo_zip %}
+      <a class="btn btn-primary" href="{{ zenodo_zip }}">
+        <i class="fa fa-download"></i> {{ _('Download all') }}
+      </a>
+    {% endif %}
   {% endif %}
 {% endblock %}

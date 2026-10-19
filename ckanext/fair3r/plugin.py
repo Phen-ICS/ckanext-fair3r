@@ -37,7 +37,10 @@ from ckanext.fair3r.lib.fdf.completeness import (
 )
 from ckanext.fair3r.lib.fdf.draft_guard import guard_against_stale_draft_revert
 from ckanext.fair3r.lib.fdf.schema import load_fdf_schema
-from ckanext.fair3r.lib.zenodo_routing import fair3r_zenodo_routing_config
+from ckanext.fair3r.lib.zenodo_routing import (
+    fair3r_zenodo_files_archive_url,
+    fair3r_zenodo_routing_config,
+)
 
 log = logging.getLogger(__name__)
 
@@ -95,6 +98,7 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
             "fair3r_license_options": self.fair3r_license_options,
             "fair3r_member_count_label": self.fair3r_member_count_label,
             "fair3r_zenodo_routing_config": fair3r_zenodo_routing_config,
+            "fair3r_zenodo_files_archive_url": fair3r_zenodo_files_archive_url,
         }
 
     # Gene/allele nomenclature from external databases (MGI, Alliance
