@@ -70,7 +70,7 @@ def test_fair3r_current_user(monkeypatch):
     assert p.fair3r_current_user() is dummy
 
 
-def test_fair3r_license_options():
+def test_fair3r_license_options(monkeypatch):
     p = plugin.Fair3RPlugin()
 
     class DummyH:
@@ -83,8 +83,12 @@ def test_fair3r_license_options():
 
     import sys
 
-    sys.modules["ckan.lib.helpers"] = types.SimpleNamespace(
-        license_options=DummyH.license_options
+    # setitem, not plain assignment: restored after the test, otherwise
+    # every later test touching real CKAN helpers breaks.
+    monkeypatch.setitem(
+        sys.modules,
+        "ckan.lib.helpers",
+        types.SimpleNamespace(license_options=DummyH.license_options),
     )
     opts = p.fair3r_license_options()
     assert any("CC0" in desc for _, desc in opts)

@@ -20,6 +20,7 @@ from ckanext.fair3r.blueprints.activity_guard import activity_guard
 from ckanext.fair3r.blueprints.dataset_choice import dataset_choice
 from ckanext.fair3r.blueprints.download_all import download_all
 from ckanext.fair3r.blueprints.fdf import fdf
+from ckanext.fair3r.blueprints.publish import publish
 from ckanext.fair3r.blueprints.sitemap import sitemap
 from ckanext.fair3r.blueprints.standard_creation import standard_creation
 from ckanext.fair3r.lib import mailer as fair3r_mailer
@@ -471,6 +472,7 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
         """Register extension blueprints (download-all, guards, account request, dataset creation, FDF, sitemap)."""
         return [
             download_all,
+            publish,
             activity_guard,
             account_request,
             dataset_choice,

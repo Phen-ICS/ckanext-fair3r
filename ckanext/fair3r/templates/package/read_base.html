@@ -2,6 +2,17 @@
 
 {% block content_action %}
   {{ super() }}
+  {# One-way on purpose (DOI + Zenodo are permanent) - no matching
+     "Unpublish" button, see blueprints/publish.py. #}
+  {% if pkg.private and pkg.state == 'active' and h.check_access('package_update', {'id': pkg.id }) %}
+    <a class="btn btn-success" href="{{ h.url_for('publish.publish_dataset', id=pkg.name) }}"
+       data-module="confirm-action"
+       data-module-content="{{ _('This dataset will become public and citable: a DOI is minted at DataCite, and any files stored on Zenodo are published there too. This cannot be undone - the DOI and the Zenodo record stay public even if the dataset is made private again later.') }}"
+       data-module-title="{{ _('Publish this dataset?') }}"
+       data-module-confirm-text="{{ _('Publish') }}">
+      <i class="fa fa-globe"></i> {{ _('Publish') }}
+    </a>
+  {% endif %}
   {% if h.check_access('package_update', {'id': pkg.id }) %}
     <a class="btn btn-default" href="{{ h.url_for(pkg.type ~ '_resource.new', id=pkg.name) }}">
       <i class="fa fa-file-alt"></i> {{ _('Add resource') }}
