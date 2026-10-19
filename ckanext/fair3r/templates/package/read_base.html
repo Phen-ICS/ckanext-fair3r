@@ -2,7 +2,13 @@
 
 {% block content_action %}
   {{ super() }}
-  {# One-way on purpose (DOI + Zenodo are permanent) - no matching
+  {% if h.check_access('package_update', {'id': pkg.id }) %}
+    <a class="btn btn-default" href="{{ h.url_for(pkg.type ~ '_resource.new', id=pkg.name) }}">
+      <i class="fa fa-file-alt"></i> {{ _('Add resource') }}
+    </a>
+  {% endif %}
+  {# Workflow order for editors: edit, add files, then publish last.
+     One-way on purpose (DOI + Zenodo are permanent) - no matching
      "Unpublish" button, see blueprints/publish.py. #}
   {% if pkg.private and pkg.state == 'active' and h.check_access('package_update', {'id': pkg.id }) %}
     <a class="btn btn-success" href="{{ h.url_for('publish.publish_dataset', id=pkg.name) }}"
@@ -27,11 +33,6 @@
         <i class="fa fa-check"></i> {{ _('Published') }}
       </span>
     {% endif %}
-  {% endif %}
-  {% if h.check_access('package_update', {'id': pkg.id }) %}
-    <a class="btn btn-default" href="{{ h.url_for(pkg.type ~ '_resource.new', id=pkg.name) }}">
-      <i class="fa fa-file-alt"></i> {{ _('Add resource') }}
-    </a>
   {% endif %}
   {% if h.check_access('package_show', {'id': pkg.id }) and pkg.resources %}
     <a class="btn btn-primary" href="{{ h.url_for('download_all.download', id=pkg.name) }}">
