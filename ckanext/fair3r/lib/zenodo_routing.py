@@ -45,3 +45,14 @@ def fair3r_zenodo_files_archive_url(package_id):
     except Exception:
         log.exception("Failed to build the Zenodo files archive URL")
         return None
+
+
+def fair3r_doi_url(doi):
+    """ckanext-doi's own h.doi_resolver_url (DataCite's test resolver in
+    test mode, doi.org in production), falling back to doi.org if that
+    plugin/version isn't installed."""
+    try:
+        from ckanext.doi.lib.helpers import doi_resolver_url
+    except ImportError:
+        return f"https://doi.org/{doi}"
+    return doi_resolver_url(doi)
