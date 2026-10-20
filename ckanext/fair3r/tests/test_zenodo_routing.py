@@ -100,3 +100,10 @@ def test_installed_but_not_enabled_zenodo_is_ignored(
 
     assert fair3r_zenodo_routing_config() is None
     assert fair3r_zenodo_files_archive_url("pkg-1") is None
+
+
+def test_returns_none_when_zenodo_has_no_routing_config(fake_zenodo_config_module):
+    # ckanext-zenodo without a token: no Zenodo option on the form.
+    fake_zenodo_config_module.routing_config_dict = lambda: None
+
+    assert fair3r_zenodo_routing_config() is None

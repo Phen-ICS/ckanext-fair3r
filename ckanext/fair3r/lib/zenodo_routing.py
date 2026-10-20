@@ -36,7 +36,9 @@ def fair3r_zenodo_routing_config():
         return None
 
     try:
-        return json.dumps(routing_config_dict())
+        config = routing_config_dict()
+        # None: ckanext-zenodo has no token, nothing goes to Zenodo.
+        return json.dumps(config) if config else None
     except Exception:
         log.exception("Failed to build the Zenodo routing config for the page")
         return None
