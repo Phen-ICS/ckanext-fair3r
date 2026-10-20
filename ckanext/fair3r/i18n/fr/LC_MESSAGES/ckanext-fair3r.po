@@ -1780,6 +1780,36 @@ msgid "Last Active"
 msgstr "Dernière activité"
 
 # | msgid "dataset"
+msgid "Publish"
+msgstr "Publier"
+
+msgid "Publish this dataset?"
+msgstr "Publier ce dataset ?"
+
+msgid "This dataset will become public and citable: a DOI is minted at DataCite, and any files stored on Zenodo are published there too. This cannot be undone - the DOI and the Zenodo record stay public even if the dataset is made private again later."
+msgstr "Ce dataset va devenir public et citable : un DOI est créé chez DataCite, et les fichiers stockés sur Zenodo y sont publiés aussi. C'est définitif : le DOI et l'enregistrement Zenodo restent publics même si le dataset est rendu privé plus tard."
+
+msgid "The dataset is now public."
+msgstr "Le dataset est maintenant public."
+
+msgid "The dataset could not be published and is still private: {}"
+msgstr "Le dataset n'a pas pu être publié et reste privé : {}"
+
+msgid "Not authorized to publish this dataset"
+msgstr "Non autorisé à publier ce dataset"
+
+msgid "Published"
+msgstr "Publié"
+
+msgid "Published - DOI {doi}"
+msgstr "Publié - DOI {doi}"
+
+msgid "Catalogue files (.zip)"
+msgstr "Fichiers du catalogue (.zip)"
+
+msgid "Zenodo files (.zip)"
+msgstr "Fichiers Zenodo (.zip)"
+
 #~ msgid "New dataset"
 #~ msgstr "jeu de données"
 
@@ -1868,3 +1898,67 @@ msgstr "Dernière activité"
 #~ msgstr ""
 #~ "Aucune souche/lignée mutante Xenopus trouvée dans Xenbase pour ce gène. Vous"
 #~ " pouvez en saisir une manuellement."
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:394
+#, python-format
+msgid ""
+"%(count)d of %(total)d file(s) will be stored on Zenodo, not in this "
+"catalogue."
+msgstr ""
+"%(count)d fichier(s) sur %(total)d seront stockés sur Zenodo, pas dans ce "
+"catalogue."
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:320
+#, python-format
+msgid ""
+"Files larger than %(size)s MB, or in a format the data viewer can't read, go "
+"to Zenodo automatically either way."
+msgstr ""
+"Les fichiers de plus de %(size)s Mo, ou dans un format que la visionneuse de "
+"données ne sait pas lire, vont de toute façon sur Zenodo."
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:211
+msgid "Off"
+msgstr "Désactivé"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:211
+msgid "On"
+msgstr "Activé"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:218
+msgid "Store this file on Zenodo instead of this catalogue"
+msgstr "Stocker ce fichier sur Zenodo plutôt que dans ce catalogue"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:219
+msgid "Store this file on this catalogue instead of Zenodo"
+msgstr "Stocker ce fichier dans ce catalogue plutôt que sur Zenodo"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:393
+msgid "This file will be stored on Zenodo, not in this catalogue."
+msgstr "Ce fichier sera stocké sur Zenodo, pas dans ce catalogue."
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:685
+msgid "Upload to Zenodo failed"
+msgstr "L'envoi vers Zenodo a échoué"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:289
+#, python-format
+msgid "up to %(size)s GB can be uploaded right now"
+msgstr "jusqu'à %(size)s Go peuvent être envoyés en ce moment"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:474
+#, python-format
+msgid "%(name)s is already on Zenodo in this dataset: uploading it again replaces it."
+msgstr ""
+"%(name)s est déjà sur Zenodo dans ce jeu de données : l'envoyer à nouveau le "
+"remplace."
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:475
+#, python-format
+msgid ""
+"%(name)s already exists in this dataset: uploading it again adds a second "
+"copy next to it."
+msgstr ""
+"%(name)s existe déjà dans ce jeu de données : l'envoyer à nouveau en ajoute "
+"une seconde copie à côté."
+

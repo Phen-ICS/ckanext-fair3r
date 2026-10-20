@@ -20,6 +20,7 @@ from ckanext.fair3r.blueprints.activity_guard import activity_guard
 from ckanext.fair3r.blueprints.dataset_choice import dataset_choice
 from ckanext.fair3r.blueprints.download_all import download_all
 from ckanext.fair3r.blueprints.fdf import fdf
+from ckanext.fair3r.blueprints.publish import publish
 from ckanext.fair3r.blueprints.sitemap import sitemap
 from ckanext.fair3r.blueprints.standard_creation import standard_creation
 from ckanext.fair3r.lib import mailer as fair3r_mailer
@@ -36,7 +37,11 @@ from ckanext.fair3r.lib.fdf.completeness import (
 )
 from ckanext.fair3r.lib.fdf.draft_guard import guard_against_stale_draft_revert
 from ckanext.fair3r.lib.fdf.schema import load_fdf_schema
-from ckanext.fair3r.lib.zenodo_routing import fair3r_zenodo_routing_config
+from ckanext.fair3r.lib.zenodo_routing import (
+    fair3r_doi_url,
+    fair3r_zenodo_files_archive_url,
+    fair3r_zenodo_routing_config,
+)
 
 log = logging.getLogger(__name__)
 
@@ -94,6 +99,8 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
             "fair3r_license_options": self.fair3r_license_options,
             "fair3r_member_count_label": self.fair3r_member_count_label,
             "fair3r_zenodo_routing_config": fair3r_zenodo_routing_config,
+            "fair3r_doi_url": fair3r_doi_url,
+            "fair3r_zenodo_files_archive_url": fair3r_zenodo_files_archive_url,
         }
 
     # Gene/allele nomenclature from external databases (MGI, Alliance
@@ -471,6 +478,7 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
         """Register extension blueprints (download-all, guards, account request, dataset creation, FDF, sitemap)."""
         return [
             download_all,
+            publish,
             activity_guard,
             account_request,
             dataset_choice,

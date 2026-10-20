@@ -30,3 +30,29 @@ def fair3r_zenodo_routing_config():
     except Exception:
         log.exception("Failed to build the Zenodo routing config for the page")
         return None
+
+
+def fair3r_zenodo_files_archive_url(package_id):
+    """URL of Zenodo's own ZIP of this dataset's published Zenodo files,
+    or None (ckanext-zenodo not installed, or nothing published there)."""
+    try:
+        from ckanext.zenodo.lib.publish_guard import files_archive_url
+    except ImportError:
+        return None
+
+    try:
+        return files_archive_url(package_id)
+    except Exception:
+        log.exception("Failed to build the Zenodo files archive URL")
+        return None
+
+
+def fair3r_doi_url(doi):
+    """ckanext-doi's own h.doi_resolver_url (DataCite's test resolver in
+    test mode, doi.org in production), falling back to doi.org if that
+    plugin/version isn't installed."""
+    try:
+        from ckanext.doi.lib.helpers import doi_resolver_url
+    except ImportError:
+        return f"https://doi.org/{doi}"
+    return doi_resolver_url(doi)

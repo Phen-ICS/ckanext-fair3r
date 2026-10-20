@@ -1641,3 +1641,58 @@ msgstr ""
 msgid "Last Active"
 msgstr ""
 
+#: ckanext/fair3r/public/base/js/resource-upload.js:394
+#, python-format
+msgid ""
+"%(count)d of %(total)d file(s) will be stored on Zenodo, not in this "
+"catalogue."
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:320
+#, python-format
+msgid ""
+"Files larger than %(size)s MB, or in a format the data viewer can't read, go "
+"to Zenodo automatically either way."
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:211
+msgid "Off"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:211
+msgid "On"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:218
+msgid "Store this file on Zenodo instead of this catalogue"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:219
+msgid "Store this file on this catalogue instead of Zenodo"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:393
+msgid "This file will be stored on Zenodo, not in this catalogue."
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:685
+msgid "Upload to Zenodo failed"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:289
+#, python-format
+msgid "up to %(size)s GB can be uploaded right now"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:474
+#, python-format
+msgid "%(name)s is already on Zenodo in this dataset: uploading it again replaces it."
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:475
+#, python-format
+msgid ""
+"%(name)s already exists in this dataset: uploading it again adds a second "
+"copy next to it."
+msgstr ""
+

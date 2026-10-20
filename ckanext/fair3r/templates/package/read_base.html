@@ -7,9 +7,57 @@
       <i class="fa fa-file-alt"></i> {{ _('Add resource') }}
     </a>
   {% endif %}
-  {% if h.check_access('package_show', {'id': pkg.id }) and pkg.resources %}
-    <a class="btn btn-primary" href="{{ h.url_for('download_all.download', id=pkg.name) }}">
-      <i class="fa fa-download"></i> {{ _('Download all') }}
+  {# Workflow order for editors: edit, add files, then publish last.
+     One-way on purpose (DOI + Zenodo are permanent) - no matching
+     "Unpublish" button, see blueprints/publish.py. #}
+  {% if pkg.private and pkg.state == 'active' and h.check_access('package_update', {'id': pkg.id }) %}
+    <a class="btn btn-success" href="{{ h.url_for('publish.publish_dataset', id=pkg.name) }}"
+       data-module="confirm-action"
+       data-module-content="{{ _('This dataset will become public and citable: a DOI is minted at DataCite, and any files stored on Zenodo are published there too. This cannot be undone - the DOI and the Zenodo record stay public even if the dataset is made private again later.') }}"
+       data-module-title="{{ _('Publish this dataset?') }}"
+       data-module-confirm-text="{{ _('Publish') }}">
+      <i class="fa fa-globe"></i> {{ _('Publish') }}
     </a>
+  {% elif not pkg.private and pkg.state == 'active' and h.check_access('package_update', {'id': pkg.id }) %}
+    {# Takes the Publish button's place once public, so editors don't
+       go looking for it. Links to the DOI once DataCite minted it
+       (ckanext-doi's doi/doi_status fields). Making the dataset private
+       again stays possible via Manage -> Visibility. #}
+    {% if pkg.doi and pkg.doi_status %}
+      <a class="btn btn-outline-success" href="{{ h.fair3r_doi_url(pkg.doi) }}" target="_blank" rel="noopener"
+         title="{{ _('Published - DOI {doi}').format(doi=pkg.doi) }}">
+        <i class="fa fa-check"></i> {{ _('Published') }}
+      </a>
+    {% else %}
+      <span class="btn btn-outline-success disabled">
+        <i class="fa fa-check"></i> {{ _('Published') }}
+      </span>
+    {% endif %}
+  {% endif %}
+  {% if h.check_access('package_show', {'id': pkg.id }) and pkg.resources %}
+    {# Catalogue files are zipped by CKAN; Zenodo files come as Zenodo's
+       own ZIP, straight from Zenodo - never through this server (that's
+       the point of storing them there). Both -> a choice between the two. #}
+    {% set has_uploads = pkg.resources | selectattr('url_type', 'equalto', 'upload') | list %}
+    {% set zenodo_zip = h.fair3r_zenodo_files_archive_url(pkg.id) %}
+    {% if has_uploads and zenodo_zip %}
+      <div class="dropdown btn-group">
+        <a href="#" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fa fa-download"></i> {{ _('Download all') }}
+        </a>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{{ h.url_for('download_all.download', id=pkg.name) }}">{{ _('Catalogue files (.zip)') }}</a></li>
+          <li><a class="dropdown-item" href="{{ zenodo_zip }}">{{ _('Zenodo files (.zip)') }}</a></li>
+        </ul>
+      </div>
+    {% elif has_uploads %}
+      <a class="btn btn-primary" href="{{ h.url_for('download_all.download', id=pkg.name) }}">
+        <i class="fa fa-download"></i> {{ _('Download all') }}
+      </a>
+    {% elif zenodo_zip %}
+      <a class="btn btn-primary" href="{{ zenodo_zip }}">
+        <i class="fa fa-download"></i> {{ _('Download all') }}
+      </a>
+    {% endif %}
   {% endif %}
 {% endblock %}

@@ -10,7 +10,9 @@ from ckan import logic, model
 from ckan.common import _, current_user
 from ckan.lib import base, uploader
 from ckan.types import Context
-from flask import Blueprint, after_this_request, send_file
+from flask import Blueprint, after_this_request, redirect, send_file
+
+from ckanext.fair3r.lib.zenodo_routing import fair3r_zenodo_files_archive_url
 
 download_all = Blueprint(
     "download_all",
@@ -61,6 +63,11 @@ def download(id: str):
     uploaded_resources = [r for r in resources if r.get("url_type") == "upload"]
 
     if not uploaded_resources:
+        # Only Zenodo files: hand over Zenodo's own ZIP rather than an
+        # error - downloaded straight from Zenodo, not through here.
+        zenodo_zip = fair3r_zenodo_files_archive_url(package["id"])
+        if zenodo_zip:
+            return redirect(zenodo_zip)
         return base.abort(404, _("No uploaded resources available to download"))
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as temp_file:
