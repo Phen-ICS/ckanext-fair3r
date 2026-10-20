@@ -14,9 +14,20 @@ import types
 
 import pytest
 
-from ckanext.fair3r.lib.zenodo_routing import fair3r_zenodo_routing_config
+from ckanext.fair3r.lib import zenodo_routing
+from ckanext.fair3r.lib.zenodo_routing import (
+    fair3r_zenodo_files_archive_url,
+    fair3r_zenodo_routing_config,
+)
 
 MODULE_PATH = "ckanext.zenodo.lib.zenodo_config"
+PUBLISH_GUARD_PATH = "ckanext.zenodo.lib.publish_guard"
+
+
+@pytest.fixture(autouse=True)
+def zenodo_enabled(monkeypatch):
+    """Enabled by default; tests of the disabled case override it."""
+    monkeypatch.setattr(zenodo_routing.plugins, "plugin_loaded", lambda name: True)
 
 
 @pytest.fixture
@@ -62,5 +73,37 @@ def test_returns_none_when_routing_config_dict_raises(fake_zenodo_config_module)
         raise RuntimeError("boom")
 
     fake_zenodo_config_module.routing_config_dict = _boom
+
+    assert fair3r_zenodo_routing_config() is None
+
+
+@pytest.fixture
+def fake_publish_guard_module(monkeypatch):
+    fake_module = types.ModuleType(PUBLISH_GUARD_PATH)
+    fake_module.files_archive_url = lambda package_id: (
+        f"https://zenodo/{package_id}.zip"
+    )
+    monkeypatch.setitem(sys.modules, PUBLISH_GUARD_PATH, fake_module)
+    return fake_module
+
+
+def test_files_archive_url_from_zenodo(fake_publish_guard_module):
+    assert fair3r_zenodo_files_archive_url("pkg-1") == "https://zenodo/pkg-1.zip"
+
+
+def test_installed_but_not_enabled_zenodo_is_ignored(
+    monkeypatch, fake_zenodo_config_module, fake_publish_guard_module
+):
+    # Its table doesn't exist then: querying it made dataset pages fail.
+    fake_zenodo_config_module.routing_config_dict = lambda: {"x": 1}
+    monkeypatch.setattr(zenodo_routing.plugins, "plugin_loaded", lambda name: False)
+
+    assert fair3r_zenodo_routing_config() is None
+    assert fair3r_zenodo_files_archive_url("pkg-1") is None
+
+
+def test_returns_none_when_zenodo_has_no_routing_config(fake_zenodo_config_module):
+    # ckanext-zenodo without a token: no Zenodo option on the form.
+    fake_zenodo_config_module.routing_config_dict = lambda: None
 
     assert fair3r_zenodo_routing_config() is None

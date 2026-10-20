@@ -9,24 +9,36 @@ another, possibly-unloaded plugin's helper exists before calling it - the
 established workaround in this codebase (see fair3r_completeness / its
 own try/except around ckanext.citations' completeness_for_package) is for
 the *calling* plugin to attempt the import itself and degrade gracefully.
+
+Installed isn't enough: ckanext-zenodo can be installed without being
+enabled (the Docker image ships every FAIR3R extension). Its table then
+doesn't exist - querying it broke every dataset page with a 500 - and
+its upload route isn't registered, so the Zenodo helpers also require
+the plugin to be loaded, as fair3r already does for citations.
 """
 
 import json
 import logging
 
+from ckan import plugins
+
 log = logging.getLogger(__name__)
 
 
 def fair3r_zenodo_routing_config():
-    """Returns a JSON string, or None if ckanext-zenodo isn't installed -
+    """Returns a JSON string, or None if ckanext-zenodo isn't enabled -
     the template guards the <meta> tag on this being truthy."""
+    if not plugins.plugin_loaded("zenodo"):
+        return None
     try:
         from ckanext.zenodo.lib.zenodo_config import routing_config_dict
     except ImportError:
         return None
 
     try:
-        return json.dumps(routing_config_dict())
+        config = routing_config_dict()
+        # None: ckanext-zenodo has no token, nothing goes to Zenodo.
+        return json.dumps(config) if config else None
     except Exception:
         log.exception("Failed to build the Zenodo routing config for the page")
         return None
@@ -34,7 +46,9 @@ def fair3r_zenodo_routing_config():
 
 def fair3r_zenodo_files_archive_url(package_id):
     """URL of Zenodo's own ZIP of this dataset's published Zenodo files,
-    or None (ckanext-zenodo not installed, or nothing published there)."""
+    or None (ckanext-zenodo not enabled, or nothing published there)."""
+    if not plugins.plugin_loaded("zenodo"):
+        return None
     try:
         from ckanext.zenodo.lib.publish_guard import files_archive_url
     except ImportError:
