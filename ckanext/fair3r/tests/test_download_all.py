@@ -39,3 +39,11 @@ class TestDownloadAll:
         )
 
         assert self._get(app, dataset).status_code == 404
+
+
+def test_files_with_the_same_name_keep_distinct_names_in_the_zip():
+    used = {"dataset-metadata.txt"}
+
+    names = [download_all._unique_arcname(n, used) for n in ("a.csv", "a.csv", "a.csv")]
+
+    assert names == ["a.csv", "a-2.csv", "a-3.csv"]

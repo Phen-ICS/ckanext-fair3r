@@ -426,3 +426,27 @@ def test_build_metadata_dict_prefers_specific_contributor_over_researcher():
     assert contributor.get("identifiers")
     assert contributor["identifiers"][0]["scheme"] == "ORCID"
     assert "contributors" not in out_errors
+
+
+def test_affiliation_scheme_uri_kept_whichever_key_carries_it():
+    p = plugin.Fair3RPlugin()
+    affiliation = {"name": "IGBMC", "schemeUri": "https://ror.org/"}
+
+    from_objects = p._normalize_datacite_person(
+        {"name": "Doe, Jane", "affiliation_objects": [affiliation]}
+    )
+    from_raw = p._normalize_datacite_person(
+        {"name": "Doe, Jane", "affiliations": [affiliation, "ICS"]}
+    )
+
+    assert from_objects["affiliation_objects"][0]["schemeURI"] == "https://ror.org/"
+    assert from_raw["affiliation_objects"][0]["schemeURI"] == "https://ror.org/"
+    assert from_raw["affiliations"] == ["IGBMC", "ICS"]
+
+
+def test_split_full_name_both_orders():
+    split = plugin.Fair3RPlugin._split_full_name
+
+    assert split("Doe, Jane") == ("Doe", "Jane")
+    assert split("Jane Doe") == ("Doe", "Jane")
+    assert split("Doe") == ("Doe", "")

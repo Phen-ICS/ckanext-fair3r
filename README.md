@@ -20,7 +20,7 @@ This extension is made to cuztomize fair3r.fr ckan theme and add features
 ## Deployment
 
 For a ready-to-run FAIR3R stack with this extension already wired up, see
-[fair3r-docker-dev](https://github.com/Phen-ICS/fair3r-docker-dev).
+[fair3r-docker-alt](https://github.com/Phen-ICS/fair3r-docker-alt).
 
 The instructions below are for adding `ckanext-fair3r` to your own existing
 CKAN 2.12 instance.
@@ -33,25 +33,23 @@ To install ckanext-fair3r:
 
      . /usr/lib/ckan/default/bin/activate
 
-2. Install via pip:
+2. Install via pip (ckanext-doi must be installed too: this plugin
+   customises its DataCite metadata):
 
-    pip install ckanext-fair3r
-	pip install -r requirements.txt
+    pip install ckanext-fair3r ckanext-doi
 
    Or, to install from source:
 
-    git clone <url-of-this-repository>
+    git clone https://github.com/Phen-ICS/ckanext-fair3r.git
     cd ckanext-fair3r
     pip install -e .
-	pip install -r requirements.txt
 
 3. Add `fair3r` to the `ckan.plugins` setting in your CKAN
    config file (by default the config file is located at
    `/etc/ckan/default/ckan.ini`).
 
-4. Restart CKAN. For example if you've deployed CKAN with Apache on Ubuntu:
-
-     sudo service apache2 reload
+4. Restart CKAN (e.g. `sudo systemctl restart ckan-web`, or however your
+   CKAN web process is run).
 
 
 ## Config settings
@@ -73,9 +71,9 @@ To install ckanext-fair3r:
 To install ckanext-fair3r for development, activate your CKAN virtualenv and
 do:
 
-    git clone <url-of-this-repository>
+    git clone https://github.com/Phen-ICS/ckanext-fair3r.git
     cd ckanext-fair3r
-    python setup.py develop
+    pip install -e .
     pip install -r dev-requirements.txt
 
 ## Fix code formating

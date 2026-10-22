@@ -21,8 +21,6 @@ download_all = Blueprint(
 )
 log = logging.getLogger(__name__)
 
-log = logging.getLogger(__name__)
-
 
 def _safe_arcname(filename: str, fallback: str) -> str:
     name = (filename or "").strip().replace("\\", "/")
@@ -32,6 +30,18 @@ def _safe_arcname(filename: str, fallback: str) -> str:
     # Avoid directory traversal or absolute paths
     base_name = base_name.replace("/", "_")
     return base_name
+
+
+def _unique_arcname(name: str, used: set[str]) -> str:
+    """CKAN allows two files with the same name in a dataset; in a ZIP the
+    second would overwrite the first on extraction."""
+    stem, ext = os.path.splitext(name)
+    candidate, n = name, 1
+    while candidate in used:
+        n += 1
+        candidate = f"{stem}-{n}{ext}"
+    used.add(candidate)
+    return candidate
 
 
 @download_all.route("/<id>/download-all", methods=["GET"])
@@ -179,6 +189,7 @@ def download(id: str):
                 f"{dataset_name}-metadata.txt", "metadata.txt"
             )
             zf.writestr(meta_filename, metadata_text)
+            used_names = {meta_filename}
 
             for res in uploaded_resources:
                 res_id = res.get("id")
@@ -189,8 +200,10 @@ def download(id: str):
                     upload = uploader.get_resource_uploader(res)
                     file_path = upload.get_path(res_id)
                 except Exception:  # noqa: BLE001
-                    log.warning("Skipping resource %s in archive build", res_id)
                     file_path = None
+                if not file_path:
+                    log.warning("Skipping resource %s in archive build", res_id)
+                    continue
 
                 # Try to build a friendly filename
                 url = res.get("url", "") or ""
@@ -198,9 +211,12 @@ def download(id: str):
                 candidate_filename = ""
                 if "/download/" in url:
                     candidate_filename = url.split("/download/")[-1]
-                arcname = _safe_arcname(
-                    candidate_filename,
-                    f"{res.get('name') or 'resource'}-{res_id}{os.path.splitext(file_path)[1]}",
+                arcname = _unique_arcname(
+                    _safe_arcname(
+                        candidate_filename,
+                        f"{res.get('name') or 'resource'}-{res_id}{os.path.splitext(file_path)[1]}",
+                    ),
+                    used_names,
                 )
 
                 try:

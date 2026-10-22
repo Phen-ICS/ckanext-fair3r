@@ -710,7 +710,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
               if (label && id) {
                 const safeLabel = self._escapeHtml(label);
                 const safeSublabel = self._escapeHtml(sublabel);
-                let itemHtml = `<div class="fdf-api-item" data-id="${id}" style="padding:8px 12px; border-bottom:1px solid #eee; cursor:pointer;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='white'">
+                let itemHtml = `<div class="fdf-api-item" data-id="${self._escapeHtml(id)}" style="padding:8px 12px; border-bottom:1px solid #eee; cursor:pointer;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='white'">
                   <div style="font-weight:500; color:#333;">${safeLabel}</div>`;
                 if (sublabel) {
                   itemHtml += `<div style="font-size:12px; color:#666; margin-top:2px;">${safeSublabel}</div>`;
@@ -1088,7 +1088,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
                 const safeSourceTag = self._escapeHtml(sourceTag);
                 const safeMappedSublabel = self._escapeHtml(mapped.sublabel);
                 const safeTaggedSublabel = self._escapeHtml(taggedSublabel);
-                let itemHtml = `<div class="fdf-api-item" data-id="${mapped.id}" style="padding:8px 12px; border-bottom:1px solid #eee; cursor:pointer;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='white'">
+                let itemHtml = `<div class="fdf-api-item" data-id="${self._escapeHtml(mapped.id)}" style="padding:8px 12px; border-bottom:1px solid #eee; cursor:pointer;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='white'">
                   <div style="font-weight:500; color:#333;">${safeMappedLabel}</div>`;
                 if (isAlleleResult && sourceTag && mapped.sublabel) {
                   itemHtml += `<div style="font-size:12px; color:#666; margin-top:4px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span style="display:inline-block; padding:1px 6px; border-radius:999px; background:#e9f2ff; color:#1f5aa6; font-weight:600; font-size:11px;">${safeSourceTag}</span><span>${safeMappedSublabel}</span></div>`;
@@ -1372,8 +1372,11 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       return safeLabel;
     },
 
+    // Also quotes: the result goes into attribute values too.
     _escapeHtml: function(value) {
-      return $("<div>").text(value == null ? "" : String(value)).html();
+      return $("<div>").text(value == null ? "" : String(value)).html()
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     },
 
     _sanitizeSublabel: function(value) {
@@ -3080,7 +3083,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
           html = `
             <div class="form-group">
               <label for="${fieldId}">${this._formatFieldLabel(field)}</label>
-              <input type="text" class="form-control" id="${fieldId}" name="${fieldName}" value="${textValue}" placeholder="${field.placeholder || ""}" ${field.required ? "required" : ""} ${disabledAttr}/>
+              <input type="text" class="form-control" id="${fieldId}" name="${fieldName}" value="${this._escapeHtml(textValue)}" placeholder="${field.placeholder || ""}" ${field.required ? "required" : ""} ${disabledAttr}/>
               ${field.help ? `<small class="form-text text-muted">${field.help}</small>` : ""}
             </div>
           `;
@@ -3091,7 +3094,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
             <div class="form-group">
               <label for="${fieldId}">${this._formatFieldLabel(field)}</label>
               <input type="number" class="form-control" id="${fieldId}" name="${fieldName}" placeholder="${field.placeholder || ""}" 
-                min="${field.min || ""}" max="${field.max || ""}" value="${value !== "" ? value : (field.default || "")}" ${field.required ? "required" : ""} ${disabledAttr}/>
+                min="${field.min || ""}" max="${field.max || ""}" value="${this._escapeHtml(value !== "" ? value : (field.default || ""))}" ${field.required ? "required" : ""} ${disabledAttr}/>
               ${field.help ? `<small class="form-text text-muted">${field.help}</small>` : ""}
             </div>
           `;
@@ -3101,7 +3104,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
           html = `
             <div class="form-group">
               <label for="${fieldId}">${this._formatFieldLabel(field)}</label>
-              <textarea class="form-control" id="${fieldId}" name="${fieldName}" rows="${field.rows || 3}" placeholder="${field.placeholder || ""}" ${field.required ? "required" : ""} ${disabledAttr}>${value !== "" ? value : (field.default || "")}</textarea>
+              <textarea class="form-control" id="${fieldId}" name="${fieldName}" rows="${field.rows || 3}" placeholder="${field.placeholder || ""}" ${field.required ? "required" : ""} ${disabledAttr}>${this._escapeHtml(value !== "" ? value : (field.default || ""))}</textarea>
               ${field.help ? `<small class="form-text text-muted">${field.help}</small>` : ""}
             </div>
           `;
@@ -3222,8 +3225,8 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
                         `).join("")}
                     </select>
                     <input type="text" class="form-control fdf-search-input" data-api="${field.search_api || ""}" data-allow-manual="${field.allow_manual ? "true" : ""}" 
-                      ${searchInputId ? `data-selected-id="${searchInputId}" data-selected-label="${searchInputValue}"` : ""}
-                      placeholder="${field.placeholder || _("Search…")}" value="${searchInputValue}" 
+                      ${searchInputId ? `data-selected-id="${this._escapeHtml(searchInputId)}" data-selected-label="${this._escapeHtml(searchInputValue)}"` : ""}
+                      placeholder="${field.placeholder || _("Search…")}" value="${this._escapeHtml(searchInputValue)}" 
                       style="margin-top:5px; display:${selectValue === "__OTHER__" ? "block" : "none"};" ${disabledAttr}/>
                     <div class="fdf-api-results" style="border:1px solid #ccc; display:none; max-height:150px; overflow:auto;"></div>
                     ${field.help ? `<small class="form-text text-muted">${field.help}</small>` : ""}
@@ -3251,7 +3254,7 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
             <div class="form-group">
               <label>${this._formatFieldLabel(field)}</label>
               <div class="fdf-api-input-wrapper">
-                <input type="text" class="form-control fdf-api-input" data-api="${field.api}" id="${fieldId}" name="${fieldName}" value="${apiDisplayValue}" ${apiSelectedId ? `data-selected-id="${apiSelectedId}" data-selected-label="${apiSelectedLabel || value}"` : ""} ${field.autofill_label_to && field.autofill_label_to.length ? `data-autofill-label-to="${field.autofill_label_to.join(',')}"` : ""} placeholder="${field.placeholder || ""}" ${(field.allow_manual && !isReadOnly) ? "" : "readonly"} ${field.required ? "required" : ""} ${disabledAttr} style="padding-right:${hasValue ? "32px" : "12px"};"/>
+                <input type="text" class="form-control fdf-api-input" data-api="${field.api}" id="${fieldId}" name="${fieldName}" value="${this._escapeHtml(apiDisplayValue)}" ${apiSelectedId ? `data-selected-id="${this._escapeHtml(apiSelectedId)}" data-selected-label="${this._escapeHtml(apiSelectedLabel || value)}"` : ""} ${field.autofill_label_to && field.autofill_label_to.length ? `data-autofill-label-to="${field.autofill_label_to.join(',')}"` : ""} placeholder="${field.placeholder || ""}" ${(field.allow_manual && !isReadOnly) ? "" : "readonly"} ${field.required ? "required" : ""} ${disabledAttr} style="padding-right:${hasValue ? "32px" : "12px"};"/>
                 <button type="button" class="fdf-clear-btn" title="Clear selection" style="display:${hasValue ? "block" : "none"}">&times;</button>
               </div>
               <div class="fdf-api-results" style="border:1px solid #ccc; display:none; max-height:150px; overflow:auto;"></div>

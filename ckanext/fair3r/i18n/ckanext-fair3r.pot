@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckanext-fair3r 3.1.41\n"
+"Project-Id-Version: ckanext-fair3r 3.1.52\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 15:47+0000\n"
+"POT-Creation-Date: 2026-10-22 14:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,22 +17,22 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ckanext/fair3r/plugin.py:149
+#: ckanext/fair3r/plugin.py:161
 #, python-brace-format
 msgid "{num} Member"
 msgid_plural "{num} Members"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ckanext/fair3r/plugin.py:153
+#: ckanext/fair3r/plugin.py:165
 msgid "0 Members"
 msgstr ""
 
-#: ckanext/fair3r/plugin.py:160
+#: ckanext/fair3r/plugin.py:172
 msgid "Licenses"
 msgstr ""
 
-#: ckanext/fair3r/plugin.py:1300
+#: ckanext/fair3r/plugin.py:1288
 msgid "License information"
 msgstr ""
 
@@ -66,7 +66,7 @@ msgstr ""
 msgid "Please select or enter the dependent field first."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:611 ckanext/fair3r/blueprints/fdf.py:107
+#: ckanext/fair3r/assets/js/fdf-form.js:611 ckanext/fair3r/blueprints/fdf.py:94
 msgid "Error"
 msgstr ""
 
@@ -79,7 +79,7 @@ msgid "No results"
 msgstr ""
 
 #: ckanext/fair3r/assets/js/fdf-form.js:731
-#: ckanext/fair3r/assets/js/fdf-form.js:1704
+#: ckanext/fair3r/assets/js/fdf-form.js:1707
 msgid "Request error"
 msgstr ""
 
@@ -87,67 +87,72 @@ msgstr ""
 msgid "Field"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1408
+#: ckanext/fair3r/assets/js/fdf-form.js:1411
 msgid "Searching…"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1664
+#: ckanext/fair3r/assets/js/fdf-form.js:1667
 msgid "Please select an organism model first."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1666
+#: ckanext/fair3r/assets/js/fdf-form.js:1669
 msgid "Search is not available for the selected organism."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1683
+#: ckanext/fair3r/assets/js/fdf-form.js:1686
 msgid "No results found in"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1683
+#: ckanext/fair3r/assets/js/fdf-form.js:1686
 msgid "for this search. You can enter one manually."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1685
+#: ckanext/fair3r/assets/js/fdf-form.js:1688
 msgid "No results found. You can enter one manually"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1700
+#: ckanext/fair3r/assets/js/fdf-form.js:1703
 msgid ""
 "lookup failed (the server could not reach the external service). You can "
 "still enter the value manually."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2465
+#: ckanext/fair3r/assets/js/fdf-form.js:2468
 msgid "FDF validation failed."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2483
+#: ckanext/fair3r/assets/js/fdf-form.js:2486
 msgid "No sections found in schema."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2490
+#: ckanext/fair3r/assets/js/fdf-form.js:2493
 msgid "Section"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2518
+#: ckanext/fair3r/assets/js/fdf-form.js:2521
 #: ckanext/fair3r/templates/group/snippets/group_item.html:56
 msgid "Remove"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2534
+#: ckanext/fair3r/assets/js/fdf-form.js:2537
 msgid "Add"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/account_request.py:35
+#: ckanext/fair3r/blueprints/account_request.py:53
 msgid "Please fill in all required fields."
 msgstr ""
 
-#: ckanext/fair3r/blueprints/account_request.py:48
+#: ckanext/fair3r/blueprints/account_request.py:63
+#: ckanext/fair3r/blueprints/account_request.py:113
+msgid "There was a problem sending your request. Please try again later."
+msgstr ""
+
+#: ckanext/fair3r/blueprints/account_request.py:78
 #, python-format
 msgid "Account request from %(name)s"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/account_request.py:50
+#: ckanext/fair3r/blueprints/account_request.py:80
 #, python-format
 msgid ""
 "A visitor requested an account on %(site)s\n"
@@ -159,171 +164,172 @@ msgid ""
 "%(message)s\n"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/account_request.py:61
+#: ckanext/fair3r/blueprints/account_request.py:91
 #, python-format
 msgid "A visitor requested an account on <strong>%(site)s</strong>."
 msgstr ""
 
-#: ckanext/fair3r/blueprints/account_request.py:62
+#: ckanext/fair3r/blueprints/account_request.py:92
 msgid "Name:"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/account_request.py:63
+#: ckanext/fair3r/blueprints/account_request.py:93
 msgid "Email:"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/account_request.py:64
+#: ckanext/fair3r/blueprints/account_request.py:94
 msgid "Message:"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/account_request.py:76
+#: ckanext/fair3r/blueprints/account_request.py:106
 msgid "Your request has been sent. We will contact you soon."
 msgstr ""
 
-#: ckanext/fair3r/blueprints/account_request.py:83
-msgid "There was a problem sending your request. Please try again later."
+#: ckanext/fair3r/blueprints/activity_guard.py:16
+msgid "Only members can see this activity stream"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:55
+#: ckanext/fair3r/blueprints/download_all.py:67
+#: ckanext/fair3r/blueprints/publish.py:30
 msgid "Dataset not found"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:57
+#: ckanext/fair3r/blueprints/download_all.py:69
 msgid "Not authorized to access dataset"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:64
+#: ckanext/fair3r/blueprints/download_all.py:81
 msgid "No uploaded resources available to download"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:71
+#: ckanext/fair3r/blueprints/download_all.py:88
 msgid "Dataset metadata"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:80
+#: ckanext/fair3r/blueprints/download_all.py:97
 msgid "ID"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:81
+#: ckanext/fair3r/blueprints/download_all.py:98
 msgid "Name"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:82
+#: ckanext/fair3r/blueprints/download_all.py:99
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:6
 msgid "Title"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:83
+#: ckanext/fair3r/blueprints/download_all.py:100
 msgid "Notes"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:84
+#: ckanext/fair3r/blueprints/download_all.py:101
 msgid "Author"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:85
+#: ckanext/fair3r/blueprints/download_all.py:102
 msgid "Author Email"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:86
+#: ckanext/fair3r/blueprints/download_all.py:103
 msgid "Maintainer"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:87
+#: ckanext/fair3r/blueprints/download_all.py:104
 msgid "Maintainer Email"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:88
+#: ckanext/fair3r/blueprints/download_all.py:105
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:32
 msgid "License"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:89
+#: ckanext/fair3r/blueprints/download_all.py:106
 msgid "Owner Org"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:90
+#: ckanext/fair3r/blueprints/download_all.py:107
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:96
 #: ckanext/fair3r/templates/snippets/package_item.html:33
 #: ckanext/fair3r/templates/user/snippets/info.html:80
 msgid "Private"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:91
+#: ckanext/fair3r/blueprints/download_all.py:108
 msgid "Created"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:92
+#: ckanext/fair3r/blueprints/download_all.py:109
 msgid "Last Modified"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:93
+#: ckanext/fair3r/blueprints/download_all.py:110
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:111
 #: ckanext/fair3r/templates/user/snippets/info.html:95
 msgid "State"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:94
-#: ckanext/fair3r/blueprints/download_all.py:159
+#: ckanext/fair3r/blueprints/download_all.py:111
+#: ckanext/fair3r/blueprints/download_all.py:176
 #: ckanext/fair3r/templates/package/snippets/fdf_metadata_display.html:533
 msgid "Type"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:100
+#: ckanext/fair3r/blueprints/download_all.py:117
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:75
 msgid "Organization"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:102
+#: ckanext/fair3r/blueprints/download_all.py:119
 msgid "Org ID"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:103
+#: ckanext/fair3r/blueprints/download_all.py:120
 msgid "Org Name"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:104
+#: ckanext/fair3r/blueprints/download_all.py:121
 msgid "Org Title"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:110
+#: ckanext/fair3r/blueprints/download_all.py:127
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:26
 msgid "Tags"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:122
+#: ckanext/fair3r/blueprints/download_all.py:139
 #: ckanext/fair3r/templates/user/read_base.html:24
 #: ckanext/fair3r/templates/user/snippets/info.html:52
 msgid "Groups"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:132
+#: ckanext/fair3r/blueprints/download_all.py:149
 msgid "Extras"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:144
+#: ckanext/fair3r/blueprints/download_all.py:161
 msgid "Resources"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:154
+#: ckanext/fair3r/blueprints/download_all.py:171
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:21
 msgid "Description"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:156
+#: ckanext/fair3r/blueprints/download_all.py:173
 msgid "Format"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:158
+#: ckanext/fair3r/blueprints/download_all.py:175
 #: ckanext/fair3r/templates/package/snippets/package_basic_fields.html:15
 msgid "URL"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/download_all.py:230
+#: ckanext/fair3r/blueprints/download_all.py:253
 msgid "Failed to build ZIP archive"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/fdf.py:93 ckanext/fair3r/lib/fdf/render.py:112
+#: ckanext/fair3r/blueprints/fdf.py:80 ckanext/fair3r/lib/fdf/render.py:94
 #: ckanext/fair3r/lib/fdf/validation.py:628
 #: ckanext/fair3r/lib/fdf/validation.py:703
 #: ckanext/fair3r/lib/fdf/validation.py:704
@@ -332,27 +338,44 @@ msgstr ""
 msgid "FAIR Metadata (FDF)"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/fdf.py:93 ckanext/fair3r/lib/fdf/render.py:112
+#: ckanext/fair3r/blueprints/fdf.py:80 ckanext/fair3r/lib/fdf/render.py:94
 msgid "Validation failed"
 msgstr ""
 
-#: ckanext/fair3r/blueprints/fdf.py:102
+#: ckanext/fair3r/blueprints/fdf.py:89
 msgid "Unauthorized to create a package"
 msgstr ""
 
-#: ckanext/fair3r/lib/actions.py:219 ckanext/fair3r/lib/actions.py:274
+#: ckanext/fair3r/blueprints/fdf.py:130
+msgid "Unauthorized to edit this dataset"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/publish.py:32
+msgid "Not authorized to publish this dataset"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/publish.py:41
+#, python-brace-format
+msgid "The dataset could not be published and is still private: {}"
+msgstr ""
+
+#: ckanext/fair3r/blueprints/publish.py:46
+msgid "The dataset is now public."
+msgstr ""
+
+#: ckanext/fair3r/lib/actions.py:233 ckanext/fair3r/lib/actions.py:288
 msgid "geneId is required"
 msgstr ""
 
-#: ckanext/fair3r/lib/actions.py:280
+#: ckanext/fair3r/lib/actions.py:294
 msgid "geneId must contain a numeric RGD identifier"
 msgstr ""
 
-#: ckanext/fair3r/lib/actions.py:362
+#: ckanext/fair3r/lib/actions.py:376
 msgid "Authentication required"
 msgstr ""
 
-#: ckanext/fair3r/lib/actions.py:377
+#: ckanext/fair3r/lib/actions.py:391
 #, python-format
 msgid "Unsupported external lookup: provider=%(provider)r, resource=%(resource)r"
 msgstr ""
@@ -526,33 +549,7 @@ msgstr ""
 msgid "group"
 msgstr ""
 
-#: ckanext/fair3r/lib/fdf/doi.py:140
-msgid "DataCite DOI created (metadata fallback applied)"
-msgstr ""
-
-#: ckanext/fair3r/lib/fdf/doi.py:143
-msgid "DataCite DOI created"
-msgstr ""
-
-#: ckanext/fair3r/lib/fdf/doi.py:152
-msgid ""
-"DataCite metadata validation warning (minLength). Dataset saved; DOI metadata"
-" update skipped for now."
-msgstr ""
-
-#: ckanext/fair3r/lib/fdf/doi.py:170
-msgid "DataCite DOI metadata updated (fallback applied)"
-msgstr ""
-
-#: ckanext/fair3r/lib/fdf/doi.py:173
-msgid "DataCite DOI metadata updated"
-msgstr ""
-
-#: ckanext/fair3r/lib/fdf/doi.py:182
-msgid "DataCite metadata update warning (minLength). Dataset was updated locally."
-msgstr ""
-
-#: ckanext/fair3r/lib/fdf/render.py:121
+#: ckanext/fair3r/lib/fdf/render.py:103
 #, python-format
 msgid "Error: %(message)s"
 msgstr ""
@@ -633,56 +630,112 @@ msgstr ""
 msgid "FDF payload is not valid JSON."
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:175
+#: ckanext/fair3r/public/base/js/resource-upload.js:211
+msgid "On"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:211
+msgid "Off"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:218
+msgid "Store this file on Zenodo instead of this catalogue"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:219
+msgid "Store this file on this catalogue instead of Zenodo"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:289
+#, python-format
+msgid "up to %(size)s GB can be uploaded right now"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:319
+#, python-format
+msgid ""
+"Files larger than %(size)s MB, or in a format the data viewer can't read, go "
+"to Zenodo automatically either way."
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:393
+msgid "This file will be stored on Zenodo, not in this catalogue."
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:394
+#, python-format
+msgid ""
+"%(count)d of %(total)d file(s) will be stored on Zenodo, not in this "
+"catalogue."
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:474
+#, python-format
+msgid "%(name)s is already on Zenodo in this dataset: uploading it again replaces it."
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:475
+#, python-format
+msgid ""
+"%(name)s already exists in this dataset: uploading it again adds a second "
+"copy next to it."
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:525
 #, python-format
 msgid ""
 "%(count)d files selected — each will become its own resource, named after its"
 " file. Format is auto-detected per file."
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:278
+#: ckanext/fair3r/public/base/js/resource-upload.js:634
 msgid "Upload failed"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:283
+#: ckanext/fair3r/public/base/js/resource-upload.js:639
+#: ckanext/fair3r/public/base/js/resource-upload.js:690
 msgid "Network error"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:392
-#: ckanext/fair3r/public/base/js/resource-upload.js:427
+#: ckanext/fair3r/public/base/js/resource-upload.js:685
+msgid "Upload to Zenodo failed"
+msgstr ""
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:762
+#: ckanext/fair3r/public/base/js/resource-upload.js:798
 msgid "Uploading…"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:408
+#: ckanext/fair3r/public/base/js/resource-upload.js:778
 msgid ""
 "Couldn't determine which dataset to upload to — please reload the page and "
 "try again."
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:426
+#: ckanext/fair3r/public/base/js/resource-upload.js:797
 #, python-format
 msgid "Uploading %(current)d / %(total)d files"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:445
+#: ckanext/fair3r/public/base/js/resource-upload.js:819
 #, python-format
 msgid "Done — %(ok)d / %(total)d uploaded, %(failed)d failed"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:446
+#: ckanext/fair3r/public/base/js/resource-upload.js:820
 #, python-format
 msgid "Done — %(total)d / %(total)d uploaded"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:454
+#: ckanext/fair3r/public/base/js/resource-upload.js:828
 msgid "Loading…"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:522
+#: ckanext/fair3r/public/base/js/resource-upload.js:892
 msgid "Continue"
 msgstr ""
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:527
+#: ckanext/fair3r/public/base/js/resource-upload.js:897
 msgid "Close"
 msgstr ""
 
@@ -1207,12 +1260,12 @@ msgstr ""
 msgid "Loading FAIR3R dynamic form fields..."
 msgstr ""
 
-#: ckanext/fair3r/templates/package/edit.html:95
+#: ckanext/fair3r/templates/package/edit.html:101
 #: ckanext/fair3r/templates/package/new_fdf.html:88
 msgid "Fair3R Dataset Form"
 msgstr ""
 
-#: ckanext/fair3r/templates/package/edit.html:99
+#: ckanext/fair3r/templates/package/edit.html:105
 #: ckanext/fair3r/templates/package/new_fdf.html:92
 msgid ""
 "The Fair3R Dataset Form (FDF) is a dynamic ontology-driven form. Metadata "
@@ -1236,8 +1289,45 @@ msgstr ""
 msgid "Add resource"
 msgstr ""
 
-#: ckanext/fair3r/templates/package/read_base.html:12
+#: ckanext/fair3r/templates/package/read_base.html:16
+msgid ""
+"This dataset will become public and citable: a DOI is minted at DataCite, and"
+" any files stored on Zenodo are published there too. This cannot be undone - "
+"the DOI and the Zenodo record stay public even if the dataset is made private"
+" again later."
+msgstr ""
+
+#: ckanext/fair3r/templates/package/read_base.html:17
+msgid "Publish this dataset?"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/read_base.html:18
+#: ckanext/fair3r/templates/package/read_base.html:19
+msgid "Publish"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/read_base.html:28
+#, python-brace-format
+msgid "Published - DOI {doi}"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/read_base.html:29
+#: ckanext/fair3r/templates/package/read_base.html:33
+msgid "Published"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/read_base.html:46
+#: ckanext/fair3r/templates/package/read_base.html:55
+#: ckanext/fair3r/templates/package/read_base.html:59
 msgid "Download all"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/read_base.html:49
+msgid "Catalogue files (.zip)"
+msgstr ""
+
+#: ckanext/fair3r/templates/package/read_base.html:50
+msgid "Zenodo files (.zip)"
 msgstr ""
 
 #: ckanext/fair3r/templates/package/snippets/additional_info.html:26
@@ -1639,60 +1729,5 @@ msgstr ""
 
 #: ckanext/fair3r/templates/user/snippets/info.html:90
 msgid "Last Active"
-msgstr ""
-
-#: ckanext/fair3r/public/base/js/resource-upload.js:394
-#, python-format
-msgid ""
-"%(count)d of %(total)d file(s) will be stored on Zenodo, not in this "
-"catalogue."
-msgstr ""
-
-#: ckanext/fair3r/public/base/js/resource-upload.js:320
-#, python-format
-msgid ""
-"Files larger than %(size)s MB, or in a format the data viewer can't read, go "
-"to Zenodo automatically either way."
-msgstr ""
-
-#: ckanext/fair3r/public/base/js/resource-upload.js:211
-msgid "Off"
-msgstr ""
-
-#: ckanext/fair3r/public/base/js/resource-upload.js:211
-msgid "On"
-msgstr ""
-
-#: ckanext/fair3r/public/base/js/resource-upload.js:218
-msgid "Store this file on Zenodo instead of this catalogue"
-msgstr ""
-
-#: ckanext/fair3r/public/base/js/resource-upload.js:219
-msgid "Store this file on this catalogue instead of Zenodo"
-msgstr ""
-
-#: ckanext/fair3r/public/base/js/resource-upload.js:393
-msgid "This file will be stored on Zenodo, not in this catalogue."
-msgstr ""
-
-#: ckanext/fair3r/public/base/js/resource-upload.js:685
-msgid "Upload to Zenodo failed"
-msgstr ""
-
-#: ckanext/fair3r/public/base/js/resource-upload.js:289
-#, python-format
-msgid "up to %(size)s GB can be uploaded right now"
-msgstr ""
-
-#: ckanext/fair3r/public/base/js/resource-upload.js:474
-#, python-format
-msgid "%(name)s is already on Zenodo in this dataset: uploading it again replaces it."
-msgstr ""
-
-#: ckanext/fair3r/public/base/js/resource-upload.js:475
-#, python-format
-msgid ""
-"%(name)s already exists in this dataset: uploading it again adds a second "
-"copy next to it."
 msgstr ""
 

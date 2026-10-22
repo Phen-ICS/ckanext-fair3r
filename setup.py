@@ -23,11 +23,8 @@ setup(
         fair3r_dcat_ap=ckanext.fair3r.lib.fdf.dcat_ap_profile:Fair3RDCATAPProfile
         fair3r_schemaorg=ckanext.fair3r.lib.fdf.schemaorg_profile:Fair3RSchemaOrgProfile
     """,
-    install_requires=[
-        "cryptography==46.0.3",
-    ],
     package_data={
         "ckanext.fair3r.tests": ["test.ini"],
     },
-    version="3.1.52",
+    version="3.1.53",
 )

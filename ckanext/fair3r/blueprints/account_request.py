@@ -1,13 +1,31 @@
 import logging
+import time
 
 import ckan.lib.mailer as ckan_mailer
 from ckan.lib import helpers as h
+from ckan.lib.redis import connect_to_redis
 from ckan.plugins import toolkit
 from flask import Blueprint, request
 
 log = logging.getLogger(__name__)
 
 account_request = Blueprint("account_request", __name__)
+
+# Site-wide, not per visitor: behind nginx every visitor has the same
+# REMOTE_ADDR, and real account requests come a few a week.
+ACCOUNT_REQUESTS_PER_HOUR = 20
+
+
+def _over_hourly_limit():
+    key = f"fair3r:account_requests:{int(time.time() // 3600)}"
+    try:
+        redis = connect_to_redis()
+        count = redis.incr(key)
+        redis.expire(key, 3600)
+    except Exception:
+        log.exception("Account request limit unavailable, letting it through")
+        return False
+    return count > ACCOUNT_REQUESTS_PER_HOUR
 
 
 @account_request.route("/account/request", methods=["GET", "POST"])
@@ -33,6 +51,18 @@ def request_account():
 
         if errors:
             h.flash_error(toolkit._("Please fill in all required fields."))
+            return toolkit.render(
+                "account/request_account.html",
+                {"email": email, "name": name, "text": message},
+            )
+
+        if _over_hourly_limit():
+            log.warning("Account request refused: hourly limit reached")
+            h.flash_error(
+                toolkit._(
+                    "There was a problem sending your request. Please try again later."
+                )
+            )
             return toolkit.render(
                 "account/request_account.html",
                 {"email": email, "name": name, "text": message},

@@ -81,7 +81,13 @@
 
   <script type="text/javascript">
     window.FDF_SCHEMA = {{ h.dump_json(h.fdf_schema()) | safe }};
-    window.FDF_DATA = {{ ns.fdf_json | safe }};
+    window.FDF_DATA = (function () {
+      try {
+        return JSON.parse({{ ns.fdf_json | tojson }});
+      } catch (e) {
+        return {};
+      }
+    })();
   </script>
   {% asset 'fair3r/fair3r-js' %}
   {% endif %}

@@ -8,6 +8,7 @@ at /api/3/action/<name> — no blueprint or Nginx changes required.
 import json
 import logging
 import re
+import time
 from html import unescape
 from http.client import HTTPSConnection
 from urllib.error import HTTPError, URLError
@@ -20,6 +21,12 @@ log = logging.getLogger(__name__)
 
 _HTML_TAG_RE = re.compile(r"<[^>]+>")
 _ALLOWED_FETCH_HOSTS = frozenset({"www.xenbase.org", "rest.rgd.mcw.edu"})
+
+# One page fetch per Xenbase line, one after the other, inside the user's
+# request: bounded so a gene with many lines (or a slow Xenbase) can't hold
+# the web process past uWSGI's harakiri.
+XENBASE_LINE_TIMEOUT_SECONDS = 8
+XENBASE_ENRICH_BUDGET_SECONDS = 15
 
 
 def _read_remote_text(url, timeout=20, allowed_hosts=None):
@@ -113,7 +120,7 @@ def _fetch_xenbase_line_metadata(line_id, cache=None):
         + str(line_id)
     )
     try:
-        html = _read_remote_text(url, timeout=20)
+        html = _read_remote_text(url, timeout=XENBASE_LINE_TIMEOUT_SECONDS)
     except (HTTPError, URLError):
         metadata = {}
         if cache is not None:
@@ -148,6 +155,7 @@ def _enrich_xenbase_lines(items):
         return items
 
     metadata_cache = {}
+    deadline = time.monotonic() + XENBASE_ENRICH_BUDGET_SECONDS
     for item in items:
         if not isinstance(item, dict):
             continue
@@ -155,6 +163,12 @@ def _enrich_xenbase_lines(items):
         line_id = item.get("lineId")
         if not line_id:
             continue
+
+        if time.monotonic() > deadline:
+            # shortcut: lines past the time budget show no line type; fetch
+            # them in a background job if users miss it.
+            log.info("Xenbase line enrichment stopped at the time budget")
+            break
 
         metadata = _fetch_xenbase_line_metadata(line_id, cache=metadata_cache)
         if metadata.get("line_type"):
@@ -382,29 +396,9 @@ def external_lookup(context, data_dict):
     )
 
 
-@toolkit.side_effect_free
-def xenbase_strains(context, data_dict):
-    """Backward-compatible Xenbase lookup wrapper.
-
-    Kept to avoid breaking existing schema or clients. Internally delegates to
-    the generic `external_lookup()` action and reshapes the payload back to the
-    historical `{"mutants": [...]}` format.
-    """
-    generic_payload = dict(data_dict or {})
-    generic_payload.setdefault("provider", "xenbase")
-    generic_payload.setdefault("resource", "gene_lines")
-    result = external_lookup(context, generic_payload)
-    return {"mutants": result.get("items", [])}
-
-
 # ---------------------------------------------------------------------------
 # Auth functions (registered via IAuthFunctions in plugin.py)
 # ---------------------------------------------------------------------------
-
-
-def xenbase_strains_auth(context, data_dict):
-    """Allow any authenticated user to call the xenbase_strains action."""
-    return {"success": bool(context.get("user") or context.get("auth_user_obj"))}
 
 
 def external_lookup_auth(context, data_dict):

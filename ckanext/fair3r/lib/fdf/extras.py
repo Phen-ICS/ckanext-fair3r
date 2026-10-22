@@ -38,7 +38,7 @@ def sync_fdf_extras(data_dict, fdf_output_json, log_label):
             ]
             data_dict["extras"].extend(datacite_extras)
             log.info(
-                "★ Added %d datacite.* extras in %s flow",
+                "Added %d datacite.* extras in %s flow",
                 len(datacite_extras),
                 log_label,
             )
@@ -53,20 +53,15 @@ def sync_fdf_contact_fields(data_dict, fdf_output_json, log_label):
     if not (isinstance(fdf_output_json, str) and fdf_output_json.strip()):
         return
     try:
-        log.info("★ Extracting author/maintainer from FDF data in %s", log_label)
         fdf_fields = fdf_json_to_ckan_dataset(fdf_output_json)
         if fdf_fields.get("author"):
             data_dict["author"] = fdf_fields["author"]
-            log.info("★ SET author=%s", fdf_fields["author"])
         if fdf_fields.get("author_email"):
             data_dict["author_email"] = fdf_fields["author_email"]
-            log.info("★ SET author_email=%s", fdf_fields["author_email"])
         if fdf_fields.get("maintainer"):
             data_dict["maintainer"] = fdf_fields["maintainer"]
-            log.info("★ SET maintainer=%s", fdf_fields["maintainer"])
         if fdf_fields.get("maintainer_email"):
             data_dict["maintainer_email"] = fdf_fields["maintainer_email"]
-            log.info("★ SET maintainer_email=%s", fdf_fields["maintainer_email"])
     except Exception:
         log.exception(
             "Error extracting author/maintainer from FDF data in %s",

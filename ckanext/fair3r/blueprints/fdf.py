@@ -13,7 +13,6 @@ from flask import Blueprint, redirect, request
 
 from ckanext.fair3r.lib.decorators import login_required
 from ckanext.fair3r.lib.fdf.context import build_fdf_context
-from ckanext.fair3r.lib.fdf.doi import sync_datacite_metadata
 from ckanext.fair3r.lib.fdf.form import extract_fdf_output_json
 from ckanext.fair3r.lib.fdf.package import prepare_fdf_package_data
 from ckanext.fair3r.lib.fdf.render import (
@@ -50,11 +49,6 @@ def fdf_dataset_creation():
     # Handle POST - form submission
     if request.method == "POST":
         try:
-            # Get form data
-
-            # IMPORTANT: Extract fdf_output_json BEFORE clean_dict might remove it
-            fdf_output_json = request.form.get("fdf_output_json")
-
             fdf_output_json, fdf_errors, fdf_error_summary = extract_fdf_output_json(
                 request.form, schema_json, validate_fdf_output_json
             )
@@ -73,13 +67,6 @@ def fdf_dataset_creation():
 
             # Create the dataset
             created_package = get_action("package_create")(context, data_dict)
-
-            try:
-                sync_datacite_metadata(
-                    created_package, context, toolkit, logic.get_action
-                )
-            except Exception:
-                log.exception("Fallback DOI sync failed after package_create")
 
             # Redirect to add resources
             return redirect(
@@ -136,6 +123,11 @@ def fdf_dataset_edit_dispatch(id):
         return dispatch_standard_dataset_edit(id=id, package_type="dataset")
 
     if is_fdf_dataset(pkg_dict):
+        # package_show only checks read access; CKAN's own edit view checks this.
+        try:
+            toolkit.check_access("package_update", context, {"id": pkg_dict["id"]})
+        except NotAuthorized:
+            return toolkit.abort(403, _("Unauthorized to edit this dataset"))
         return render_fdf_dataset_edit(id=id, initial_pkg_dict=pkg_dict)
 
     return dispatch_standard_dataset_edit(id=id, package_type="dataset")

@@ -36,7 +36,7 @@
             hiddenInput.type = 'hidden';
             hiddenInput.name = 'fdf_output_json';
             hiddenInput.id = 'fdf-output-json';
-            hiddenInput.value = '{{ ns.fdf_json | safe }}'; // Populate with existing value if any
+            hiddenInput.value = {{ ns.fdf_json | tojson }}; // Populate with existing value if any
             mainForm.appendChild(hiddenInput);
             console.log('✅ Added fdf_output_json hidden field to main form');
             return true;
@@ -83,7 +83,13 @@
 
   <script type="text/javascript">
     window.FDF_SCHEMA = {{ h.dump_json(h.fdf_schema()) | safe }};
-    window.FDF_DATA = {{ ns.fdf_json | safe }};
+    window.FDF_DATA = (function () {
+      try {
+        return JSON.parse({{ ns.fdf_json | tojson }});
+      } catch (e) {
+        return {};
+      }
+    })();
   </script>
   {% asset 'fair3r/fair3r-js' %}
   {% endif %}

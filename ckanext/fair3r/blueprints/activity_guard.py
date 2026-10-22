@@ -1,18 +1,41 @@
-from ckan import logic
+from ckan import authz, logic, model
+from ckan.common import current_user
 from ckan.plugins import toolkit
 from flask import Blueprint, request
 
 activity_guard = Blueprint("fair3r_activity_guard", __name__)
 
 
+def _members_only(next_auth, context, data_dict):
+    group = model.Group.get(data_dict.get("id"))
+    if group and not authz.has_user_permission_for_group_or_org(
+        group.id, context.get("user"), "read"
+    ):
+        return {
+            "success": False,
+            "msg": toolkit._("Only members can see this activity stream"),
+        }
+    return next_auth(context, data_dict)
+
+
+# Members-only activity streams, for the API as well as the pages (which
+# call these same actions). No auth_allow_anonymous_access: anonymous
+# callers are refused before these even run.
+@toolkit.chained_auth_function
+def organization_activity_list(next_auth, context, data_dict):
+    return _members_only(next_auth, context, data_dict)
+
+
+@toolkit.chained_auth_function
+def group_activity_list(next_auth, context, data_dict):
+    return _members_only(next_auth, context, data_dict)
+
+
 @activity_guard.before_app_request
 def restrict_activity_streams():
-    """Restrict access to organization/group activity streams to members only.
-
-    This runs before all requests. If the endpoint is one of the activity
-    stream views, and the current user is not a member of the target
-    organization/group, render a small forbidden page instead of the stream.
-    """
+    """Show a small forbidden page, instead of CKAN's bare 403, when a
+    non-member opens an organization/group activity stream (the rule itself
+    is the auth functions above)."""
     endpoint = request.endpoint or ""
     if endpoint not in (
         "activity.organization_activity",
@@ -43,10 +66,13 @@ def restrict_activity_streams():
         # Let the original view handle 404 / errors
         return None
 
-    # Membership check using core helper
-    from ckan.lib import helpers as h  # imported here to avoid cyclic imports
-
-    if not h.user_in_org_or_group(group_dict["id"]):
+    try:
+        toolkit.check_access(
+            f"{group_type}_activity_list",
+            {"user": current_user.name},
+            {"id": group_dict["id"]},
+        )
+    except toolkit.NotAuthorized:
         template = f"{group_type}/activity_forbidden.html"
         extra_vars = {
             "id": obj_id_or_name,
