@@ -32,14 +32,15 @@ def _option_labels(section, path):
     return labels
 
 
-def summary_lines(schema, fdf_data):
+def summary_lines(schema, fdf_data, subjects_only=False):
     """[(label, [values])] in schema order. A subject goes under its
     section's `display_mapping.labels[scheme]`, else the section title;
     other answers under `labels[key]`, else the section title, with choice
     values shown by their option label. Cross-references (`crossRefOf`)
     repeat their primary subject and are left out. Subjects no section
     claims (an older scheme, or no schema at all) go under their own
-    scheme name, so nothing entered is dropped."""
+    scheme name, so nothing entered is dropped. `subjects_only`: leave
+    out the answers that aren't subjects (publication year, publisher...)."""
     lines = {}
 
     def add(label, value):
@@ -78,7 +79,7 @@ def summary_lines(schema, fdf_data):
                         if _scheme_matches(scheme, wanted):
                             claimed.add(index)
                             add(labels.get(scheme) or title, subject.get("subject"))
-            elif isinstance(source, str):
+            elif isinstance(source, str) and not subjects_only:
                 options = _option_labels(section, source)
                 for value in _as_list(fdf_data.get(source)):
                     if isinstance(value, (str, int)) and value in options:

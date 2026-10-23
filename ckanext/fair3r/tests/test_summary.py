@@ -74,3 +74,12 @@ def test_without_schema_subjects_go_under_their_scheme():
     fdf = {"subjects": [{"subject": "Mus musculus", "subjectScheme": "NCBITaxon"}]}
 
     assert summary_lines({}, fdf) == [("NCBITaxon", ["Mus musculus"])]
+
+
+def test_subjects_only_leaves_other_answers_out():
+    fdf = {
+        "experimentalInterventions": ["GENE"],
+        "subjects": [{"subject": "Apoe", "subjectScheme": "geneAccessionId"}],
+    }
+
+    assert summary_lines(SCHEMA, fdf, subjects_only=True) == [("Gene", ["Apoe"])]
