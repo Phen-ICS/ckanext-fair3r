@@ -10,7 +10,6 @@ from ckan.plugins import toolkit
 from flask import current_app, redirect, request
 
 from ckanext.fair3r.lib.fdf.context import build_fdf_context as _build_fdf_context
-from ckanext.fair3r.lib.fdf.doi import sync_datacite_metadata as _sync_datacite_metadata
 from ckanext.fair3r.lib.fdf.form import (
     extract_fdf_output_json as _extract_fdf_output_json,
 )
@@ -54,16 +53,6 @@ def render_fdf_dataset_edit(id, initial_pkg_dict=None):
     # Handle POST - form submission
     if request.method == "POST":
         try:
-            log.info("★ POST request to canonical edit flow for dataset=%s", id)
-            log.info("★ request.form.keys(): %s", list(request.form.keys()))
-
-            # Extract fdf_output_json from the edited form
-            fdf_output_json = request.form.get("fdf_output_json")
-            log.info(
-                "★ fdf_output_json extracted from form: %s",
-                "YES" if fdf_output_json else "NO",
-            )
-
             fdf_output_json, fdf_errors, fdf_error_summary = _extract_fdf_output_json(
                 request.form, schema_json, validate_fdf_output_json
             )
@@ -71,9 +60,6 @@ def render_fdf_dataset_edit(id, initial_pkg_dict=None):
                 errors = fdf_errors
                 error_summary = fdf_error_summary
                 raise logic.ValidationError(errors)
-
-            if fdf_output_json:
-                log.info("★ fdf_output_json length: %d", len(fdf_output_json))
 
             # Build data_dict from form data
             data_dict = _prepare_fdf_package_data(
@@ -89,14 +75,10 @@ def render_fdf_dataset_edit(id, initial_pkg_dict=None):
 
             # Use package_patch for partial updates to avoid dropping existing resources
             # when the edit form does not submit the resources array.
+            # ckanext-doi's own after_dataset_update syncs DataCite here.
             pkg_dict = logic.get_action("package_patch")(context, data_dict)
 
-            try:
-                _sync_datacite_metadata(pkg_dict, context, toolkit, logic.get_action)
-            except Exception:
-                log.exception("Fallback DOI sync failed after package_patch")
-
-            log.info("★ Dataset updated successfully: %s", pkg_dict.get("id"))
+            log.info("FDF dataset updated: %s", pkg_dict.get("id"))
 
             if is_draft:
                 return redirect(

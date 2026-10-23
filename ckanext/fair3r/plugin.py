@@ -2,7 +2,6 @@ import json
 import logging
 import os
 import re
-from logging import getLogger
 from typing import ClassVar
 
 import ckan.lib.mailer as ckan_mailer
@@ -16,7 +15,11 @@ from ckan.plugins import (
 from ckanext.doi.interfaces import IDoi  # type: ignore
 from ckanext.fair3r import cli
 from ckanext.fair3r.blueprints.account_request import account_request
-from ckanext.fair3r.blueprints.activity_guard import activity_guard
+from ckanext.fair3r.blueprints.activity_guard import (
+    activity_guard,
+    group_activity_list,
+    organization_activity_list,
+)
 from ckanext.fair3r.blueprints.dataset_choice import dataset_choice
 from ckanext.fair3r.blueprints.download_all import download_all
 from ckanext.fair3r.blueprints.fdf import fdf
@@ -24,14 +27,7 @@ from ckanext.fair3r.blueprints.publish import publish
 from ckanext.fair3r.blueprints.sitemap import sitemap
 from ckanext.fair3r.blueprints.standard_creation import standard_creation
 from ckanext.fair3r.lib import mailer as fair3r_mailer
-from ckanext.fair3r.lib.actions import (
-    external_lookup,
-    external_lookup_auth,
-    fdf_completeness,
-    fdf_completeness_auth,
-    xenbase_strains,
-    xenbase_strains_auth,
-)
+from ckanext.fair3r.lib.actions import fdf_completeness, fdf_completeness_auth
 from ckanext.fair3r.lib.fdf.completeness import (
     completeness_for_package as fair3r_completeness,
 )
@@ -50,8 +46,6 @@ log = logging.getLogger(__name__)
 # Authz/action overrides: expose `get_auth_functions` (`IAuthFunctions`) or `get_actions`.
 # CLI/admin hooks: (removed - tasks now run via cron/Ansible)
 # Validation and schema: implement `IDatasetForm` or `IValidators`.
-
-log = getLogger(__name__)
 
 
 class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
@@ -492,8 +486,6 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
     def get_actions(self):
         """Expose custom server-side actions at /api/3/action/<name>."""
         return {
-            "external_lookup": external_lookup,
-            "xenbase_strains": xenbase_strains,
             "fdf_completeness": fdf_completeness,
         }
 
@@ -501,11 +493,14 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
 
     def get_auth_functions(self):
         """Register auth functions for custom actions."""
-        return {
-            "external_lookup": external_lookup_auth,
-            "xenbase_strains": xenbase_strains_auth,
+        auth = {
             "fdf_completeness": fdf_completeness_auth,
         }
+        # Chaining onto an action that isn't there stops CKAN from starting.
+        if plugins.plugin_loaded("activity"):
+            auth["organization_activity_list"] = organization_activity_list
+            auth["group_activity_list"] = group_activity_list
+        return auth
 
     # IDoi - DataCite metadata customization
 
@@ -513,6 +508,54 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
     def _s(value):
         """Strip a string or return None if empty/non-string."""
         return value.strip() or None if isinstance(value, str) else value
+
+    def _parse_affiliations(self, affiliations):
+        """Affiliation names, and full dicts keeping their identifiers."""
+        if not isinstance(affiliations, list):
+            affiliations = [affiliations]
+        aff_values = []
+        aff_objects = []
+        for a in affiliations:
+            if not isinstance(a, dict):
+                name = str(a).strip()
+                if name:
+                    aff_values.append(name)
+                    aff_objects.append({"name": name})
+                continue
+            name = str(a.get("affiliation", "") or a.get("name", "")).strip()
+            aff_id = self._s(
+                a.get("affiliationIdentifier") or a.get("affiliation_identifier")
+            )
+            if name:
+                aff_values.append(name)
+            if aff_id or name:
+                aff_objects.append(
+                    {
+                        "name": name,
+                        "affiliationIdentifier": aff_id,
+                        "affiliationIdentifierScheme": self._s(
+                            a.get("affiliationIdentifierScheme")
+                            or a.get("affiliation_scheme")
+                        ),
+                        "schemeURI": self._s(
+                            a.get("schemeURI")
+                            or a.get("schemeUri")
+                            or a.get("scheme_uri")
+                        ),
+                    }
+                )
+        return aff_values, aff_objects
+
+    @staticmethod
+    def _split_full_name(full):
+        """(family, given) from "Family, Given" or "Given Family"."""
+        if "," in full:
+            family, given = (part.strip() for part in full.split(",", 1))
+            return family, given
+        parts = full.rsplit(" ", 1)
+        if len(parts) == 2:
+            return parts[1].strip(), parts[0].strip()
+        return full, ""
 
     def _normalize_datacite_person(self, entry, default_contributor_type=None):
         """
@@ -555,80 +598,16 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
         # Prefer pre-structured affiliation_objects (set by datacite_converter) which
         # carry affiliationIdentifier/affiliationIdentifierScheme; fall back to raw
         # affiliations/affiliation which may be strings or dicts from the FDF form.
-        raw_aff_objects = entry.get("affiliation_objects")
-        affiliations = (
-            entry.get("affiliations")
-            if entry.get("affiliations") is not None
-            else entry.get("affiliation")
-        )
-        if raw_aff_objects is not None:
-            # Already normalized — pass through directly.
-            if not isinstance(raw_aff_objects, list):
-                raw_aff_objects = [raw_aff_objects]
-            aff_values = []
-            aff_objects = []
-            for a in raw_aff_objects:
-                if isinstance(a, dict):
-                    name = str(a.get("affiliation", "") or a.get("name", "")).strip()
-                    aff_id = self._s(
-                        a.get("affiliationIdentifier")
-                        or a.get("affiliation_identifier")
-                    )
-                    aff_scheme = self._s(
-                        a.get("affiliationIdentifierScheme")
-                        or a.get("affiliation_scheme")
-                    )
-                    aff_scheme_uri = self._s(
-                        a.get("schemeURI") or a.get("schemeUri") or a.get("scheme_uri")
-                    )
-                    if name:
-                        aff_values.append(name)
-                    if aff_id or name:
-                        aff_objects.append(
-                            {
-                                "name": name,
-                                "affiliationIdentifier": aff_id,
-                                "affiliationIdentifierScheme": aff_scheme,
-                                "schemeURI": aff_scheme_uri,
-                            }
-                        )
-            if aff_values:
-                normalized["affiliations"] = aff_values
-            if aff_objects:
-                normalized["affiliation_objects"] = aff_objects
-        elif affiliations is not None:
-            if not isinstance(affiliations, list):
-                affiliations = [affiliations]
-            aff_values = []
-            aff_objects = []  # full dicts preserving affiliationIdentifier etc.
-            for a in affiliations:
-                if isinstance(a, dict):
-                    name = str(a.get("affiliation", "") or a.get("name", "")).strip()
-                    if name:
-                        aff_values.append(name)
-                    aff_id = self._s(
-                        a.get("affiliationIdentifier")
-                        or a.get("affiliation_identifier")
-                    )
-                    aff_scheme = self._s(
-                        a.get("affiliationIdentifierScheme")
-                        or a.get("affiliation_scheme")
-                    )
-                    aff_scheme_uri = self._s(a.get("schemeURI") or a.get("scheme_uri"))
-                    if aff_id or name:
-                        aff_objects.append(
-                            {
-                                "name": name,
-                                "affiliationIdentifier": aff_id,
-                                "affiliationIdentifierScheme": aff_scheme,
-                                "schemeURI": aff_scheme_uri,
-                            }
-                        )
-                else:
-                    name = str(a).strip()
-                    if name:
-                        aff_values.append(name)
-                        aff_objects.append({"name": name})
+        # Prefer the already structured affiliation_objects when present.
+        affiliations = entry.get("affiliation_objects")
+        if affiliations is None:
+            affiliations = (
+                entry.get("affiliations")
+                if entry.get("affiliations") is not None
+                else entry.get("affiliation")
+            )
+        if affiliations is not None:
+            aff_values, aff_objects = self._parse_affiliations(affiliations)
             if aff_values:
                 normalized["affiliations"] = aff_values
             if aff_objects:
@@ -1036,18 +1015,7 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
                 giv = (p.get("given_name") or "").strip()
 
                 if not fam and not giv:
-                    full = (p.get("full_name") or "").strip()
-                    if "," in full:
-                        parts = [s.strip() for s in full.split(",", 1)]
-                        fam = parts[0]
-                        giv = parts[1] if len(parts) > 1 else ""
-                    else:
-                        # attempt split on last space
-                        parts = full.rsplit(" ", 1)
-                        if len(parts) == 2:
-                            giv, fam = parts[0].strip(), parts[1].strip()
-                        else:
-                            fam = full
+                    fam, giv = self._split_full_name((p.get("full_name") or "").strip())
 
                 return (fam.lower(), giv.lower(), is_org)
 
@@ -1162,16 +1130,7 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
                 full = (person.get("full_name") or "").strip()
                 # If missing family/given, try to parse from full_name
                 if not fam and not giv and full:
-                    if "," in full:
-                        parts = [s.strip() for s in full.split(",", 1)]
-                        fam = parts[0]
-                        giv = parts[1] if len(parts) > 1 else ""
-                    else:
-                        parts = full.rsplit(" ", 1)
-                        if len(parts) == 2:
-                            giv, fam = parts[0].strip(), parts[1].strip()
-                        else:
-                            fam = full
+                    fam, giv = self._split_full_name(full)
                 # apply back if parsed
                 if fam and not person.get("family_name"):
                     person["family_name"] = fam

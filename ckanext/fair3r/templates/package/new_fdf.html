@@ -66,7 +66,7 @@
   <script type="text/javascript">
     window.FDF_SCHEMA = {{ h.dump_json(fdf_schema) | safe }};
 
-    var existingFDFData = {{ h.dump_json(ns.fdf_json or '{}') | safe }};
+    var existingFDFData = {{ (ns.fdf_json or '{}') | tojson }};
     if (existingFDFData && typeof existingFDFData === 'string') {
       try {
         existingFDFData = JSON.parse(existingFDFData);

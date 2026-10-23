@@ -14,6 +14,8 @@ import re
 from typing import Any, ClassVar
 from urllib.parse import urlparse
 
+from ckanext.fair3r.lib.fdf.summary import summary_lines
+
 log = logging.getLogger(__name__)
 
 _URI_SCHEME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*$")
@@ -38,14 +40,6 @@ class DataCiteConverter:
         "treatmentProtocol": {"treatmentProtocol", "TreatmentProtocol"},
         "treatmentDesign": {"treatmentDesign", "TreatmentDesign"},
         "speciesBackground": {"speciesBackground", "geneticBackground"},
-    }
-
-    INTERVENTION_LABELS: ClassVar[dict[str, str]] = {
-        "GENE": "Genetic Modification",
-        "CHEM": "Chemical / Pharmacological Treatment",
-        "DIET": "Diet / Feeding Regimen",
-        "DIS": "Disease Model",
-        "ANAT": "Tissue / Organ of Interest",
     }
 
     VALID_RELATION_TYPES: ClassVar[set[str]] = {
@@ -86,12 +80,16 @@ class DataCiteConverter:
     }
 
     @staticmethod
-    def fdf_to_datacite(fdf_json_str: str) -> dict[str, Any]:
+    def fdf_to_datacite(
+        fdf_json_str: str, schema: dict | None = None
+    ) -> dict[str, Any]:
         """
         Convert FDF JSON to DataCite metadata dictionary.
 
         Args:
             fdf_json_str: JSON string from FDF form output
+            schema: the FDF schema (English), for the summary's labels;
+                loaded when not given
 
         Returns:
             Dict with DataCite-compliant metadata structure
@@ -153,7 +151,11 @@ class DataCiteConverter:
             datacite_metadata["subjects"] = subjects
 
         # 7. Descriptions (abstract, methods, etc.)
-        descriptions = DataCiteConverter._extract_descriptions(fdf_data)
+        if schema is None:
+            from ckanext.fair3r.lib.fdf.schema import load_fdf_schema
+
+            schema = load_fdf_schema("en")
+        descriptions = DataCiteConverter._extract_descriptions(fdf_data, schema)
         if descriptions:
             datacite_metadata["descriptions"] = descriptions
 
@@ -717,7 +719,9 @@ class DataCiteConverter:
         return bool(_URI_SCHEME_RE.match(parsed.scheme))
 
     @staticmethod
-    def _extract_descriptions(fdf_data: dict[str, Any]) -> list[dict[str, Any]]:
+    def _extract_descriptions(
+        fdf_data: dict[str, Any], schema: dict
+    ) -> list[dict[str, Any]]:
         """
         Extract descriptions from FDF data.
 
@@ -747,7 +751,9 @@ class DataCiteConverter:
             )
 
         # Then add the FDF form summary as Methods to preserve study metadata in XML.
-        summary_text = DataCiteConverter._build_fdf_summary_description(fdf_data)
+        summary_text = DataCiteConverter._build_fdf_summary_description(
+            fdf_data, schema
+        )
         if summary_text:
             descriptions_list.append(
                 {"description": summary_text, "descriptionType": "Methods"}
@@ -756,13 +762,13 @@ class DataCiteConverter:
         return descriptions_list
 
     @staticmethod
-    def _build_fdf_summary_description(fdf_data: dict[str, Any]) -> str | None:
-        """Build a concise, human-readable summary from FDF form content."""
+    def _build_fdf_summary_description(
+        fdf_data: dict[str, Any], schema: dict
+    ) -> str | None:
+        """Build a concise, human-readable summary from FDF form content:
+        people, then every answer under the label the schema displays it
+        with (see summary.py)."""
         lines = ["FAIR3R form summary"]
-
-        publication_year = fdf_data.get("publicationYear")
-        if publication_year:
-            lines.append(f"Publication year: {publication_year}")
 
         resource_type = DataCiteConverter._extract_resource_type_label(fdf_data)
         if resource_type:
@@ -776,129 +782,14 @@ class DataCiteConverter:
         if contributor_names:
             lines.append(f"Contributors: {'; '.join(contributor_names)}")
 
-        organisms = DataCiteConverter._collect_subject_values_by_scheme(
-            fdf_data,
-            target_schemes={"NCBITaxon"},
-        )
-        if organisms:
-            lines.append(f"Organisms: {', '.join(organisms)}")
-
-        strains = DataCiteConverter._collect_subject_values_by_prefix(
-            fdf_data, "Strain:"
-        )
-        if strains:
-            lines.append(f"Strains: {', '.join(strains)}")
-
-        genes = DataCiteConverter._collect_subject_values_by_prefix(fdf_data, "Gene:")
-        if genes:
-            lines.append(f"Genes: {', '.join(genes)}")
-
-        alleles = DataCiteConverter._collect_subject_values_by_prefix(
-            fdf_data, "Allele:"
-        )
-        if alleles:
-            lines.append(f"Alleles: {', '.join(alleles)}")
-
-        gene_loci = DataCiteConverter._collect_subject_values_by_prefix(
-            fdf_data, "Gene locus:"
-        )
-        if gene_loci:
-            lines.append(f"Gene chromosome location: {', '.join(gene_loci)}")
-
-        treatment_summaries = DataCiteConverter._extract_treatment_summaries(fdf_data)
-        if treatment_summaries:
-            lines.append(f"Treatments: {'; '.join(treatment_summaries)}")
-
-        chemicals = DataCiteConverter._collect_subject_values_by_scheme(
-            fdf_data,
-            target_schemes={"ChEBI"},
-        )
-        if chemicals:
-            lines.append(f"Chemicals: {', '.join(chemicals)}")
-
-        diets = DataCiteConverter._collect_subject_values_by_scheme(
-            fdf_data,
-            target_schemes={"EFO"},
-            exclude_prefixes=["Strain:"],
-        )
-        if diets:
-            lines.append(f"Diets: {', '.join(diets)}")
-
-        diseases = DataCiteConverter._collect_subject_values_by_scheme(
-            fdf_data,
-            target_schemes={"DOID"},
-        )
-        if diseases:
-            lines.append(f"Disease models: {', '.join(diseases)}")
-
-        anatomy = DataCiteConverter._collect_subject_values_by_scheme(
-            fdf_data,
-            target_schemes={"UBERON"},
-        )
-        if anatomy:
-            lines.append(f"Tissues / organs: {', '.join(anatomy)}")
-
-        interventions = fdf_data.get("experimentalInterventions", [])
-        if isinstance(interventions, list):
-            cleaned_interventions = [
-                DataCiteConverter.INTERVENTION_LABELS.get(
-                    str(item).strip(), str(item).strip()
-                )
-                for item in interventions
-                if str(item).strip()
-            ]
-            if cleaned_interventions:
-                lines.append(
-                    f"Experimental interventions: {', '.join(cleaned_interventions)}"
-                )
+        for label, values in summary_lines(schema, fdf_data):
+            lines.append(f"{label}: {', '.join(values)}")
 
         # Keep the summary only if we have meaningful content beyond the header.
         if len(lines) <= 1:
             return None
 
         return "\n".join(lines)
-
-    @staticmethod
-    def _extract_treatment_summaries(fdf_data: dict[str, Any]) -> list[str]:
-        """Build treatment summaries from chemical subjects and treatment detail arrays."""
-        treatment_names = DataCiteConverter._collect_subject_values_by_scheme(
-            fdf_data,
-            target_schemes={"ChEBI"},
-        )
-
-        protocols = fdf_data.get("treatmentProtocol", [])
-        designs = fdf_data.get("treatmentDesign", [])
-
-        arrays = [
-            treatment_names if isinstance(treatment_names, list) else [],
-            protocols if isinstance(protocols, list) else [],
-            designs if isinstance(designs, list) else [],
-        ]
-
-        max_len = max((len(arr) for arr in arrays), default=0)
-        if max_len == 0:
-            return []
-
-        summaries: list[str] = []
-        for idx in range(max_len):
-            name = (
-                str(treatment_names[idx]).strip() if idx < len(treatment_names) else ""
-            )
-            protocol = str(protocols[idx]).strip() if idx < len(protocols) else ""
-            design = str(designs[idx]).strip() if idx < len(designs) else ""
-
-            parts: list[str] = []
-            if name:
-                parts.append(name)
-            if protocol:
-                parts.append(f"protocol={protocol}")
-            if design:
-                parts.append(f"design={design}")
-
-            if parts:
-                summaries.append(" | ".join(parts))
-
-        return summaries
 
     @staticmethod
     def _extract_resource_type_label(fdf_data: dict[str, Any]) -> str | None:
@@ -1056,99 +947,6 @@ class DataCiteConverter:
             tokens[-1].lower(),
             " ".join(tokens[:-1]).lower(),
         )
-
-    @staticmethod
-    def _collect_subject_values_by_scheme(
-        fdf_data: dict[str, Any],
-        target_schemes: set,
-        exclude_prefixes: list[str] | None = None,
-    ) -> list[str]:
-        """Collect unique subject labels for the given subject schemes."""
-        values: list[str] = []
-        seen: set = set()
-        for subject in fdf_data.get("subjects", []):
-            if not isinstance(subject, dict):
-                continue
-            if str(subject.get("subjectScheme") or "").strip() not in target_schemes:
-                continue
-            label = DataCiteConverter._extract_display_label(subject)
-            if not label:
-                continue
-            if exclude_prefixes and any(
-                label.lower().startswith(p.lower()) for p in exclude_prefixes
-            ):
-                continue
-            if label.lower() not in seen:
-                seen.add(label.lower())
-                values.append(label)
-        return values
-
-    @staticmethod
-    def _collect_subject_values_by_prefix(
-        fdf_data: dict[str, Any], prefix: str
-    ) -> list[str]:
-        """Collect unique subject labels matching a prefix like 'Gene:' or 'Strain:'."""
-        values: list[str] = []
-        seen: set = set()
-        prefix_lower = prefix.lower()
-        for subject in fdf_data.get("subjects", []):
-            if not isinstance(subject, dict):
-                continue
-            raw_label = str(subject.get("subject") or "").strip()
-            if not raw_label.lower().startswith(prefix_lower):
-                continue
-            cleaned = raw_label[
-                len(prefix) :
-            ].strip() or DataCiteConverter._extract_display_label(subject)
-            cleaned = DataCiteConverter._compact_identifier_label(cleaned)
-            if cleaned and cleaned.lower() not in seen:
-                seen.add(cleaned.lower())
-                values.append(cleaned)
-        return values
-
-    @staticmethod
-    def _extract_display_label(subject: dict[str, Any]) -> str:
-        """Return the most human-readable label available for a subject entry."""
-        raw_label = str(subject.get("subject") or "").strip()
-        if raw_label:
-            return DataCiteConverter._compact_identifier_label(raw_label)
-
-        value_uri = str(subject.get("valueURI") or "").strip()
-        if value_uri:
-            return DataCiteConverter._compact_identifier_label(value_uri)
-
-        return ""
-
-    @staticmethod
-    def _compact_identifier_label(value: str) -> str:
-        """Compact common ontology / identifier URIs into shorter human-readable labels."""
-        text = str(value or "").strip()
-        if not text:
-            return ""
-
-        if text.lower().startswith("gene:"):
-            prefix, remainder = text.split(":", 1)
-            compacted = DataCiteConverter._compact_identifier_label(remainder)
-            return f"{prefix}: {compacted}" if compacted else prefix
-
-        if text.lower().startswith("strain:"):
-            prefix, remainder = text.split(":", 1)
-            compacted = DataCiteConverter._compact_identifier_label(remainder)
-            return f"{prefix}: {compacted}" if compacted else prefix
-
-        patterns = [
-            r"https?://identifiers\.org/([^\s/]+:[^\s/]+)$",
-            r"https?://www\.ebi\.ac\.uk/efo/(EFO_[0-9]+)$",
-            r"https?://purl\.obolibrary\.org/obo/([A-Za-z]+_[0-9]+)$",
-            r"https?://.*?/([A-Za-z]+_[0-9]+)$",
-        ]
-
-        for pattern in patterns:
-            match = re.search(pattern, text)
-            if match:
-                return match.group(1)
-
-        return text
 
 
 def convert_fdf_to_datacite_extras(fdf_json_str: str) -> list[dict[str, str]]:

@@ -5,13 +5,8 @@ This blueprint exposes a direct route to the standard CKAN dataset creation form
 bypassing any custom choice or FDF logic. Useful when the extension overrides /dataset/new.
 """
 
+from ckan.views.dataset import CreateView
 from flask import Blueprint, request
-
-try:
-    from ckan.views.dataset import CreateView
-except ImportError:
-    # Fallback for some CKAN installations
-    from ckanext.dataset.views import CreateView
 
 standard_creation = Blueprint("standard_creation", __name__)
 

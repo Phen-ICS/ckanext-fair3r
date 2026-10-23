@@ -119,6 +119,9 @@ class TestBlueprintRoutes:
         monkeypatch.setattr(fdf_module.logic, "get_action", _patched_get_action_fdf)
         monkeypatch.setattr(fdf_module, "is_fdf_dataset", lambda _pkg: True)
         monkeypatch.setattr(
+            fdf_module.toolkit, "check_access", lambda *args, **kwargs: True
+        )
+        monkeypatch.setattr(
             fdf_module,
             "render_fdf_dataset_edit",
             lambda id, initial_pkg_dict=None: {
@@ -202,3 +205,43 @@ class TestBlueprintRoutes:
 
         assert result["route"] == "standard"
         assert result["kwargs"] == {"id": "dataset-id", "package_type": "dataset"}
+
+
+_SCRIPT_BREAKOUT = "</script><script>window.__fair3rXss=1</script>"
+
+
+@pytest.mark.ckan_config("ckan.plugins", "fair3r")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+class TestFdfEditPage:
+    def _fdf_dataset(self, editor):
+        org = factories.Organization(
+            users=[{"name": editor["name"], "capacity": "editor"}]
+        )
+        fdf = json.dumps({"titles": [{"title": "t" + _SCRIPT_BREAKOUT}]})
+        return factories.Dataset(
+            owner_org=org["id"], extras=[{"key": "fdf_output_json", "value": fdf}]
+        )
+
+    def test_non_editor_cannot_open_the_edit_form(self, app):
+        dataset = self._fdf_dataset(factories.User())
+        stranger = factories.UserWithToken()
+
+        response = app.get(
+            toolkit.url_for("fdf.fdf_dataset_edit_dispatch", id=dataset["name"]),
+            headers={"Authorization": stranger["token"]},
+        )
+
+        assert response.status_code == 403
+
+    def test_saved_values_cannot_close_the_script_tag(self, app):
+        editor = factories.UserWithToken()
+        dataset = self._fdf_dataset(editor)
+
+        response = app.get(
+            toolkit.url_for("fdf.fdf_dataset_edit_dispatch", id=dataset["name"]),
+            headers={"Authorization": editor["token"]},
+        )
+
+        assert response.status_code == 200
+        assert "existingFDFData" in response.body
+        assert _SCRIPT_BREAKOUT not in response.body
