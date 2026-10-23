@@ -189,18 +189,3 @@ Organization and group activity streams are **members only**
   permission to view this activity stream" instead of CKAN's bare 403.
 
 Dataset and user activity streams are CKAN's, unchanged.
-
-## 9. External lookups - `external_lookup`
-
-Used by the form where the browser can't call the database itself:
-
-- `provider=xenbase` (`gene_lines`, `gene_mutants`, `strains`): the
-  Xenbase lines of a gene (`geneId` as `XB-GENE-...`), falling back to a
-  stock-centre search by gene symbol; each line's type is then read from
-  its Xenbase page - at most 8 seconds per page and 15 seconds in total,
-  lines past that are listed without a type.
-- `provider=rgd` (`gene_variants`, `alleles`, `rat_alleles`): RGD variants
-  of a rat gene, trying several genome assemblies until one answers.
-
-Logged-in users only; any failure of the remote site returns an empty
-list, not an error.

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-fair3r 3.1.53\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-23 09:09+0000\n"
+"POT-Creation-Date: 2026-10-23 09:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,22 +17,22 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ckanext/fair3r/plugin.py:161
+#: ckanext/fair3r/plugin.py:156
 #, python-brace-format
 msgid "{num} Member"
 msgid_plural "{num} Members"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ckanext/fair3r/plugin.py:165
+#: ckanext/fair3r/plugin.py:160
 msgid "0 Members"
 msgstr ""
 
-#: ckanext/fair3r/plugin.py:172
+#: ckanext/fair3r/plugin.py:167
 msgid "Licenses"
 msgstr ""
 
-#: ckanext/fair3r/plugin.py:1288
+#: ckanext/fair3r/plugin.py:1281
 msgid "License information"
 msgstr ""
 
@@ -62,7 +62,7 @@ msgid "missing"
 msgstr ""
 
 #: ckanext/fair3r/assets/js/fdf-form.js:561
-#: ckanext/fair3r/assets/js/fdf-form.js:1114
+#: ckanext/fair3r/assets/js/fdf-form.js:1052
 msgid "Please select or enter the dependent field first."
 msgstr ""
 
@@ -79,62 +79,62 @@ msgid "No results"
 msgstr ""
 
 #: ckanext/fair3r/assets/js/fdf-form.js:731
-#: ckanext/fair3r/assets/js/fdf-form.js:1707
+#: ckanext/fair3r/assets/js/fdf-form.js:1645
 msgid "Request error"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1368
+#: ckanext/fair3r/assets/js/fdf-form.js:1306
 msgid "Field"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1411
+#: ckanext/fair3r/assets/js/fdf-form.js:1349
 msgid "Searching…"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1667
+#: ckanext/fair3r/assets/js/fdf-form.js:1605
 msgid "Please select an organism model first."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1669
+#: ckanext/fair3r/assets/js/fdf-form.js:1607
 msgid "Search is not available for the selected organism."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1686
+#: ckanext/fair3r/assets/js/fdf-form.js:1624
 msgid "No results found in"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1686
+#: ckanext/fair3r/assets/js/fdf-form.js:1624
 msgid "for this search. You can enter one manually."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1688
+#: ckanext/fair3r/assets/js/fdf-form.js:1626
 msgid "No results found. You can enter one manually"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1703
+#: ckanext/fair3r/assets/js/fdf-form.js:1641
 msgid ""
 "lookup failed (the server could not reach the external service). You can "
 "still enter the value manually."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2468
+#: ckanext/fair3r/assets/js/fdf-form.js:2406
 msgid "FDF validation failed."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2486
+#: ckanext/fair3r/assets/js/fdf-form.js:2424
 msgid "No sections found in schema."
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2493
+#: ckanext/fair3r/assets/js/fdf-form.js:2431
 msgid "Section"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2521
+#: ckanext/fair3r/assets/js/fdf-form.js:2459
 #: ckanext/fair3r/templates/group/snippets/group_item.html:56
 msgid "Remove"
 msgstr ""
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2537
+#: ckanext/fair3r/assets/js/fdf-form.js:2475
 msgid "Add"
 msgstr ""
 
@@ -361,23 +361,6 @@ msgstr ""
 
 #: ckanext/fair3r/blueprints/publish.py:46
 msgid "The dataset is now public."
-msgstr ""
-
-#: ckanext/fair3r/lib/actions.py:233 ckanext/fair3r/lib/actions.py:288
-msgid "geneId is required"
-msgstr ""
-
-#: ckanext/fair3r/lib/actions.py:294
-msgid "geneId must contain a numeric RGD identifier"
-msgstr ""
-
-#: ckanext/fair3r/lib/actions.py:376
-msgid "Authentication required"
-msgstr ""
-
-#: ckanext/fair3r/lib/actions.py:391
-#, python-format
-msgid "Unsupported external lookup: provider=%(provider)r, resource=%(resource)r"
 msgstr ""
 
 #: ckanext/fair3r/lib/admin_i18n.py:9 ckanext/fair3r/templates/admin/index.html:73

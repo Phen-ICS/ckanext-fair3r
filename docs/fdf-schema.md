@@ -3,9 +3,10 @@
 The form is not hard-coded: `fdf-form.js` builds it from `fdf_schema.json`,
 and the server validates, scores and displays the answers from the same
 file. The schema is maintained in
-[fair3r-fdf-schema](https://github.com/Phen-ICS/fair3r-fdf-schema); a copy
-ships with this package (`ckanext/fair3r/schema/`) so the form works
-before the first update. Its own description: "100% declarative schema.
+[fair3r-fdf-schema](https://github.com/Phen-ICS/fair3r-fdf-schema) and
+not included in this package: `ckan fair3r update-schema` downloads it
+into the package's `schema/` directory (ignored by git). Its own
+description: "100% declarative schema.
 All business logic, APIs, conditions and output mapping are here."
 
 ## Top-level keys
@@ -72,9 +73,11 @@ the identifier they belong to.
 
 Called **from the browser**, directly: ORCID, ROR, EBI OLS (NCBITaxon,
 EFO, uPheno, DOID, UBERON), ChEBI, MyGene.info, Ensembl, Alliance of
-Genome Resources. Xenbase has no API the browser can use, so its entry
-points to this plugin's `/api/3/action/external_lookup`, which fetches it
-server side (see [security.md](security.md)).
+Genome Resources. The server makes none of these calls.
+
+The Xenopus strain/line is typed in by hand: Xenbase blocks automated
+access to its line pages (reCAPTCHA) and publishes no API or file for its
+lines. The Xenopus gene itself is found through MyGene.info.
 
 ## Translations
 
@@ -90,8 +93,8 @@ page language is French; everything else (ids, values, URIs) stays as is.
   or missing file gives an empty form (logged), not an error page.
 - Where it's read from: `ckanext.fair3r.fdf_schema_dir` (or the
   `CKANEXT_FAIR3R_FDF_SCHEMA_DIR` environment variable) when it points at
-  a directory containing `fdf_schema.json`; otherwise the package's own
-  `schema/` directory.
+  a directory containing `fdf_schema.json`; otherwise the package's
+  `schema/` directory, where `update-schema` writes it.
 - `ckan fair3r update-schema` downloads `fdf_schema.json` and
   `i18n/fr.json` from the `main` branch on GitHub and writes them into the
   package directory (atomically: temporary file, then rename). A failed

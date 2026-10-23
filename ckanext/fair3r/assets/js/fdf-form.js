@@ -826,68 +826,6 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
 
             // Generic search mode: build query params from API config
 
-            // Generic server-side lookup mode: backend proxy/action is selected by schema.
-            // Kept backward-compatible with the historical `gene_mutants` mode.
-            if (api.query_mode === "server_side_lookup" || api.query_mode === "gene_mutants") {
-              const params = new URLSearchParams();
-              if (api.extra_params) {
-                Object.entries(api.extra_params).forEach(([k, v]) => params.append(k, v));
-              }
-
-              if (api.extra_params_from_context) {
-                for (const [param, contextKey] of Object.entries(api.extra_params_from_context)) {
-                  const contextValue = self._getContextValue(contextKey, input);
-                  const rawValue = contextValue !== null && contextValue !== undefined
-                    ? String(contextValue).trim()
-                    : "";
-                  if (!rawValue) {
-                    return { api, items: [], dependencyMissing: true };
-                  }
-                  params.append(param, rawValue);
-                }
-              }
-
-              let fetchUrl = api.url;
-              const queryString = params.toString();
-              if (queryString) {
-                fetchUrl += "?" + queryString;
-              }
-
-              // Use same-origin credentials by default so the CKAN session cookie is sent
-              // to same-origin server-side lookup actions.
-              const res = await fetch(fetchUrl, {
-                headers: api.headers || {},
-                mode: "cors",
-                credentials: api.credentials || "same-origin"
-              });
-              if (!res.ok) {
-                throw new Error(`${res.status} ${res.statusText}`);
-              }
-
-              const data = await res.json();
-              let mutants = getNestedValue(data, api.result_path, []);
-              if (!Array.isArray(mutants)) {
-                mutants = [];
-              }
-
-              if (val && val.trim()) {
-                const needle = val.trim().toLowerCase();
-                const filterFields = api.filter_fields || api.gene_mutants_filter_fields ||
-                  ["name_clean", "display_clean", "name", "display", "lineId"];
-                const filtered = mutants.filter((m) => {
-                  return filterFields.some((field) => {
-                    const fv = m[field];
-                    return typeof fv === "string" && fv.toLowerCase().includes(needle);
-                  });
-                });
-                mutants = filtered.length > 0 ? filtered : mutants;
-              }
-
-              const limit = api.result_limit || 10;
-              mutants = mutants.slice(0, limit);
-              return { api, items: mutants };
-            }
-
             const queryCandidates = [val];
 
             if (api.query_prefix_with_gene) {

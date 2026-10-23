@@ -6,7 +6,7 @@
 |---|---|---|
 | `ckanext.fair3r.context` | `DEV` | `DEV`, `INTEGRATION`, `VALIDATION` or `PRODUCTION`. A badge with the name shows in the header, except in production. `PRODUCTION`: `/dataset/new` opens the FDF form directly. |
 | `ckanext.fair3r.enable_fdf_integration` | `true` | `false`: `/dataset/new` opens CKAN's standard form |
-| `ckanext.fair3r.fdf_schema_dir` | - | Directory containing `fdf_schema.json` and `i18n/`, used instead of the package's copy (local schema work); also `CKANEXT_FAIR3R_FDF_SCHEMA_DIR`. Ignored if it has no `fdf_schema.json`. |
+| `ckanext.fair3r.fdf_schema_dir` | - | Directory containing `fdf_schema.json` and `i18n/`, used instead of the one `update-schema` downloads (local schema work); also `CKANEXT_FAIR3R_FDF_SCHEMA_DIR`. Ignored if it has no `fdf_schema.json`. |
 | `ckanext.contact.mail_to` | `smtp.mail_from` | Recipient of account requests |
 
 For the RDF output (with ckanext-dcat):
@@ -92,5 +92,4 @@ repository (`i18n/fr.json`), not here.
 | No DOI on the dataset page | ckanext-doi not enabled, or the DOI not yet registered | Enable/configure ckanext-doi; see its logs |
 | Account request: "please try again later" | 20 requests this hour, or the mail server refused | CKAN log: "hourly limit reached" or the mail error |
 | No FDF data in `/dataset/<id>.rdf` or the page's JSON-LD | Profiles not configured, or the dataset has no `datacite.*` extras (not saved with the FDF form) | Settings above; save the dataset with the FDF form once |
-| Gene search for Xenopus slow or without line types | Xenbase slow: the line types stop after 15 s | Expected; retry later |
 | Activity page "no permission" for a member | User not a member of that organization/group | Add them; sysadmins always see it |

@@ -5,8 +5,7 @@
 ```
 Browser
   FDF form (assets/js/fdf-form.js, built from window.FDF_SCHEMA)
-    |  searches ORCID, ROR, OLS, ChEBI, MyGene, Ensembl, Alliance directly;
-    |  Xenbase/RGD through /api/3/action/external_lookup
+    |  searches ORCID, ROR, OLS, ChEBI, MyGene, Ensembl, Alliance directly
     |  POST /dataset/new/fdf or /dataset/edit/<id>  (fdf_output_json + CKAN fields)
     v
 CKAN web process - blueprints/fdf.py, lib/fdf/render.py
@@ -36,8 +35,8 @@ Declared in `plugin.py` (`Fair3RPlugin`):
 | `IConfigurer` | Template and public directories, the `fair3r` webassets; replaces CKAN's password-reset and invitation mail functions with HTML versions (`lib/mailer.py`) |
 | `ITemplateHelpers` | Helpers listed below |
 | `IBlueprint` | Routes listed below |
-| `IActions` | `external_lookup`, `fdf_completeness` |
-| `IAuthFunctions` | Auth of those two actions; chained `organization_activity_list` / `group_activity_list` (only when the `activity` plugin is loaded - chaining onto a missing action stops CKAN from starting) |
+| `IActions` | `fdf_completeness` |
+| `IAuthFunctions` | Auth of that action; chained `organization_activity_list` / `group_activity_list` (only when the `activity` plugin is loaded - chaining onto a missing action stops CKAN from starting) |
 | `IPackageController.after_dataset_update` | `draft_guard.py` |
 | `IDoi` (ckanext-doi) | `build_metadata_dict`, `build_xml_dict`: DataCite metadata from the `datacite.*` extras |
 | `IFacets` | "Licenses" facet title translated (CKAN's French catalogue misses it) |
@@ -65,7 +64,6 @@ plugin interface: `fair3r_dcat_ap`, `fair3r_croissant`, `fair3r_schemaorg`.
 
 | Action | Auth | What |
 |---|---|---|
-| `external_lookup` | Logged in | `provider=xenbase&resource=gene_lines&geneId=...` (Xenbase lines of a gene, with their line type) or `provider=rgd&resource=gene_variants&geneId=...` (RGD variants). Fetches only `www.xenbase.org` and `rest.rgd.mcw.edu` over https. |
 | `fdf_completeness` | Logged in | Completeness of the form being edited, from the live form values (`fdf_output_json`, `title`, `notes`, `tag_string`, `license_id`) |
 
 ## Template helpers
@@ -86,7 +84,7 @@ plugin interface: `fair3r_dcat_ap`, `fair3r_croissant`, `fair3r_schemaorg`.
 |---|---|
 | `plugin.py` | Interfaces above; the `IDoi` metadata merge |
 | `blueprints/*` | Routes above |
-| `lib/actions.py` | `external_lookup`, `fdf_completeness` and their auth |
+| `lib/actions.py` | `fdf_completeness` and its auth |
 | `lib/fdf/schema.py`, `schema_i18n.py` | Load the FDF schema and apply its French sidecar |
 | `lib/fdf/validation.py` | Server-side checks of `fdf_output_json` against the schema |
 | `lib/fdf/form.py`, `package.py`, `extras.py`, `tags.py` | Build the `package_create`/`package_patch` payload from the form |

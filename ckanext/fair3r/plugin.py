@@ -27,12 +27,7 @@ from ckanext.fair3r.blueprints.publish import publish
 from ckanext.fair3r.blueprints.sitemap import sitemap
 from ckanext.fair3r.blueprints.standard_creation import standard_creation
 from ckanext.fair3r.lib import mailer as fair3r_mailer
-from ckanext.fair3r.lib.actions import (
-    external_lookup,
-    external_lookup_auth,
-    fdf_completeness,
-    fdf_completeness_auth,
-)
+from ckanext.fair3r.lib.actions import fdf_completeness, fdf_completeness_auth
 from ckanext.fair3r.lib.fdf.completeness import (
     completeness_for_package as fair3r_completeness,
 )
@@ -491,7 +486,6 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
     def get_actions(self):
         """Expose custom server-side actions at /api/3/action/<name>."""
         return {
-            "external_lookup": external_lookup,
             "fdf_completeness": fdf_completeness,
         }
 
@@ -500,7 +494,6 @@ class Fair3RPlugin(plugins.SingletonPlugin, DefaultTranslation):
     def get_auth_functions(self):
         """Register auth functions for custom actions."""
         auth = {
-            "external_lookup": external_lookup_auth,
             "fdf_completeness": fdf_completeness_auth,
         }
         # Chaining onto an action that isn't there stops CKAN from starting.

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-fair3r 3.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-23 09:09+0000\n"
+"POT-Creation-Date: 2026-10-23 09:55+0000\n"
 "PO-Revision-Date: 2026-07-13 14:45+0000\n"
 "Last-Translator: FAIR3R <debannen@igbmc.fr>\n"
 "Language: fr\n"
@@ -14,22 +14,22 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ckanext/fair3r/plugin.py:161
+#: ckanext/fair3r/plugin.py:156
 #, python-brace-format
 msgid "{num} Member"
 msgid_plural "{num} Members"
 msgstr[0] "{num} membre"
 msgstr[1] "{num} membres"
 
-#: ckanext/fair3r/plugin.py:165
+#: ckanext/fair3r/plugin.py:160
 msgid "0 Members"
 msgstr "0 Membres"
 
-#: ckanext/fair3r/plugin.py:172
+#: ckanext/fair3r/plugin.py:167
 msgid "Licenses"
 msgstr "Licences"
 
-#: ckanext/fair3r/plugin.py:1288
+#: ckanext/fair3r/plugin.py:1281
 msgid "License information"
 msgstr "Informations sur la licence"
 
@@ -65,7 +65,7 @@ msgid "missing"
 msgstr "manquant(s)"
 
 #: ckanext/fair3r/assets/js/fdf-form.js:561
-#: ckanext/fair3r/assets/js/fdf-form.js:1114
+#: ckanext/fair3r/assets/js/fdf-form.js:1052
 msgid "Please select or enter the dependent field first."
 msgstr "Veuillez d'abord sélectionner ou saisir le champ dépendant."
 
@@ -82,41 +82,41 @@ msgid "No results"
 msgstr "Aucun résultat"
 
 #: ckanext/fair3r/assets/js/fdf-form.js:731
-#: ckanext/fair3r/assets/js/fdf-form.js:1707
+#: ckanext/fair3r/assets/js/fdf-form.js:1645
 msgid "Request error"
 msgstr "Erreur de requête"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1368
+#: ckanext/fair3r/assets/js/fdf-form.js:1306
 msgid "Field"
 msgstr "Champ"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1411
+#: ckanext/fair3r/assets/js/fdf-form.js:1349
 msgid "Searching…"
 msgstr "Recherche en cours…"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1667
+#: ckanext/fair3r/assets/js/fdf-form.js:1605
 msgid "Please select an organism model first."
 msgstr "Veuillez d'abord sélectionner un modèle d'organisme."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1669
+#: ckanext/fair3r/assets/js/fdf-form.js:1607
 msgid "Search is not available for the selected organism."
 msgstr "La recherche n'est pas disponible pour l'organisme sélectionné."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1686
+#: ckanext/fair3r/assets/js/fdf-form.js:1624
 msgid "No results found in"
 msgstr "Aucun résultat trouvé dans"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1686
+#: ckanext/fair3r/assets/js/fdf-form.js:1624
 msgid "for this search. You can enter one manually."
 msgstr "pour cette recherche. Vous pouvez en saisir un manuellement."
 
 # | msgid "No Xenopus mutant strain/line found in Xenbase for this gene. You
 # can enter one manually."
-#: ckanext/fair3r/assets/js/fdf-form.js:1688
+#: ckanext/fair3r/assets/js/fdf-form.js:1626
 msgid "No results found. You can enter one manually"
 msgstr "Aucun résultat trouvé. Vous pouvez en saisir un manuellement."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1703
+#: ckanext/fair3r/assets/js/fdf-form.js:1641
 msgid ""
 "lookup failed (the server could not reach the external service). You can "
 "still enter the value manually."
@@ -124,24 +124,24 @@ msgstr ""
 "a échoué (le serveur n'a pas pu joindre le service externe). Vous pouvez "
 "toujours saisir la valeur manuellement."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2468
+#: ckanext/fair3r/assets/js/fdf-form.js:2406
 msgid "FDF validation failed."
 msgstr "La validation FDF a échoué."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2486
+#: ckanext/fair3r/assets/js/fdf-form.js:2424
 msgid "No sections found in schema."
 msgstr "Aucune section trouvée dans le schéma."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2493
+#: ckanext/fair3r/assets/js/fdf-form.js:2431
 msgid "Section"
 msgstr "Section"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2521
+#: ckanext/fair3r/assets/js/fdf-form.js:2459
 #: ckanext/fair3r/templates/group/snippets/group_item.html:56
 msgid "Remove"
 msgstr "Supprimer"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2537
+#: ckanext/fair3r/assets/js/fdf-form.js:2475
 msgid "Add"
 msgstr "Ajouter"
 
@@ -378,25 +378,6 @@ msgstr "Le dataset n'a pas pu être publié et reste privé : {}"
 #: ckanext/fair3r/blueprints/publish.py:46
 msgid "The dataset is now public."
 msgstr "Le dataset est maintenant public."
-
-#: ckanext/fair3r/lib/actions.py:233 ckanext/fair3r/lib/actions.py:288
-msgid "geneId is required"
-msgstr "geneId est obligatoire"
-
-#: ckanext/fair3r/lib/actions.py:294
-msgid "geneId must contain a numeric RGD identifier"
-msgstr "geneId doit contenir un identifiant RGD numérique"
-
-#: ckanext/fair3r/lib/actions.py:376
-msgid "Authentication required"
-msgstr "Authentification requise"
-
-#: ckanext/fair3r/lib/actions.py:391
-#, python-format
-msgid "Unsupported external lookup: provider=%(provider)r, resource=%(resource)r"
-msgstr ""
-"Recherche externe non prise en charge : provider=%(provider)r, "
-"resource=%(resource)r"
 
 #: ckanext/fair3r/lib/admin_i18n.py:9
 #: ckanext/fair3r/templates/admin/index.html:73
@@ -2007,4 +1988,20 @@ msgstr "Dernière activité"
 #~ "métadonnées DataCite (minLength). Le jeu "
 #~ "de données a été mis à jour "
 #~ "localement."
+
+#~ msgid "geneId is required"
+#~ msgstr "geneId est obligatoire"
+
+#~ msgid "geneId must contain a numeric RGD identifier"
+#~ msgstr "geneId doit contenir un identifiant RGD numérique"
+
+#~ msgid "Authentication required"
+#~ msgstr "Authentification requise"
+
+#~ msgid ""
+#~ "Unsupported external lookup: provider=%(provider)r,"
+#~ " resource=%(resource)r"
+#~ msgstr ""
+#~ "Recherche externe non prise en charge"
+#~ " : provider=%(provider)r, resource=%(resource)r"
 

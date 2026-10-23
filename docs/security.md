@@ -8,7 +8,7 @@
 | Edit with the FDF form (`/dataset/edit/<id>`) | CKAN's `package_update` on the dataset, checked before the form is shown (403 otherwise) and again by `package_patch` on save |
 | Publish (`POST /dataset/<id>/publish`) | `package_update`, through `package_patch` as the user; CSRF-protected form post |
 | Download all | `package_show` as the user: a private dataset's ZIP only for those who can see it |
-| `external_lookup`, `fdf_completeness` | Logged-in users |
+| `fdf_completeness` | Logged-in users |
 | Organization/group activity (pages and API) | Members of that organization/group, and sysadmins; anonymous refused |
 | Account request | Anyone, 20 per hour for the whole site |
 | `ckan fair3r update-schema` | Server shell (cron, as the CKAN user) |
@@ -40,13 +40,8 @@ and, in the edit form, to other editors and sysadmins:
 - **From the browser** (the FDF form's searches): ORCID, ROR, EBI OLS and
   ChEBI, MyGene.info, Ensembl, Alliance of Genome Resources - public APIs,
   no credentials, only what the user types is sent.
-- **From the server** (`external_lookup`): only `https://www.xenbase.org`
-  and `https://rest.rgd.mcw.edu`, port 443, no credentials in the URL -
-  checked before each request, so a parameter can't make the server fetch
-  anything else. User values go in as URL-encoded query parameters or a
-  numeric id. Each page read is bounded (20 s, 8 s per Xenbase line page,
-  15 s for all of a gene's lines), and a remote failure returns an empty
-  list.
+- **From the server**: none on a user's behalf. The only outgoing
+  request is `update-schema`'s, below.
 - `update-schema` downloads from `raw.githubusercontent.com/Phen-ICS/fair3r-fdf-schema`
   (30 s timeout). The schema decides which APIs the form calls and which
   regular expressions validate fields: whoever can push to that
@@ -58,10 +53,9 @@ and, in the edit form, to other editors and sysadmins:
   `package_update` through the API accept any `fdf_output_json` and
   `datacite.*` extras without validating them (CKAN's own validation
   still applies). They're still escaped when displayed.
-- **One web request per lookup or ZIP.** `external_lookup` and "Download
-  all" run inside the user's request; with a single web worker, a slow
-  one makes the whole site wait. Bounded as above for lookups; the ZIP's
-  time grows with the dataset's files.
+- **"Download all" is built inside the user's request**: its time grows
+  with the dataset's files, and with a single web worker the whole site
+  waits meanwhile.
 - **The account request limit is shared**: a bot sending 20 requests in an
   hour blocks real requests until the next hour (they get "try again
   later", nothing is lost silently).

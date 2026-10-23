@@ -97,9 +97,13 @@ configuration and operations.
    ckanext.dcat.structured_data.profiles = fair3r_schemaorg
    ```
 
-4. Fetch the latest FDF schema, and keep it up to date daily, as the CKAN
-   user (cron). A copy of the schema ships with the package, so the form
-   works before the first update.
+4. Fetch the FDF schema, then keep it up to date daily, as the CKAN user
+   (cron). The package doesn't include it: until the first
+   `update-schema`, the FDF form is empty.
+
+   ```shell
+   ckan -c /path/to/ckan.ini fair3r update-schema
+   ```
 
    ```cron
    0 0 * * * /path/to/venv/bin/ckan -c /path/to/ckan.ini fair3r update-schema
@@ -116,7 +120,7 @@ configuration and operations.
 |---|---|---|
 | `ckanext.fair3r.context` | `DEV` | `DEV`, `INTEGRATION`, `VALIDATION` or `PRODUCTION`. Shown as a badge in the header (except in production). `PRODUCTION`: `/dataset/new` opens the FDF form directly, without the choice page. |
 | `ckanext.fair3r.enable_fdf_integration` | `true` | `false`: `/dataset/new` opens CKAN's standard form. |
-| `ckanext.fair3r.fdf_schema_dir` | (the copy in the package) | A directory with `fdf_schema.json` and `i18n/*.json`, used instead of the package's copy (for working on the schema locally); also read from `CKANEXT_FAIR3R_FDF_SCHEMA_DIR`. |
+| `ckanext.fair3r.fdf_schema_dir` | (the package's `schema/` directory) | A directory with `fdf_schema.json` and `i18n/*.json`, used instead of the one `update-schema` downloads (for working on the schema locally); also read from `CKANEXT_FAIR3R_FDF_SCHEMA_DIR`. |
 | `ckanext.contact.mail_to` | `smtp.mail_from` | Who receives account requests. |
 
 More in [docs/operations.md](https://github.com/Phen-ICS/ckanext-fair3r/blob/main/docs/operations.md), with troubleshooting.
