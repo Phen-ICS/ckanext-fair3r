@@ -527,7 +527,9 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
           const defaultApiKey = input.data("api");
           const apiKey = self._resolveApiKeyForInput(defaultApiKey, input);
           const val = input.val().trim();
-          const resultsContainer = input.closest(".fdf-api-input-wrapper").siblings(".fdf-api-results");
+          // No .fdf-api-input-wrapper around a preset_or_search input (only
+          // api_search fields have one): its results box is a direct sibling.
+          const resultsContainer = input.siblings(".fdf-api-results");
 
           if (!val) {
             // Use schema metadata to clear dependent fields
