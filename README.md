@@ -28,72 +28,29 @@ rest of this page is for adding the plugin to your own CKAN 2.12.
 
 ## Features
 
-**Creating and editing datasets**
+- **FDF form**: dataset creation and editing with a form generated from
+  [fdf_schema.json](https://github.com/Phen-ICS/fair3r-fdf-schema), which
+  looks terms up in external databases (ORCID, ROR, ontologies, genes,
+  alleles, strains) and is checked again on the server. The answers are
+  stored on the dataset (`fdf_output_json`) with DataCite-shaped
+  `datacite.*` extras derived from them.
+- **Completeness score** on the dataset page and live in the form.
+- **Metadata for other systems**: DataCite DOI metadata through
+  ckanext-doi, DCAT-AP, Croissant and schema.org through ckanext-dcat, a
+  sitemap.
+- **Publishing and downloading**: a "Publish" button (private -> public,
+  one way), "Download all" as one ZIP, a fix for a CKAN/xloader race that
+  can turn a just-published dataset back to draft.
+- **Resource form**: several files at once with progress, duplicate-name
+  warning, routing of large files to Zenodo with
+  [ckanext-zenodo](https://github.com/Phen-ICS/ckanext-zenodo).
+- **Accounts and access**: account request form, members-only
+  organization/group activity streams, HTML emails.
+- **Theme** of fair3r.fr, French translations.
 
-- `/dataset/new` offers a choice between the FDF and CKAN's standard
-  form. With `ckanext.fair3r.context = PRODUCTION` it opens the FDF form
-  directly. Visitors who aren't logged in are sent to the account
-  request page.
-- The FDF form (`/dataset/new/fdf`) is generated from
-  [fdf_schema.json](https://github.com/Phen-ICS/fair3r-fdf-schema). It
-  searches external databases for genes, alleles, strains, organisms and
-  ontology terms, and is checked again on the server: required fields,
-  vocabularies, formats, duplicate people, controlled subjects.
-- The FDF answers are stored on the dataset as the `fdf_output_json` extra,
-  with derived `datacite.*` extras, and they fill CKAN's author and
-  maintainer fields.
-- `/dataset/edit/<id>` opens the FDF form for datasets created with it,
-  and CKAN's own form for the others. Editing requires the right to
-  update the dataset.
-- A completeness score is shown on the dataset page and updates live
-  in the form (`fdf_completeness` action). When ckanext-citations is
-  enabled, the score appears in its "FAIR & Impact" panel instead.
-- `external_lookup` action: server-side lookups the form can't make from
-  the browser (Xenbase lines, RGD variants). Logged-in users only, and
-  only to those two hosts.
-- Resource form: several files at once, a progress bar, a warning when a
-  file name already exists in the dataset. When
-  [ckanext-zenodo](https://github.com/Phen-ICS/ckanext-zenodo) is set up,
-  large or non-tabular files are sent to Zenodo instead of CKAN storage.
-
-**Metadata for other systems**
-
-- DataCite: through ckanext-doi's `IDoi` interface, the DOI metadata is
-  built from the FDF answers (creators with ORCID and ROR, contributors,
-  subjects, related identifiers).
-- RDF profiles for ckanext-dcat: `fair3r_dcat_ap`, `fair3r_croissant`,
-  `fair3r_schemaorg` (the schema.org one is also embedded in dataset
-  pages by DCAT's `structured_data` plugin).
-- `/sitemap.xml`: home page, organizations and public datasets.
-
-**Publishing and downloading**
-
-- "Publish" button on the dataset page (`POST /dataset/<id>/publish`):
-  makes a private dataset public in one step (and, with ckanext-doi
-  enabled, mints its DOI).
-  It only works in that direction; making a dataset private again stays a
-  Manage -> Visibility edit.
-- "Download all" (`/dataset/<id>/download-all`): one ZIP with the files
-  stored in CKAN and a metadata summary. Files stored on Zenodo are
-  offered as Zenodo's own ZIP.
-- Self-heals a CKAN/xloader race that can silently turn a just-published
-  dataset back to draft (`lib/fdf/draft_guard.py`).
-
-**Accounts and access**
-
-- `/account/request`: a form that emails the administrators, limited to
-  20 requests per hour for the whole site.
-- Organization and group activity streams are visible to members only,
-  on the pages and through the API (when CKAN's `activity` plugin is on).
-- Password reset and invitation emails in HTML.
-
-**Theme**
-
-- Templates for the header, footer, home page and dataset pages, with a
-  badge showing the environment (DEV, INTEGRATION, VALIDATION).
-- Short licence names (CC BY, ODbL...) in licence lists.
-- French translations, including CKAN core strings its own French
-  catalogue leaves untranslated (`lib/admin_i18n.py`).
+The full specification is in [docs/](https://github.com/Phen-ICS/ckanext-fair3r/blob/main/docs/README.md): architecture, the
+FDF schema, every workflow step by step, metadata mapping, security,
+configuration and operations.
 
 ## Requirements
 
@@ -159,11 +116,10 @@ rest of this page is for adding the plugin to your own CKAN 2.12.
 |---|---|---|
 | `ckanext.fair3r.context` | `DEV` | `DEV`, `INTEGRATION`, `VALIDATION` or `PRODUCTION`. Shown as a badge in the header (except in production). `PRODUCTION`: `/dataset/new` opens the FDF form directly, without the choice page. |
 | `ckanext.fair3r.enable_fdf_integration` | `true` | `false`: `/dataset/new` opens CKAN's standard form. |
-| `ckanext.fair3r.fdf_schema_dir` | (the copy in the package) | A directory with `fdf_schema.json` and `i18n/*.json`, used instead of the package's copy; `update-schema` then downloads nothing. For working on the schema locally (a clone of [fair3r-fdf-schema](https://github.com/Phen-ICS/fair3r-fdf-schema)). Also read from the `CKANEXT_FAIR3R_FDF_SCHEMA_DIR` environment variable. |
+| `ckanext.fair3r.fdf_schema_dir` | (the copy in the package) | A directory with `fdf_schema.json` and `i18n/*.json`, used instead of the package's copy (for working on the schema locally); also read from `CKANEXT_FAIR3R_FDF_SCHEMA_DIR`. |
 | `ckanext.contact.mail_to` | `smtp.mail_from` | Who receives account requests. |
 
-Also used from CKAN's own settings: `ckan.site_url` and `ckan.site_title`
-(emails, sitemap), the `smtp.*` settings (emails).
+More in [docs/operations.md](https://github.com/Phen-ICS/ckanext-fair3r/blob/main/docs/operations.md), with troubleshooting.
 
 ## Commands
 
@@ -201,19 +157,9 @@ integration server uses - keep their plugin lists in sync.
 
 ### Translations
 
-The source strings are English; the French catalogue is in
-`ckanext/fair3r/i18n/fr/`. After changing user-facing text (Python,
-templates or JavaScript):
-
-```shell
-python setup.py extract_messages
-python setup.py update_catalog -l fr
-# translate the new entries in ckanext/fair3r/i18n/fr/LC_MESSAGES/ckanext-fair3r.po
-python setup.py compile_catalog
-```
-
-Commit the `.pot`, `.po` and `.mo` files. To translate a CKAN core string
-its French catalogue misses, add it to `lib/admin_i18n.py`.
+English source strings, French catalogue in `ckanext/fair3r/i18n/fr/`:
+see [docs/operations.md](https://github.com/Phen-ICS/ckanext-fair3r/blob/main/docs/operations.md#translations) for the
+extract / update / compile steps.
 
 ## License
 
