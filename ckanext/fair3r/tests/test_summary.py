@@ -32,7 +32,7 @@ SCHEMA = {
             "title": "Disease Model",
             "display_mapping": {
                 "source": "subjects",
-                "filter": {"subjectScheme": ["MONDO", "DOID", "UPHENO"]},
+                "filter": {"subjectScheme": ["MONDO", "UPHENO"]},
                 "labels": {"UPHENO": "Phenotype"},
             },
         },
@@ -52,7 +52,7 @@ def test_labels_come_from_the_schema():
             },
             {"subject": "Gene: Lep", "subjectScheme": "geneAccessionId"},
             {"subject": "Rett syndrome", "subjectScheme": "MONDO"},
-            {"subject": "cystic fibrosis", "subjectScheme": "DOID"},
+            {"subject": "cystic fibrosis", "subjectScheme": "MONDO"},
             {"subject": "abnormal gait", "subjectScheme": "UPHENO"},
             {"subject": "something", "subjectScheme": "NewScheme"},
         ],
@@ -62,7 +62,7 @@ def test_labels_come_from_the_schema():
         ("Interventions", ["Genetic Modification"]),
         # cross-reference left out, pre-3.0.4 "Gene: " prefix stripped
         ("Gene", ["Apoe", "Lep"]),
-        # no label for MONDO/DOID: the section title
+        # no label for MONDO: the section title
         ("Disease Model", ["Rett syndrome", "cystic fibrosis"]),
         ("Phenotype", ["abnormal gait"]),
         # no section claims it: kept, under its scheme name

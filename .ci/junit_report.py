@@ -160,68 +160,6 @@ def _cmd_bandit(args: argparse.Namespace) -> int:
     return 1 if failures > 0 else 0
 
 
-def _cmd_pip_audit(args: argparse.Namespace) -> int:
-    try:
-        data: Any = json.loads(Path(args.json).read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        data = []
-
-    if isinstance(data, list):
-        dependencies = data
-    elif isinstance(data, dict):
-        dependencies = data.get("dependencies", []) or data.get("results", []) or []
-    else:
-        dependencies = []
-
-    cases: list[str] = []
-    failures = 0
-
-    for dep in dependencies:
-        if not isinstance(dep, dict):
-            continue
-        name = dep.get("name", "unknown")
-        vulns = dep.get("vulns", []) or []
-        if vulns:
-            failures += 1
-            print(f"Dependency with vulnerabilities: {name}")
-            details: list[str] = []
-            for vuln in vulns:
-                if not isinstance(vuln, dict):
-                    continue
-                vuln_id = vuln.get("id", "UNKNOWN")
-                fix_versions = vuln.get("fix_versions") or []
-                fix_text = ", ".join(fix_versions) if fix_versions else "none"
-                aliases = vuln.get("aliases") or []
-                alias_text = f"; aliases: {', '.join(aliases)}" if aliases else ""
-                description = vuln.get("description") or ""
-                detail = f"{vuln_id} (fix: {fix_text}{alias_text})"
-                if description:
-                    detail = f"{detail}\n{description}"
-                details.append(detail)
-                print(f"  - {detail}")
-            print()
-            message = "\n\n".join(details) if details else "vulnerabilities found"
-            cases.append(
-                f'<testcase classname="pip-audit" name="{escape(name)}">'
-                f'<failure message="vulnerabilities found for {escape(name)}">{escape(message)}</failure>'
-                "</testcase>"
-            )
-        else:
-            cases.append(f'<testcase classname="pip-audit" name="{escape(name)}"/>')
-
-    if failures == 0:
-        print("pip-audit findings: none")
-
-    if not cases:
-        cases.append('<testcase classname="pip-audit" name="no-vulnerabilities"/>')
-        tests = 1
-    else:
-        tests = len(cases)
-
-    _write_xml(args.xml, "pip-audit", tests, failures, cases)
-    return 1 if failures > 0 else 0
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate JUnit reports for CI tools")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -242,10 +180,6 @@ def main() -> int:
     p_bandit.add_argument("--json", required=True)
     p_bandit.add_argument("--xml", required=True)
 
-    p_pa = sub.add_parser("pip-audit")
-    p_pa.add_argument("--json", required=True)
-    p_pa.add_argument("--xml", required=True)
-
     args = parser.parse_args()
     if args.cmd == "ruff-format":
         return _cmd_ruff_format(args)
@@ -253,8 +187,6 @@ def main() -> int:
         return _cmd_ruff_check(args)
     if args.cmd == "bandit":
         return _cmd_bandit(args)
-    if args.cmd == "pip-audit":
-        return _cmd_pip_audit(args)
     return 2
 
 

@@ -374,7 +374,7 @@ class DataCiteConverter:
 
         FDF stores biological annotations as subjects with:
         - subject: text label (e.g., "Mus musculus", "Gene: Apoe")
-        - subjectScheme: vocabulary scheme (NCBITaxon, ChEBI, DOID, etc.)
+        - subjectScheme: vocabulary scheme (NCBITaxon, ChEBI, MONDO, etc.)
         - valueURI: persistent identifier URI
         - schemeURI: base URI for the scheme
 

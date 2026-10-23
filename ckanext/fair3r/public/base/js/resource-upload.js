@@ -643,12 +643,26 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Same XHR-with-progress shape as createOneResource above, pointed at
-  // ckanext-zenodo's upload blueprint instead of resource_create - that
-  // endpoint streams straight to Zenodo's bucket rather than CKAN's own
-  // storage, so there's no CKAN resource id to report back (resourceId
-  // stays null; nothing here needs it).
+  // To Zenodo through ckanext-zenodo, not resource_create - there's no
+  // CKAN resource id to report back (resourceId stays null; nothing here
+  // needs it). In chunks with its zenodo-chunked-upload.js (short
+  // requests, whatever the file's size; the CKAN worker sends the file on
+  // to Zenodo); in one request below if that script isn't there (an
+  // older ckanext-zenodo).
   function createZenodoResource(file, packageName, onProgress, forced) {
+    if (window.ZenodoChunkedUpload) {
+      return window.ZenodoChunkedUpload.upload(file, packageName, {
+        forced: forced,
+        onProgress: onProgress
+      }).then(function (result) {
+        return {
+          ok: result.ok,
+          file: file,
+          resourceId: null,
+          errorMessage: result.ok ? null : (result.errorMessage || translate("Upload to Zenodo failed"))
+        };
+      });
+    }
     return new Promise(function (resolve) {
       var fd = new FormData();
       fd.append("upload", file, file.name);

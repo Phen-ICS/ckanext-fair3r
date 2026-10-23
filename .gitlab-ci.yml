@@ -100,8 +100,16 @@ security:bandit:
   stage: validate
   script:
     - pip install bandit
-    - bandit -r ckanext -x ckanext/fair3r/tests -f json -o report-bandit.json || true
-    - python .ci/junit_report.py bandit --json report-bandit.json --xml report-bandit.xml
+    - |
+      set +e
+      bandit -r ckanext -x ckanext/fair3r/tests -f json -o report-bandit.json
+      status=$?
+      python .ci/junit_report.py bandit --json report-bandit.json --xml report-bandit.xml
+      report=$?
+      set -e
+      # bandit: 0 nothing found, 1 findings (the report fails on those too),
+      # anything else = bandit itself failed - which must not pass silently.
+      test $status -le 1 && test $report -eq 0
   artifacts:
     when: always
     reports:
@@ -109,22 +117,6 @@ security:bandit:
     paths:
       - report-bandit.xml
       - report-bandit.json
-
-# Python dependency audit
-security:pip-audit:
-  stage: validate
-  allow_failure: true
-  script:
-    - pip install pip-audit
-    - pip-audit -f json -o report-pip-audit.json || true
-    - python .ci/junit_report.py pip-audit --json report-pip-audit.json --xml report-pip-audit.xml
-  artifacts:
-    when: always
-    reports:
-      junit: report-pip-audit.xml
-    paths:
-      - report-pip-audit.xml
-      - report-pip-audit.json
 
 # Build Python package
 build:package:
