@@ -41,4 +41,6 @@ def admin_page_msgids():
         toolkit._("{number} datasets have been purged"),
         toolkit._("{number} groups have been purged"),
         toolkit._("{number} organizations have been purged"),
+        # organization/snippets/info.html, not an admin page
+        toolkit._("There is no description for this organization."),
     )

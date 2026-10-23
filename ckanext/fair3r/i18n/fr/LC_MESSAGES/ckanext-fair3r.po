@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-fair3r 3.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-22 14:43+0000\n"
+"POT-Creation-Date: 2026-10-23 09:09+0000\n"
 "PO-Revision-Date: 2026-07-13 14:45+0000\n"
 "Last-Translator: FAIR3R <debannen@igbmc.fr>\n"
 "Language: fr\n"
@@ -586,6 +586,10 @@ msgstr "{number} groupes ont été purgés"
 #, python-brace-format
 msgid "{number} organizations have been purged"
 msgstr "{number} organisations ont été purgées"
+
+#: ckanext/fair3r/lib/admin_i18n.py:45
+msgid "There is no description for this organization."
+msgstr "Il n'y a pas de description pour cette organisation."
 
 #: ckanext/fair3r/lib/mailer.py:52
 msgid "organization"
