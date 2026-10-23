@@ -63,7 +63,7 @@ chemicals, diet, disease, anatomy.
 
 Most biological answers end up as **subjects**: organism (`NCBITaxon`),
 strain (EFO), gene (`geneAccessionId`), allele (`alleleAccessionId`),
-mutation type, chemicals (ChEBI), diet (EFO), disease (DOID) and its
+mutation type, chemicals (ChEBI), diet (EFO), disease (MONDO; DOID before schema 3.0.8) and its
 phenotypes (uPheno), tissue (UBERON). A gene's or allele's cross-references are extra
 subjects with their own provider as `subjectScheme` (e.g. `MGI`) and
 `crossRefOf` naming the primary scheme; the dataset page shows them with
@@ -72,7 +72,7 @@ the identifier they belong to.
 ## External APIs
 
 Called **from the browser**, directly: ORCID, ROR, EBI OLS (NCBITaxon,
-EFO, uPheno, DOID, UBERON), ChEBI, MyGene.info, Ensembl, Alliance of
+EFO, uPheno, MONDO, UBERON), ChEBI, MyGene.info, Ensembl, Alliance of
 Genome Resources. The server makes none of these calls.
 
 The Xenopus strain/line is typed in by hand: Xenbase blocks automated

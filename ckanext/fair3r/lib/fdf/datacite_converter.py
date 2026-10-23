@@ -826,7 +826,8 @@ class DataCiteConverter:
 
         diseases = DataCiteConverter._collect_subject_values_by_scheme(
             fdf_data,
-            target_schemes={"DOID"},
+            # MONDO since schema 3.0.8; DOID for datasets saved before
+            target_schemes={"MONDO", "DOID"},
         )
         if diseases:
             lines.append(f"Disease models: {', '.join(diseases)}")

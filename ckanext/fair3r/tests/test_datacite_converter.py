@@ -262,6 +262,31 @@ class TestDataCiteConverter:
         # Should return dict even if empty
         assert isinstance(result, dict)
 
+    def test_summary_lists_mondo_and_older_doid_disease_models(self):
+        fdf_json = json.dumps(
+            {
+                "subjects": [
+                    {
+                        "subject": "Rett syndrome",
+                        "subjectScheme": "MONDO",
+                        "valueURI": "http://purl.obolibrary.org/obo/MONDO_0010726",
+                    },
+                    {
+                        "subject": "cystic fibrosis",
+                        "subjectScheme": "DOID",
+                        "valueURI": "http://purl.obolibrary.org/obo/DOID_1485",
+                    },
+                ]
+            }
+        )
+
+        result = DataCiteConverter.fdf_to_datacite(fdf_json)
+        methods = next(
+            d for d in result["descriptions"] if d["descriptionType"] == "Methods"
+        )
+        assert "Rett syndrome" in methods["description"]
+        assert "cystic fibrosis" in methods["description"]
+
     def test_summary_description_dedupes_same_contributor_name(self):
         fdf_json = json.dumps(
             {
