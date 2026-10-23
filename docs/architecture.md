@@ -90,6 +90,7 @@ plugin interface: `fair3r_dcat_ap`, `fair3r_croissant`, `fair3r_schemaorg`.
 | `lib/fdf/form.py`, `package.py`, `extras.py`, `tags.py` | Build the `package_create`/`package_patch` payload from the form |
 | `lib/fdf/converter.py` | Author/maintainer from the FDF creators |
 | `lib/fdf/datacite_converter.py` | FDF -> DataCite (the `datacite.*` extras; also a standalone DataCite XML builder used by tests) |
+| `lib/fdf/summary.py` | The answers as (label, values) lines, labelled from the schema's `display_mapping` (DataCite summary, ckanext-zenodo) |
 | `lib/fdf/completeness.py` | Completeness score |
 | `lib/fdf/render.py`, `context.py`, `options.py` | FDF create/edit views and their template variables |
 | `lib/fdf/draft_guard.py` | Self-healing of the xloader "back to draft" race |

@@ -280,12 +280,23 @@ class TestDataCiteConverter:
             }
         )
 
-        result = DataCiteConverter.fdf_to_datacite(fdf_json)
+        schema = {
+            "sections": [
+                {
+                    "title": "Disease Model",
+                    "display_mapping": {
+                        "source": "subjects",
+                        "filter": {"subjectScheme": ["MONDO", "DOID"]},
+                    },
+                }
+            ]
+        }
+
+        result = DataCiteConverter.fdf_to_datacite(fdf_json, schema)
         methods = next(
             d for d in result["descriptions"] if d["descriptionType"] == "Methods"
         )
-        assert "Rett syndrome" in methods["description"]
-        assert "cystic fibrosis" in methods["description"]
+        assert "Disease Model: Rett syndrome, cystic fibrosis" in methods["description"]
 
     def test_summary_description_dedupes_same_contributor_name(self):
         fdf_json = json.dumps(
@@ -354,52 +365,52 @@ class TestDataCiteConverter:
         assert "&quot;" in xml or '"' not in xml  # " should be escaped
         assert "&apos;" in xml or "'" not in xml  # ' should be escaped
 
-    def test_summary_includes_gene_locus_and_treatment_details(self):
-        """Technical summary should include gene locus and treatment detail fields."""
+    def test_summary_includes_treatment_details_with_schema_labels(self):
+        """Treatment details are listed under the labels the schema gives them,
+        choice values by their option label."""
         fdf_json = json.dumps(
             {
-                "creators": [{"givenName": "Alice", "familyName": "Doe"}],
-                "publicationYear": 2026,
                 "subjects": [
-                    {
-                        "subject": "Gene: Apoe",
-                        "subjectScheme": "GeneID",
-                        "valueURI": "https://identifiers.org/ncbigene:11816",
-                    },
-                    {
-                        "subject": "Allele: Apoetm1Unc",
-                        "subjectScheme": "AlleleID",
-                        "valueURI": "https://identifiers.org/ensembl:ENSMUSG00000002985",
-                    },
-                    {
-                        "subject": "Gene locus: 7:19620966-19630842",
-                        "subjectScheme": "GeneLocus",
-                        "valueURI": "7:19620966-19630842",
-                    },
-                    {
-                        "subject": "CHEBI:41774",
-                        "subjectScheme": "ChEBI",
-                        "valueURI": "http://purl.obolibrary.org/obo/CHEBI_41774",
-                    },
+                    {"subject": "dexamethasone", "subjectScheme": "ChEBI"},
                 ],
                 "treatmentProtocol": ["acute"],
                 "treatmentDesign": ["50 mg/kg IP daily for 7 days"],
             }
         )
+        schema = {
+            "sections": [
+                {
+                    "title": "Molecules & Treatments",
+                    "fields": [
+                        {
+                            "id": "treatmentprotocol",
+                            "type": "select",
+                            "options": [{"value": "acute", "label": "Acute"}],
+                            "output": {"path": "treatmentProtocol"},
+                        }
+                    ],
+                    "display_mapping": {
+                        "source": ["subjects", "treatmentProtocol", "treatmentDesign"],
+                        "filter": {"subjectScheme": "ChEBI"},
+                        "labels": {
+                            "treatmentProtocol": "Treatment Protocol",
+                            "treatmentDesign": "Treatment Design",
+                        },
+                    },
+                }
+            ]
+        }
 
-        result = DataCiteConverter.fdf_to_datacite(fdf_json)
-        methods = next(
-            d
-            for d in result.get("descriptions", [])
-            if d.get("descriptionType") == "Methods"
+        result = DataCiteConverter.fdf_to_datacite(fdf_json, schema)
+        technical_text = next(
+            d["description"]
+            for d in result["descriptions"]
+            if d["descriptionType"] == "Methods"
         )
-        technical_text = methods["description"]
 
-        assert "Alleles:" in technical_text
-        assert "Gene chromosome location:" in technical_text
-        assert "Treatments:" in technical_text
-        assert "protocol=acute" in technical_text
-        assert "design=50 mg/kg IP daily for 7 days" in technical_text
+        assert "Molecules & Treatments: dexamethasone" in technical_text
+        assert "Treatment Protocol: Acute" in technical_text
+        assert "Treatment Design: 50 mg/kg IP daily for 7 days" in technical_text
 
     def test_invalid_subject_value_uri_is_dropped(self):
         """Invalid anyURI values (e.g. raw chromosome ranges) must be omitted for DataCite."""

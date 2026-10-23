@@ -29,8 +29,26 @@ given.
 | `datacite.publisher`, `publisherIdentifier`, `publisherIdentifierScheme`, `schemeURI` | `publisher`, `publisherIdentifier`; the scheme is inferred from the identifier (ROR, ORCID or DOI) |
 | `datacite.types` | First of `types[]`; default `Dataset` / `Dataset` |
 | `datacite.subjects` | `subjects[]`: `subject`, `subjectScheme`, `valueURI` and `schemeURI` when they're valid absolute URIs (invalid ones dropped, logged). Old UI prefixes ("Gene: ", "Strain: "...) stripped from labels. Plus subjects rebuilt from older structured keys (`geneSymbol`, `alleleSymbol`, `treatmentName`...) when present. Deduplicated on label + scheme + URI. |
-| `datacite.descriptions` | `descriptions[]` as given (default type `Abstract`), plus a generated **Methods** description summarizing the form: publication year, resource type, creators, contributors, organisms, strains, genes, alleles, gene loci, treatments, chemicals, diets, disease models, tissues/organs |
+| `datacite.descriptions` | `descriptions[]` as given (default type `Abstract`), plus a generated **Methods** description summarizing the form: resource type, creators, contributors, then every answer under the label the schema displays it with (see below) |
 | `datacite.relatedIdentifiers` | `relatedIdentifiers[]`: identifier, type (default `URL`), relation type - `IsRelatedTo` and any value outside DataCite's list become `References` |
+
+### The Methods summary
+
+`lib/fdf/summary.py` reads the labels from the schema, not from code, so
+a new ontology or section needs no code change:
+
+- each section's `display_mapping` says which subjects it shows
+  (`filter.subjectScheme`) and which other answers (`source`); a value goes
+  under `labels[scheme]` or `labels[key]`, else the section's title;
+- choice answers are shown by their option label (`GENE` -> "Genetic
+  Modification");
+- cross-references (`crossRefOf`) are left out: they repeat their primary
+  gene or allele;
+- a subject no section claims (an older scheme, or no schema loaded) goes
+  under its own scheme name, so nothing entered is dropped.
+
+Example: "Species: Mus musculus", "Gene: Apoe", "Disease Model: Rett
+syndrome". ckanext-zenodo uses the same lines in the Zenodo record.
 
 ## Author and maintainer
 
