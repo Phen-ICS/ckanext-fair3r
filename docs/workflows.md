@@ -73,8 +73,11 @@ The resource form is CKAN's, enhanced by `resource-upload.js`:
   for a file already on Zenodo).
 - **Zenodo**: when ckanext-zenodo is enabled with a token, files larger
   than `ckan.max_resource_size` or not readable by the data viewer (or
-  with "Zenodo" switched on) go to ckanext-zenodo's upload endpoint
-  instead. See that plugin's documentation.
+  with "Zenodo" switched on) go to ckanext-zenodo instead, in 16 MB
+  chunks (its `zenodo-chunked-upload.js`, loaded by `base.html`); the
+  CKAN worker then sends the file on to Zenodo, and the dataset page
+  shows its editors any send that failed, with Retry / Remove. See that
+  plugin's documentation.
 - **Finish**: the dataset is made active with `package_revise`
   (`state = active`). `package_revise` locks the row while it reads it,
   unlike `package_patch`, whose read can return a stale cached copy and
