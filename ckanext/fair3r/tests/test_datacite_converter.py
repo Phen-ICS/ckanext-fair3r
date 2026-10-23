@@ -262,7 +262,7 @@ class TestDataCiteConverter:
         # Should return dict even if empty
         assert isinstance(result, dict)
 
-    def test_summary_lists_mondo_and_older_doid_disease_models(self):
+    def test_summary_lists_disease_models_under_their_schema_label(self):
         fdf_json = json.dumps(
             {
                 "subjects": [
@@ -273,8 +273,8 @@ class TestDataCiteConverter:
                     },
                     {
                         "subject": "cystic fibrosis",
-                        "subjectScheme": "DOID",
-                        "valueURI": "http://purl.obolibrary.org/obo/DOID_1485",
+                        "subjectScheme": "MONDO",
+                        "valueURI": "http://purl.obolibrary.org/obo/MONDO_0009061",
                     },
                 ]
             }
@@ -286,7 +286,7 @@ class TestDataCiteConverter:
                     "title": "Disease Model",
                     "display_mapping": {
                         "source": "subjects",
-                        "filter": {"subjectScheme": ["MONDO", "DOID"]},
+                        "filter": {"subjectScheme": ["MONDO"]},
                     },
                 }
             ]
