@@ -52,14 +52,6 @@ and, in the edit form, to other editors and sysadmins:
   regular expressions validate fields: whoever can push to that
   repository's `main` branch changes the form on every server within a day.
 
-## Limits
-
-| What | Limit |
-|---|---|
-| Account requests | 20 per hour, site-wide (behind the reverse proxy every visitor has the same address, so a per-visitor count would mean nothing) |
-| Xenbase line types | 15 s per lookup in total |
-| Uploads | CKAN's own `ckan.max_resource_size`; Zenodo uploads have ckanext-zenodo's limits |
-
 ## Known limitations
 
 - **FDF checks only apply to the form.** `package_create` /
