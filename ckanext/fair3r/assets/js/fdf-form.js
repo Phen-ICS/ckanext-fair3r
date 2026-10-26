@@ -420,8 +420,13 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
       let box = $("#fair3r-completeness");
       if (box.length === 0) {
         box = $('<div id="fair3r-completeness"></div>');
+        // In the sidebar, where it stays in view while the form scrolls
+        // (fair3r.css); above the form where there is no sidebar.
+        const sidebar = $("aside.secondary").first();
         const stages = this._formEl ? this._formEl.find("ol.stages").first() : $();
-        if (stages.length) {
+        if (sidebar.length) {
+          sidebar.prepend(box);
+        } else if (stages.length) {
           stages.after(box);
         } else {
           (this._formEl || this.container).prepend(box);
