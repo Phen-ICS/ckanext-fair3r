@@ -93,7 +93,9 @@ document.addEventListener("DOMContentLoaded", function () {
     var $bar = $("<div>", { "class": "fair3r-upload-progress-bar" });
     var $track = $("<div>", { "class": "fair3r-upload-progress-track" }).append($bar);
     var $pct = $("<div>", { "class": "fair3r-upload-current-pct" });
-    var $current = $("<div>", { "class": "fair3r-upload-current" }).append($currentName, $track, $pct);
+    var $cancel = $("<button>", { "class": "btn btn-secondary btn-sm fair3r-upload-cancel-btn", type: "button" })
+      .text(translate("Cancel"));
+    var $current = $("<div>", { "class": "fair3r-upload-current" }).append($currentName, $track, $pct, $cancel);
     var $list = $("<ul>", { "class": "fair3r-upload-status-list" });
 
     $overlay.append($title, $current, $list).appendTo("body");
@@ -101,6 +103,12 @@ document.addEventListener("DOMContentLoaded", function () {
     return {
       setTitle: function (text) {
         $title.text(text);
+      },
+      onCancel: function (onClick) {
+        $cancel.on("click", function () {
+          $cancel.prop("disabled", true);
+          onClick();
+        });
       },
       setCurrent: function (name, pct) {
         $currentName.text(name);
@@ -585,7 +593,16 @@ document.addEventListener("DOMContentLoaded", function () {
   // whatever's currently in it (auto-filled by that same CKAN script, or
   // hand-edited) is left untouched — already correctly captured by cloning
   // the live form below.
-  function createOneResource(file, packageName, onProgress, overrideName) {
+  // Aborting `signal` (the batch's AbortController) stops the request.
+  function abortWith(xhr, signal) {
+    if (signal) {
+      signal.addEventListener("abort", function () {
+        xhr.abort();
+      }, { once: true });
+    }
+  }
+
+  function createOneResource(file, packageName, onProgress, overrideName, signal) {
     return new Promise(function (resolve) {
       var fd = new FormData($form.get(0));
       // The multi-file input puts every selected file under "upload"; keep
@@ -639,6 +656,11 @@ document.addEventListener("DOMContentLoaded", function () {
         resolve({ ok: false, file: file, errorMessage: translate("Network error") });
       };
 
+      xhr.onabort = function () {
+        resolve({ ok: false, file: file, errorMessage: translate("Upload cancelled") });
+      };
+
+      abortWith(xhr, signal);
       xhr.send(fd);
     });
   }
@@ -649,11 +671,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // requests, whatever the file's size; the CKAN worker sends the file on
   // to Zenodo); in one request below if that script isn't there (an
   // older ckanext-zenodo).
-  function createZenodoResource(file, packageName, onProgress, forced) {
+  function createZenodoResource(file, packageName, onProgress, forced, signal) {
     if (window.ZenodoChunkedUpload) {
       return window.ZenodoChunkedUpload.upload(file, packageName, {
         forced: forced,
-        onProgress: onProgress
+        onProgress: onProgress,
+        signal: signal
       }).then(function (result) {
         return {
           ok: result.ok,
@@ -803,10 +826,20 @@ document.addEventListener("DOMContentLoaded", function () {
     overlay.setCurrent(fileArray[0].name, 0);
 
     var forceZenodo = !!($forceZenodoCheckbox && $forceZenodoCheckbox.find("input").is(":checked"));
+    // Cancel stops the file being sent and skips the ones after it.
+    var cancel = new AbortController();
+    overlay.onCancel(function () {
+      cancel.abort();
+    });
 
     var chain = Promise.resolve();
     fileArray.forEach(function (file, index) {
       chain = chain.then(function () {
+        if (cancel.signal.aborted) {
+          overlay.addResult(false, file.name, translate("Upload cancelled"));
+          failureCount += 1;
+          return;
+        }
         overlay.setTitle(isBulk
           ? translate("Uploading %(current)d / %(total)d files", { current: index + 1, total: total })
           : translate("Uploading…"));
@@ -818,7 +851,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var fourthArg = routeToZenodo ? forceZenodo : isBulk;
         return uploadFn(file, packageName, function (pct) {
           overlay.setCurrent(file.name, pct);
-        }, fourthArg).then(function (result) {
+        }, fourthArg, cancel.signal).then(function (result) {
           overlay.addResult(result.ok, file.name, result.errorMessage);
           if (!result.ok) {
             failureCount += 1;
