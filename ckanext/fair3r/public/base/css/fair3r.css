@@ -795,6 +795,7 @@ main.hero-no-gradient{ background-image: white !important; }
 /* FDF form: the completeness box (fdf-form.js) stays in view in the
    sidebar while the form scrolls. overflow: clip, not the hidden above:
    it clips the same, but hidden would stop sticky from working. */
+.secondary #fair3r-completeness { margin-top: 10px; }
 @media (min-width: 768px) {
   .row.wrapper:has(#fair3r-completeness) { overflow: clip; }
   .secondary #fair3r-completeness {
