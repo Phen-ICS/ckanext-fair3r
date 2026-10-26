@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-fair3r 3.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-23 09:55+0000\n"
+"POT-Creation-Date: 2026-10-26 14:31+0000\n"
 "PO-Revision-Date: 2026-07-13 14:45+0000\n"
 "Last-Translator: FAIR3R <debannen@igbmc.fr>\n"
 "Language: fr\n"
@@ -64,59 +64,59 @@ msgstr "%(field)s : champ obligatoire."
 msgid "missing"
 msgstr "manquant(s)"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:561
-#: ckanext/fair3r/assets/js/fdf-form.js:1052
+#: ckanext/fair3r/assets/js/fdf-form.js:563
+#: ckanext/fair3r/assets/js/fdf-form.js:1054
 msgid "Please select or enter the dependent field first."
 msgstr "Veuillez d'abord sélectionner ou saisir le champ dépendant."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:611 ckanext/fair3r/blueprints/fdf.py:94
+#: ckanext/fair3r/assets/js/fdf-form.js:613 ckanext/fair3r/blueprints/fdf.py:94
 msgid "Error"
 msgstr "Erreur"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:621
+#: ckanext/fair3r/assets/js/fdf-form.js:623
 msgid "Invalid response format"
 msgstr "Format de réponse invalide"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:628
+#: ckanext/fair3r/assets/js/fdf-form.js:630
 msgid "No results"
 msgstr "Aucun résultat"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:731
-#: ckanext/fair3r/assets/js/fdf-form.js:1645
+#: ckanext/fair3r/assets/js/fdf-form.js:733
+#: ckanext/fair3r/assets/js/fdf-form.js:1647
 msgid "Request error"
 msgstr "Erreur de requête"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1306
+#: ckanext/fair3r/assets/js/fdf-form.js:1308
 msgid "Field"
 msgstr "Champ"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1349
+#: ckanext/fair3r/assets/js/fdf-form.js:1351
 msgid "Searching…"
 msgstr "Recherche en cours…"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1605
+#: ckanext/fair3r/assets/js/fdf-form.js:1607
 msgid "Please select an organism model first."
 msgstr "Veuillez d'abord sélectionner un modèle d'organisme."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1607
+#: ckanext/fair3r/assets/js/fdf-form.js:1609
 msgid "Search is not available for the selected organism."
 msgstr "La recherche n'est pas disponible pour l'organisme sélectionné."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1624
+#: ckanext/fair3r/assets/js/fdf-form.js:1626
 msgid "No results found in"
 msgstr "Aucun résultat trouvé dans"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1624
+#: ckanext/fair3r/assets/js/fdf-form.js:1626
 msgid "for this search. You can enter one manually."
 msgstr "pour cette recherche. Vous pouvez en saisir un manuellement."
 
 # | msgid "No Xenopus mutant strain/line found in Xenbase for this gene. You
 # can enter one manually."
-#: ckanext/fair3r/assets/js/fdf-form.js:1626
+#: ckanext/fair3r/assets/js/fdf-form.js:1628
 msgid "No results found. You can enter one manually"
 msgstr "Aucun résultat trouvé. Vous pouvez en saisir un manuellement."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1641
+#: ckanext/fair3r/assets/js/fdf-form.js:1643
 msgid ""
 "lookup failed (the server could not reach the external service). You can "
 "still enter the value manually."
@@ -124,24 +124,24 @@ msgstr ""
 "a échoué (le serveur n'a pas pu joindre le service externe). Vous pouvez "
 "toujours saisir la valeur manuellement."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2406
+#: ckanext/fair3r/assets/js/fdf-form.js:2408
 msgid "FDF validation failed."
 msgstr "La validation FDF a échoué."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2424
+#: ckanext/fair3r/assets/js/fdf-form.js:2426
 msgid "No sections found in schema."
 msgstr "Aucune section trouvée dans le schéma."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2431
+#: ckanext/fair3r/assets/js/fdf-form.js:2433
 msgid "Section"
 msgstr "Section"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2459
+#: ckanext/fair3r/assets/js/fdf-form.js:2461
 #: ckanext/fair3r/templates/group/snippets/group_item.html:56
 msgid "Remove"
 msgstr "Supprimer"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2475
+#: ckanext/fair3r/assets/js/fdf-form.js:2477
 msgid "Add"
 msgstr "Ajouter"
 
@@ -663,28 +663,33 @@ msgstr "Charge utile de métadonnées FDF manquante."
 msgid "FDF payload is not valid JSON."
 msgstr "La charge utile FDF n'est pas un JSON valide."
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:211
+#: ckanext/fair3r/public/base/js/resource-upload.js:97
+#: ckanext/fair3r/templates/account/request_account.html:39
+msgid "Cancel"
+msgstr "Annuler"
+
+#: ckanext/fair3r/public/base/js/resource-upload.js:219
 msgid "On"
 msgstr "Activé"
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:211
+#: ckanext/fair3r/public/base/js/resource-upload.js:219
 msgid "Off"
 msgstr "Désactivé"
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:218
+#: ckanext/fair3r/public/base/js/resource-upload.js:226
 msgid "Store this file on Zenodo instead of this catalogue"
 msgstr "Stocker ce fichier sur Zenodo plutôt que dans ce catalogue"
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:219
+#: ckanext/fair3r/public/base/js/resource-upload.js:227
 msgid "Store this file on this catalogue instead of Zenodo"
 msgstr "Stocker ce fichier dans ce catalogue plutôt que sur Zenodo"
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:289
+#: ckanext/fair3r/public/base/js/resource-upload.js:297
 #, python-format
 msgid "up to %(size)s GB can be uploaded right now"
 msgstr "jusqu'à %(size)s Go peuvent être envoyés en ce moment"
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:319
+#: ckanext/fair3r/public/base/js/resource-upload.js:327
 #, python-format
 msgid ""
 "Files larger than %(size)s MB, or in a format the data viewer can't read,"
@@ -693,11 +698,11 @@ msgstr ""
 "Les fichiers de plus de %(size)s Mo, ou dans un format que la visionneuse"
 " de données ne sait pas lire, vont de toute façon sur Zenodo."
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:393
+#: ckanext/fair3r/public/base/js/resource-upload.js:401
 msgid "This file will be stored on Zenodo, not in this catalogue."
 msgstr "Ce fichier sera stocké sur Zenodo, pas dans ce catalogue."
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:394
+#: ckanext/fair3r/public/base/js/resource-upload.js:402
 #, python-format
 msgid ""
 "%(count)d of %(total)d file(s) will be stored on Zenodo, not in this "
@@ -706,7 +711,7 @@ msgstr ""
 "%(count)d fichier(s) sur %(total)d seront stockés sur Zenodo, pas dans ce"
 " catalogue."
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:474
+#: ckanext/fair3r/public/base/js/resource-upload.js:482
 #, python-format
 msgid ""
 "%(name)s is already on Zenodo in this dataset: uploading it again "
@@ -715,7 +720,7 @@ msgstr ""
 "%(name)s est déjà sur Zenodo dans ce jeu de données : l'envoyer à nouveau"
 " le remplace."
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:475
+#: ckanext/fair3r/public/base/js/resource-upload.js:483
 #, python-format
 msgid ""
 "%(name)s already exists in this dataset: uploading it again adds a second"
@@ -724,7 +729,7 @@ msgstr ""
 "%(name)s existe déjà dans ce jeu de données : l'envoyer à nouveau en "
 "ajoute une seconde copie à côté."
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:525
+#: ckanext/fair3r/public/base/js/resource-upload.js:533
 #, python-format
 msgid ""
 "%(count)d files selected — each will become its own resource, named after"
@@ -734,25 +739,31 @@ msgstr ""
 "nommée d'après son fichier. Le format est détecté automatiquement pour "
 "chacun."
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:634
+#: ckanext/fair3r/public/base/js/resource-upload.js:651
 msgid "Upload failed"
 msgstr "Échec de l'envoi"
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:639
-#: ckanext/fair3r/public/base/js/resource-upload.js:690
+#: ckanext/fair3r/public/base/js/resource-upload.js:656
+#: ckanext/fair3r/public/base/js/resource-upload.js:727
 msgid "Network error"
 msgstr "Erreur réseau"
 
+#: ckanext/fair3r/public/base/js/resource-upload.js:660
+#: ckanext/fair3r/public/base/js/resource-upload.js:839
+msgid "Upload cancelled"
+msgstr "Envoi annulé"
+
 #: ckanext/fair3r/public/base/js/resource-upload.js:685
+#: ckanext/fair3r/public/base/js/resource-upload.js:722
 msgid "Upload to Zenodo failed"
 msgstr "L'envoi vers Zenodo a échoué"
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:762
-#: ckanext/fair3r/public/base/js/resource-upload.js:798
+#: ckanext/fair3r/public/base/js/resource-upload.js:799
+#: ckanext/fair3r/public/base/js/resource-upload.js:845
 msgid "Uploading…"
 msgstr "Téléversement en cours…"
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:778
+#: ckanext/fair3r/public/base/js/resource-upload.js:815
 msgid ""
 "Couldn't determine which dataset to upload to — please reload the page "
 "and try again."
@@ -760,30 +771,30 @@ msgstr ""
 "Impossible de déterminer vers quel jeu de données envoyer le fichier — "
 "veuillez recharger la page et réessayer."
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:797
+#: ckanext/fair3r/public/base/js/resource-upload.js:844
 #, python-format
 msgid "Uploading %(current)d / %(total)d files"
 msgstr "Téléversement %(current)d / %(total)d fichiers"
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:819
+#: ckanext/fair3r/public/base/js/resource-upload.js:866
 #, python-format
 msgid "Done — %(ok)d / %(total)d uploaded, %(failed)d failed"
 msgstr "Terminé — %(ok)d / %(total)d envoyés, %(failed)d échoués"
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:820
+#: ckanext/fair3r/public/base/js/resource-upload.js:867
 #, python-format
 msgid "Done — %(total)d / %(total)d uploaded"
 msgstr "Terminé — %(total)d / %(total)d envoyés"
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:828
+#: ckanext/fair3r/public/base/js/resource-upload.js:875
 msgid "Loading…"
 msgstr "Chargement…"
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:892
+#: ckanext/fair3r/public/base/js/resource-upload.js:939
 msgid "Continue"
 msgstr "Continuer"
 
-#: ckanext/fair3r/public/base/js/resource-upload.js:897
+#: ckanext/fair3r/public/base/js/resource-upload.js:944
 msgid "Close"
 msgstr "Fermer"
 
@@ -951,10 +962,6 @@ msgstr "Veuillez inclure votre affiliation et l'usage prévu, le cas échéant."
 #: ckanext/fair3r/templates/account/request_account.html:38
 msgid "Send request"
 msgstr "Envoyer la demande"
-
-#: ckanext/fair3r/templates/account/request_account.html:39
-msgid "Cancel"
-msgstr "Annuler"
 
 #: ckanext/fair3r/templates/admin/config.html:26
 #: ckanext/fair3r/templates/user/edit_user_form.html:21

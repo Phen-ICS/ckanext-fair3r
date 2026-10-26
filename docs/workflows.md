@@ -78,6 +78,8 @@ The resource form is CKAN's, enhanced by `resource-upload.js`:
   CKAN worker then sends the file on to Zenodo, and the dataset page
   shows its editors any send that failed, with Retry / Remove. See that
   plugin's documentation.
+- **Cancel**: the progress window's button stops the file being sent
+  (CKAN or Zenodo) and skips the files after it.
 - **Finish**: the dataset is made active with `package_revise`
   (`state = active`). `package_revise` locks the row while it reads it,
   unlike `package_patch`, whose read can return a stale cached copy and

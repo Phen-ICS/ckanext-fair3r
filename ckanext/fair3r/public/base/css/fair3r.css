@@ -520,7 +520,8 @@ main.hero-no-gradient{ background-image: white !important; }
   color: #c0392b;
 }
 
-.fair3r-upload-continue-btn {
+.fair3r-upload-continue-btn,
+.fair3r-upload-cancel-btn {
   margin-top: 4px;
 }
 
