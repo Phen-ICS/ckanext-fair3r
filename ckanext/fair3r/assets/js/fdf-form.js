@@ -1289,6 +1289,13 @@ ckan.module("fdf-form-module", function ($, translate, i18n) {
           $(this._baseFieldSelectors[key]).val(base[key]);
         }
       });
+      // CKAN's slug-preview fills the URL name as the title is typed (on
+      // "input"); a restored title must do the same, or saving fails with
+      // "Name: Missing value". Once every module on the page has started.
+      const title = $(this._baseFieldSelectors.title);
+      if (base.title) {
+        setTimeout(function () { title.trigger("input"); }, 0);
+      }
     },
 
     _attachDraftSaver: function() {
