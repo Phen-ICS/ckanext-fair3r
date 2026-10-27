@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-fair3r 3.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-26 14:31+0000\n"
+"POT-Creation-Date: 2026-10-27 09:46+0000\n"
 "PO-Revision-Date: 2026-07-13 14:45+0000\n"
 "Last-Translator: FAIR3R <debannen@igbmc.fr>\n"
 "Language: fr\n"
@@ -33,12 +33,12 @@ msgstr "Licences"
 msgid "License information"
 msgstr "Informations sur la licence"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:444
+#: ckanext/fair3r/assets/js/fdf-form.js:450
 #: ckanext/fair3r/templates/package/snippets/additional_info.html:9
 msgid "Completeness"
 msgstr "Complétude"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:445
+#: ckanext/fair3r/assets/js/fdf-form.js:451
 #: ckanext/fair3r/templates/package/snippets/additional_info.html:10
 msgid ""
 "How complete the FAIR3R metadata of this dataset is: the weighted share "
@@ -50,73 +50,73 @@ msgstr ""
 "incluant les champs de base de CKAN. Les champs conditionnels masqués "
 "sont ignorés."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:449
+#: ckanext/fair3r/assets/js/fdf-form.js:455
 msgid "field(s) missing"
 msgstr "champ(s) manquant(s)"
 
 # | msgid "%(field)s: required field."
-#: ckanext/fair3r/assets/js/fdf-form.js:449
+#: ckanext/fair3r/assets/js/fdf-form.js:455
 #, fuzzy
 msgid "required fields"
 msgstr "%(field)s : champ obligatoire."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:459
+#: ckanext/fair3r/assets/js/fdf-form.js:465
 msgid "missing"
 msgstr "manquant(s)"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:563
-#: ckanext/fair3r/assets/js/fdf-form.js:1054
+#: ckanext/fair3r/assets/js/fdf-form.js:569
+#: ckanext/fair3r/assets/js/fdf-form.js:1060
 msgid "Please select or enter the dependent field first."
 msgstr "Veuillez d'abord sélectionner ou saisir le champ dépendant."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:613 ckanext/fair3r/blueprints/fdf.py:94
+#: ckanext/fair3r/assets/js/fdf-form.js:619 ckanext/fair3r/blueprints/fdf.py:94
 msgid "Error"
 msgstr "Erreur"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:623
+#: ckanext/fair3r/assets/js/fdf-form.js:629
 msgid "Invalid response format"
 msgstr "Format de réponse invalide"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:630
+#: ckanext/fair3r/assets/js/fdf-form.js:636
 msgid "No results"
 msgstr "Aucun résultat"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:733
-#: ckanext/fair3r/assets/js/fdf-form.js:1647
+#: ckanext/fair3r/assets/js/fdf-form.js:739
+#: ckanext/fair3r/assets/js/fdf-form.js:1660
 msgid "Request error"
 msgstr "Erreur de requête"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1308
+#: ckanext/fair3r/assets/js/fdf-form.js:1321
 msgid "Field"
 msgstr "Champ"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1351
+#: ckanext/fair3r/assets/js/fdf-form.js:1364
 msgid "Searching…"
 msgstr "Recherche en cours…"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1607
+#: ckanext/fair3r/assets/js/fdf-form.js:1620
 msgid "Please select an organism model first."
 msgstr "Veuillez d'abord sélectionner un modèle d'organisme."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1609
+#: ckanext/fair3r/assets/js/fdf-form.js:1622
 msgid "Search is not available for the selected organism."
 msgstr "La recherche n'est pas disponible pour l'organisme sélectionné."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1626
+#: ckanext/fair3r/assets/js/fdf-form.js:1639
 msgid "No results found in"
 msgstr "Aucun résultat trouvé dans"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1626
+#: ckanext/fair3r/assets/js/fdf-form.js:1639
 msgid "for this search. You can enter one manually."
 msgstr "pour cette recherche. Vous pouvez en saisir un manuellement."
 
 # | msgid "No Xenopus mutant strain/line found in Xenbase for this gene. You
 # can enter one manually."
-#: ckanext/fair3r/assets/js/fdf-form.js:1628
+#: ckanext/fair3r/assets/js/fdf-form.js:1641
 msgid "No results found. You can enter one manually"
 msgstr "Aucun résultat trouvé. Vous pouvez en saisir un manuellement."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:1643
+#: ckanext/fair3r/assets/js/fdf-form.js:1656
 msgid ""
 "lookup failed (the server could not reach the external service). You can "
 "still enter the value manually."
@@ -124,24 +124,24 @@ msgstr ""
 "a échoué (le serveur n'a pas pu joindre le service externe). Vous pouvez "
 "toujours saisir la valeur manuellement."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2408
+#: ckanext/fair3r/assets/js/fdf-form.js:2421
 msgid "FDF validation failed."
 msgstr "La validation FDF a échoué."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2426
+#: ckanext/fair3r/assets/js/fdf-form.js:2439
 msgid "No sections found in schema."
 msgstr "Aucune section trouvée dans le schéma."
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2433
+#: ckanext/fair3r/assets/js/fdf-form.js:2446
 msgid "Section"
 msgstr "Section"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2461
+#: ckanext/fair3r/assets/js/fdf-form.js:2474
 #: ckanext/fair3r/templates/group/snippets/group_item.html:56
 msgid "Remove"
 msgstr "Supprimer"
 
-#: ckanext/fair3r/assets/js/fdf-form.js:2477
+#: ckanext/fair3r/assets/js/fdf-form.js:2490
 msgid "Add"
 msgstr "Ajouter"
 
@@ -795,6 +795,7 @@ msgid "Continue"
 msgstr "Continuer"
 
 #: ckanext/fair3r/public/base/js/resource-upload.js:944
+#: ckanext/fair3r/templates/page.html:30
 msgid "Close"
 msgstr "Fermer"
 
@@ -916,7 +917,7 @@ msgstr "Envoyer"
 msgid "Skip to main content"
 msgstr "Aller au contenu principal"
 
-#: ckanext/fair3r/templates/page.html:36
+#: ckanext/fair3r/templates/page.html:38
 msgid "Breadcrumb"
 msgstr "Fil d'Ariane"
 
